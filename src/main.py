@@ -403,8 +403,8 @@ class Calculation:
         plot_part3.plot_climb_param(
             self.t_nab, self.H_nab, self.teta_nab, self.v_y_nab, self.V_nab
         )
-        plot_part3.plot_L_m(self.t_nab, self.L_nab, self.m_t_nab)
-        plot_part3.plot_H_nab(self.M_nab, self.H_nab)
+        plot_part3.plot_L_m(self.t_nab, self.L_nab, self.m_t_nab, file_name="L_m_climb")
+        plot_part3.plot_H_M_profile(self.M_nab, self.H_nab, file_name="H_climb")
 
     def save_data_climb_part(
         self, dVdH, H_e, delta_H_e, n_x_avg, v_y_avg, CeP_Vy_avg, n_x_nab, P_nab, Ce_nab
@@ -625,9 +625,9 @@ class Calculation:
             file_name="descent_params",
         )
         run_plot.plot_L_m(
-            self.t_des, self.L_des, self.m_t_des, file_name="L_m_des_graph"
+            self.t_des, self.L_des, self.m_t_des, "L_m_des"
         )
-        run_plot.plot_H_nab(self.M_des, self.H_des, file_name="H_des_graph")
+        run_plot.plot_H_M_profile(self.M_des, self.H_des, "H_des")
         run_plot.plot_L_H(
             self.H_plot,
             self.L_plot,
@@ -866,11 +866,22 @@ class Calculation:
             otn_x_F = np.append(otn_x_F, self.otn_x_f)
             otn_x_H = np.append(otn_x_H, self.otn_x_H)
             otn_x_TPZ = np.append(otn_x_TPZ, self.otn_x_TPZ)
-
             sigma_n = np.append(
                 sigma_n,
                 frmls.sigma_n_equation(otn_x_T, self.otn_x_f, self.m_z_w_z, self.mu),
             )
+
+        dh.save_data(
+            np.array([
+                otn_x_F,
+                otn_x_H,
+                otn_x_TPZ,
+                sigma_n,
+                ]),
+            text_handler.get_row_name_sigmas(const.MACH),
+            "sigmas_table.csv",
+            const.PATH_TO_RESULTS,
+        )
 
         alts = np.array([0, 6, const.Hk])
         mach_speeds = []
@@ -990,6 +1001,12 @@ class Calculation:
 
         if save_plot:
             self.run_plot_stability_control_part(otn_S_go, otn_x_TPP, self.otn_x_TPZ)
+            dh.save_data(
+                np.array([otn_S_go, otn_x_TPP, self.otn_x_TPZ]),
+                text_handler.get_row_name_otn_S_go(),
+                f"otn_S_go.csv",
+                const.PATH_TO_RESULTS,
+            )
 
         return frmls.otn_x_t_equation(
             fun_otn_x_TPZ(self.otn_S_go_star), fun_otn_x_TPP(self.otn_S_go_star)

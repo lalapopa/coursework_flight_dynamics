@@ -221,6 +221,19 @@ class TextHandler:
         )
 
     @staticmethod
+    def get_row_name_otn_S_go():
+        return np.array(
+            
+                [
+                    "otn_S_go",
+                    "otn_x_tpp",
+                    "otn_x_tpz"
+       
+            ],
+            dtype=object,
+        )
+
+    @staticmethod
     def get_row_name_phis_table(mach):
         return np.array(
             [
@@ -234,6 +247,21 @@ class TextHandler:
             ],
             dtype=object,
         )
+
+    def get_row_name_sigmas(mach):
+        return np.array(
+            [
+                [
+                    "otn_x_F",
+                    "otn_x_H",
+                    "otn_x_TPZ",
+                    "sigma_n",
+                ],
+                mach
+                ],
+            dtype=object,
+        )
+
 
     @staticmethod
     def get_row_cargo_table():

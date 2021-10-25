@@ -319,7 +319,7 @@ class PlotBuilderUsingData:
                 plot_climb.save_figure(file_name, self.save_path)
             plot_climb.close_plot()
 
-    def plot_L_m(self, t, L, m, save=True, file_name="L_m_graph"):
+    def plot_L_m(self, t, L, m, file_name, save=True):
         x_t = dh.sum_array(t)
         s_L = dh.sum_array(L)
         s_m = dh.sum_array(m)
@@ -342,7 +342,7 @@ class PlotBuilderUsingData:
                 plot_L_m.save_figure(file_name, self.save_path)
             plot_L_m.close_plot()
 
-    def plot_H_nab(self, M, H, save=True, file_name="H_nab_graph"):
+    def plot_H_M_profile(self, M, H, file_name, save=True):
         for type_name in self.TYPE_NAMES:
             plot_climb = plot(M, save_type=type_name, fun1=H)
             plot_climb.get_figure("$H(M)$")

@@ -1,0 +1,5 @@
+matplotlib==3.4.3
+numpy==1.21.3
+Pillow==8.4.0
+scipy==1.7.1
+data_handler_csv==0.0.1
