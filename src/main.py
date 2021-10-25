@@ -14,7 +14,7 @@ from .plot_creating_using_data import PlotBuilderUsingData as pbud
 
 def main(var: int, save_type: list[str], save_folder: str):
     global const
-    
+
     const = cnst(var, save_type, save_folder)
 
     calc = Calculation()
@@ -31,12 +31,13 @@ def main(var: int, save_type: list[str], save_folder: str):
         calc.first_part(alt, save_plot=True, save_data=True)
     calc.second_part(const.H, H_practical, H_static, save_plot=True)
     calc.climb_part(save_plot=True)
-    calc.level_flight_part(debug=True)
+    calc.level_flight_part(debug=False)
     calc.descent_part(save_plot=True)
     calc.cargo_possibility(save_plot=True)
     calc.take_off_landing_part()
     calc.turn_part(save_plot=True)
     calc.static_stability_control_part(save_plot=True)
+    print("DONE :)")
 
 
 class Calculation:
@@ -329,18 +330,12 @@ class Calculation:
     def climb_part(self, save_plot=False):
         M_0 = 1.2 * self.M_min_dop[0]
         const.Hk = 11
-        print(f"Vy for alts = {self.Vy_max}")
         self.H_nab = frmls.find_H_nab(self.altitude, const.Hk, self.Vy_max)
-        print(f"altitude in climb = {self.altitude}")
-        print(f"H_nab = {(self.H_nab)}")
 
         Mk = frmls.find_Vk(self.H_nab, self.M_4)
         self.M_nab = frmls.find_M_nab(M_0, self.M_2, self.H_nab, Mk)
         a_H = self.df.get_column("a_H", "H", np.array([self.H_nab]), inter_value=True)
         self.V_nab = self.M_nab * a_H
-        print(f"V_nab = {self.V_nab}")
-        print(f"M_nab = {self.M_nab}")
-        print(f"Mk = {Mk}")
 
         dVdH = frmls.dVdH_equation(self.V_nab, self.H_nab * 1000)
         n_x_nab = np.array([])
@@ -624,9 +619,7 @@ class Calculation:
             self.V_des,
             file_name="descent_params",
         )
-        run_plot.plot_L_m(
-            self.t_des, self.L_des, self.m_t_des, "L_m_des"
-        )
+        run_plot.plot_L_m(self.t_des, self.L_des, self.m_t_des, "L_m_des")
         run_plot.plot_H_M_profile(self.M_des, self.H_des, "H_des")
         run_plot.plot_L_H(
             self.H_plot,
@@ -658,10 +651,7 @@ class Calculation:
         m_tsn_mode2 = abs((1 - const.OTN_M_EMPTY - const.OTN_M_T) * const.M0)
 
         otn_m_vz = const.OTN_M_EMPTY + const.OTN_M_T
-        print(f"m_empty = {const.OTN_M_EMPTY} + m_T = {const.OTN_M_T}")
-        print(f"V_GP = {self.V_gp}")
-        print(f"otn_m_vz = {otn_m_vz}")
-        print(f"C_gp = {self.Ce_gp}")
+
         L_kr_mode3 = frmls.L_kr_equation(
             self.V_gp,
             self.K_gp,
@@ -681,11 +671,6 @@ class Calculation:
             ]
         )
         m_cargo_array = np.array([m_tsn_mode1, m_tsn_mode2, 0])
-
-        print(f"отн. соляры на кр полет{otn_m_kr_mode2}")
-        print(f"отн. соляры на наборе{self.otn_m_t_nab}")
-        print(f"отн. соляра взлетная {otn_m_vz}")
-        print(f"отн соляры пр.{const.OTN_M_T_PR}")
 
         dh.save_data(
             [L_array, m_cargo_array],
@@ -872,12 +857,14 @@ class Calculation:
             )
 
         dh.save_data(
-            np.array([
-                otn_x_F,
-                otn_x_H,
-                otn_x_TPZ,
-                sigma_n,
-                ]),
+            np.array(
+                [
+                    otn_x_F,
+                    otn_x_H,
+                    otn_x_TPZ,
+                    sigma_n,
+                ]
+            ),
             text_handler.get_row_name_sigmas(const.MACH),
             "sigmas_table.csv",
             const.PATH_TO_RESULTS,
@@ -1073,7 +1060,6 @@ def find_celling(calc):
     def value_find(value):
         step = 1
         altitude = const.H[0]
-        print(altitude)
         iterations = np.array([])
         find = False
         while not find:
@@ -1097,7 +1083,4 @@ def find_celling(calc):
 
     H_st = value_find(0)
     H_pr = value_find(0.5)
-
-    print(f"H_st = {H_st} \nH_pr = {H_pr}")
     return H_st, H_pr
-

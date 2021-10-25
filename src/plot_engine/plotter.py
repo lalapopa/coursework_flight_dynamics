@@ -87,7 +87,7 @@ class Plotter:
             self._save_as_png(name)
         if self.save_type == "pgf":
             self._save_as_pgf(name)
-        print(f"Saved plot: {name!r}")
+        print(f"Saved plot: '{name}.{self.save_type}'")
 
     def _save_as_png(self, name):
         dh.change_dir(self.path + "/PLOTS_PNG")

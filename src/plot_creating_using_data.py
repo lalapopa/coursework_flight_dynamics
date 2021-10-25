@@ -262,7 +262,6 @@ class PlotBuilderUsingData:
                 plotter_H_M.close_plot()
 
     def plot_q_ch_q_km(self, alts, q_km_min, q_ch_min, save=True):
-        print(f"alts = {alts} \n q_km_min= {q_km_min} \n q_ch_min= {q_ch_min}")
         if any(np.isinf(q_ch_min)) or any(np.isinf(q_km_min)):
             del_pos = np.where(np.isinf(q_km_min))[0]
             q_km_min = np.delete(q_km_min, del_pos)
