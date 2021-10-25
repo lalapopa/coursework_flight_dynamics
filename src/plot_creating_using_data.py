@@ -1,0 +1,483 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from DataHandler import DataHandler as dh
+from .text_engine import TextHandler as text_handler
+from .plot_engine import Plotter as plot
+
+
+class PlotBuilderUsingData:
+    def __init__(self, alt, M, type_names, save_path):
+        self.altitude = alt
+        self.pth = text_handler(self.altitude)
+        self.MACH = M
+        self.TYPE_NAMES = type_names
+        self.save_path = save_path
+
+    def plot_P(self, P_potr, P_rasp, save=True):
+        MACH_int, P_potr_int, P_rasp_int = dh.prepare_data_for_plot(
+            self.MACH, P_potr, P_rasp, remove_first_element=True
+        )
+        cross_position = dh.get_crossing_point(P_rasp_int, P_potr_int)
+        try:
+            MminP, MmaxP = MACH_int[cross_position]
+        except ValueError as e:
+            MminP, MmaxP = 0, 0
+
+        min_position = dh.get_min_or_max(P_potr_int)
+        M_1, Ppmin = MACH_int[min_position], P_potr_int[min_position]
+
+        for type_name in self.TYPE_NAMES:
+            ploter_P_p_P_r = plot(
+                MACH_int, save_type=type_name, fun1=P_rasp_int, fun2=P_potr_int
+            )
+            ploter_P_p_P_r.get_figure(
+                self.pth.get_label_in_box("P")[0],
+                self.pth.get_label_in_box("P")[1],
+            )
+            ploter_P_p_P_r.add_labels(
+                self.pth.get_label("M"),
+                self.pth.get_label("P"),
+            )
+            ploter_P_p_P_r.add_text(
+                MACH_int,
+                P_rasp_int,
+                cross_position,
+                self.pth.get_plot_text("P")[0],
+                self.pth.get_plot_text("P")[1],
+            )
+            ploter_P_p_P_r.add_text(
+                MACH_int,
+                P_potr_int,
+                min_position,
+                self.pth.get_plot_text("P")[-1],
+            )
+            ploter_P_p_P_r.set_legend()
+            ploter_P_p_P_r.set_notation(4)
+            if save:
+                ploter_P_p_P_r.save_figure(
+                    f"P_H={round(self.altitude, 1)}", self.save_path
+                )
+            ploter_P_p_P_r.close_plot()
+
+        return MminP, MmaxP, M_1
+
+    def plot_C_y_C_dop(self, C_y_n, Cy_dop, save=True):
+        MACH_int, Cy_dop_int, C_y_n_int = dh.prepare_data_for_plot(
+            self.MACH, Cy_dop, C_y_n, remove_first_element=True
+        )
+
+        cross_position = dh.get_crossing_point(Cy_dop_int, C_y_n_int)
+        M_min_dop = MACH_int[cross_position]
+
+        for type_name in self.TYPE_NAMES:
+            plotter_C_y = plot(
+                MACH_int, save_type=type_name, fun1=Cy_dop_int, fun2=C_y_n_int
+            )
+            plotter_C_y.get_figure(
+                self.pth.get_label_in_box("C_y")[0],
+                self.pth.get_label_in_box("C_y")[1],
+            )
+            plotter_C_y.add_labels(
+                self.pth.get_label("M"),
+                self.pth.get_label("C_y"),
+            )
+            plotter_C_y.add_text(
+                MACH_int, C_y_n_int, cross_position, self.pth.get_plot_text("C_y")[0]
+            )
+            plotter_C_y.set_legend()
+            if save:
+                plotter_C_y.save_figure(
+                    f"Cy_H={round(self.altitude, 1)}", self.save_path
+                )
+            plotter_C_y.close_plot()
+        return M_min_dop
+
+    def plot_V_y(self, V_y, save=True):
+        (
+            MACH_int,
+            V_y_int,
+        ) = dh.prepare_data_for_plot(self.MACH, V_y, remove_first_element=True)
+        max_position = dh.get_min_or_max(V_y_int, min_or_max="max")
+        M_2, Vy_max = MACH_int[max_position], V_y_int[max_position]
+        for type_name in self.TYPE_NAMES:
+            plotter_Vy = plot(MACH_int, save_type=type_name, fun1=V_y_int)
+            plotter_Vy.get_figure(
+                self.pth.get_label_in_box("V_y")[0],
+            )
+            plotter_Vy.add_labels(
+                self.pth.get_label("V"),
+                self.pth.get_label("V_y"),
+            )
+            plotter_Vy.add_text(
+                MACH_int,
+                V_y_int,
+                max_position,
+                self.pth.get_plot_text("V_y")[0],
+                add_value="y",
+            )
+            plotter_Vy.set_legend()
+            if save:
+                plotter_Vy.save_figure(
+                    f"V_y_H={round(self.altitude, 1)}", self.save_path
+                )
+            plotter_Vy.close_plot()
+        return M_2, Vy_max
+
+    def plot_q_ch(self, V, q_ch, save=True):
+        if self.altitude >= 11:
+            (
+                V_int,
+                q_ch_int,
+            ) = dh.prepare_data_for_plot(V, q_ch, remove_first_element=True)
+        else:
+            (
+                V_int,
+                q_ch_int,
+            ) = dh.prepare_data_for_plot(V, q_ch)
+        min_position = dh.get_min_or_max(q_ch_int)
+        V_3, q_ch_min = V_int[min_position], q_ch_int[min_position]
+        for type_name in self.TYPE_NAMES:
+            plotter_q_ch = plot(V_int, save_type=type_name, fun1=q_ch_int)
+            plotter_q_ch.get_figure(self.pth.get_label_in_box("q_ch")[0])
+            plotter_q_ch.add_labels(
+                self.pth.get_label("V"),
+                self.pth.get_label("q_ch")[0],
+            )
+            plotter_q_ch.add_text(
+                V_int,
+                q_ch_int,
+                min_position,
+                self.pth.get_plot_text("q_ch")[0],
+            )
+            plotter_q_ch.set_legend()
+            plotter_q_ch.set_notation(4)
+            if save:
+                plotter_q_ch.save_figure(
+                    f"q_ch_H={round(self.altitude, 1)}", self.save_path
+                )
+            plotter_q_ch.close_plot()
+
+        return V_3, q_ch_min
+
+    def plot_q_km(self, V, q_km, save=True):
+        if self.altitude >= 11:
+            (
+                V_int,
+                q_km_int,
+            ) = dh.prepare_data_for_plot(V, q_km, remove_first_element=True)
+        else:
+            (
+                V_int,
+                q_km_int,
+            ) = dh.prepare_data_for_plot(V, q_km)
+
+        min_position = dh.get_min_or_max(q_km_int)
+        V_4, q_km_min = V_int[min_position], q_km_int[min_position]
+        for type_name in self.TYPE_NAMES:
+            plotter_q_km = plot(V_int, save_type=type_name, fun1=q_km_int)
+            plotter_q_km.get_figure(self.pth.get_label_in_box("q_km")[0])
+            plotter_q_km.add_labels(
+                self.pth.get_label("V"),
+                self.pth.get_label("q_km"),
+            )
+            plotter_q_km.add_text(
+                V_int,
+                q_km_int,
+                min_position,
+                self.pth.get_plot_text("q_km")[0],
+            )
+            plotter_q_km.set_legend()
+            if save:
+                plotter_q_km.save_figure(
+                    f"q_km_H={round(self.altitude, 1)}", self.save_path
+                )
+            plotter_q_km.close_plot()
+
+        return V_4, q_km_min
+
+    def plot_V_y_H(self, Vy_max, alts, H_pr, H_st, save=True):
+        for type_name in self.TYPE_NAMES:
+            plotter_V_y_H = plot(Vy_max, save_type=type_name, fun1=alts)
+            plotter_V_y_H.get_figure(
+                self.pth.get_label_in_box("V_y")[1],
+            )
+            plt.xlim(0, Vy_max[0] + 5)
+            plt.ylim(0, alts[-1] + 2)
+            plt.plot(0.5, H_pr, "o")
+            plotter_V_y_H.add_labels(
+                self.pth.get_label("V_y"),
+                self.pth.get_label("H"),
+            )
+            plotter_V_y_H.add_text(
+                np.array([0.5]),
+                np.array([H_pr]),
+                0,
+                self.pth.get_plot_text("H")[1],
+                add_value="y",
+                text_location="down",
+            )
+            plotter_V_y_H.add_text(
+                np.array([0]),
+                np.array([H_st]),
+                0,
+                self.pth.get_plot_text("H")[0],
+                add_value="y",
+                text_location="up",
+            )
+            plotter_V_y_H.set_legend()
+            if save:
+                plotter_V_y_H.save_figure("V_y_H", self.save_path)
+            plotter_V_y_H.close_plot()
+
+    def plot_H_M(self, alts, M_min_P, M_max_P, M_min_dop, M_Vi_max, M_OGR, save=True):
+        for type_name in self.TYPE_NAMES:
+            plotter_H_M = plot(
+                alts,
+                save_type=type_name,
+                fun1=M_min_P,
+                fun2=M_max_P,
+                fun3=M_min_dop,
+                fun4=M_Vi_max,
+                fun5=M_OGR,
+            )
+            plotter_H_M.get_figure(
+                "$M_{min_{P}}$",
+                "$M_{max_{P}}$",
+                "$M_{Cy_{доп}}$",
+                "$M_{q_{max}}$",
+                "$M_{пред}$",
+                t_graph=True,
+            )
+            plt.xlim(0, 1)
+            plt.ylim(0, alts[-1] + 1)
+            plt.xticks(np.arange(0, 1, 0.1))
+            plotter_H_M.add_labels(
+                self.pth.get_label("M"),
+                self.pth.get_label("H"),
+            )
+            plotter_H_M.set_legend()
+            if save:
+                plotter_H_M.save_figure(f"H_M_flight_area", self.save_path)
+                plotter_H_M.close_plot()
+
+    def plot_q_ch_q_km(self, alts, q_km_min, q_ch_min, save=True):
+        print(f"alts = {alts} \n q_km_min= {q_km_min} \n q_ch_min= {q_ch_min}")
+        if any(np.isinf(q_ch_min)) or any(np.isinf(q_km_min)):
+            del_pos = np.where(np.isinf(q_km_min))[0]
+            q_km_min = np.delete(q_km_min, del_pos)
+            q_ch_min = np.delete(q_ch_min, del_pos)
+            alts = np.delete(alts, del_pos)
+
+        H_int, q_km_min_int, q_ch_min_int = dh.prepare_data_for_plot(
+            alts, q_km_min, q_ch_min / 1000
+        )
+
+        for type_name in self.TYPE_NAMES:
+            plotter_q_ch_q_km = plot(
+                H_int, save_type=type_name, fun1=q_km_min_int, fun2=q_ch_min_int
+            )
+            plotter_q_ch_q_km.get_figure(
+                self.pth.get_label_in_box("q_km")[1],
+                self.pth.get_label_in_box("q_ch")[1],
+                t_graph=True,
+            )
+            plotter_q_ch_q_km.add_labels(
+                self.pth.get_label("q_km") + self.pth.get_label("q_ch")[1],
+                self.pth.get_label("H"),
+            )
+            plt.ylim(0, alts[-1] + 1)
+            plotter_q_ch_q_km.set_legend()
+            if save:
+                plotter_q_ch_q_km.save_figure("q_km_q_ch", self.save_path)
+            plotter_q_ch_q_km.close_plot()
+
+    def plot_climb_param(
+        self, t, alts, teta, Vy, V, save=True, file_name="climb_params"
+    ):
+        x_t = dh.sum_array(t)
+        for type_name in self.TYPE_NAMES:
+
+            plot_climb = plot(x_t, save_type=type_name, fun1=alts, fun2=teta, fun3=Vy)
+            plot_climb.get_figure(
+                "$H(t)[км]$", "$\\theta(t)[град]$", "$V_y^*(t) [м/с]$"
+            )
+            plot_climb.add_labels(
+                "t [мин]", "$\\theta(t) [град]$ $V_y^*(t) [м/с]$ $H [км]$"
+            )
+            plot_climb.set_legend()
+            ax1 = plt.gca()
+            ax2 = ax1.twinx()
+            ax2.set_ylabel("V [м/с]")
+            ax2.plot(x_t, V, color="black", label="$V(t) [м/с]$")
+
+            h1, l1 = ax1.get_legend_handles_labels()
+            h2, l2 = ax2.get_legend_handles_labels()
+            ax1.legend(h1 + h2, l1 + l2, loc=2)
+
+            if save:
+                plot_climb.save_figure(file_name, self.save_path)
+            plot_climb.close_plot()
+
+    def plot_L_m(self, t, L, m, save=True, file_name="L_m_graph"):
+        x_t = dh.sum_array(t)
+        s_L = dh.sum_array(L)
+        s_m = dh.sum_array(m)
+        for type_name in self.TYPE_NAMES:
+
+            plot_L_m = plot(x_t, save_type=type_name, fun1=s_L)
+            plot_L_m.get_figure("$L(t) [км]$")
+            plot_L_m.add_labels("$t [мин]$", "$L [км]$")
+            ax1 = plt.gca()
+            ax2 = ax1.twinx()
+            ax2.plot(x_t, s_m, color="blue", label="$m_t(t) [кг]$")
+            ax2.set_ylabel("$m_t [кг]$")
+
+            h1, l1 = ax1.get_legend_handles_labels()
+            h2, l2 = ax2.get_legend_handles_labels()
+            ax1.legend(h1 + h2, l1 + l2, loc=2)
+            plot_L_m.set_notation(2)
+
+            if save:
+                plot_L_m.save_figure(file_name, self.save_path)
+            plot_L_m.close_plot()
+
+    def plot_H_nab(self, M, H, save=True, file_name="H_nab_graph"):
+        for type_name in self.TYPE_NAMES:
+            plot_climb = plot(M, save_type=type_name, fun1=H)
+            plot_climb.get_figure("$H(M)$")
+            plot_climb.add_labels("$M$", "$H [км]$")
+            plot_climb.set_legend()
+            plt.xlim(0, 1)
+            if save:
+                plot_climb.save_figure(file_name, self.save_path)
+            plot_climb.close_plot()
+
+    def plot_L_H(
+        self,
+        H,
+        L,
+        save=True,
+    ):
+
+        for type_name in self.TYPE_NAMES:
+            plot_L_H = plot(L, save_type=type_name, fun1=H)
+            plot_L_H.get_figure("$H(L) [Км]$")
+            plot_L_H.add_labels("$L [км]$", "$H [км]$")
+            plot_L_H.set_legend()
+            plt.xlim(0, L[-1] + 100)
+            plt.ylim(0, np.max(H) + 2)
+            if save:
+                plot_L_H.save_figure("H_L_graph", self.save_path)
+            plot_L_H.close_plot()
+
+    def plot_cargo(self, L, m, save=True):
+        for type_name in self.TYPE_NAMES:
+            plot_cargo = plot(L, save_type=type_name, fun1=m)
+            plot_cargo.get_figure("$m_{цн}(L)$")
+            plot_cargo.add_labels("$L [км]$", "$m_{цн} [кг]$")
+            plot_cargo.set_legend()
+            if save:
+                plot_cargo.save_figure("m_L_graph", self.save_path)
+            plot_cargo.close_plot()
+
+    def plot_turn(self, ny, omega, r, t, save=True):
+        for type_name in self.TYPE_NAMES:
+            plot_turn = plot(
+                self.MACH,
+                save_type=type_name,
+                fun1=ny,
+                fun2=omega * (10 ** 2),
+                fun3=r * (10 ** -3),
+                fun4=t * (10 ** -1),
+            )
+            plot_turn.get_figure(
+                "$n_{y_{вир}}$",
+                "$\\omega_{вир}*10^2 [1/c]$",
+                "$r_{вир} * 10^-3 [м]$",
+                "$t_{вир} * 10^-1 [сек]$",
+            )
+            plot_turn.add_labels("$M$", "$n_{y}, \\omega [1/c], r [м], t[с]$")
+            plot_turn.set_legend()
+            if save:
+                plot_turn.save_figure("turn_graph", self.save_path)
+            plot_turn.close_plot()
+
+    def plot_center_value(self, otn_s_go, otn_x_tpp, otn_x_tpz, save=True):
+        for type_name in self.TYPE_NAMES:
+
+            plot_center = plot(
+                otn_s_go,
+                save_type=type_name,
+                f1=otn_x_tpz,
+                f2=otn_x_tpp,
+            )
+            plot_center.get_figure(
+                "$\\bar{X}_{ТПЗ}(\\bar{S}_{го})$",
+                "$\\bar{X}_{ТПП}(\\bar{S}_{го})$",
+            )
+            plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{X}_{Т}$")
+            plot_center.set_legend()
+            if save:
+                plot_center.save_figure("xTP_graph", self.save_path)
+            plot_center.close_plot()
+
+    def plot_phi_bal(self, alts, mach_speeds, phi_bal, save=True):
+        for type_name in self.TYPE_NAMES:
+            plot_phi = plot(
+                mach_speeds[0],
+                save_type=type_name,
+                fun1=phi_bal[0],
+            )
+            plot_phi.get_figure(
+                "$\\phi_{бал}(M,H=%s)$" % (alts[0]),
+            )
+            for i in range(1, len(alts)):
+                plot_phi.add_plot(
+                    mach_speeds[i], phi_bal[i], "$\\phi_{бал}(M,H=%s)$" % (alts[i])
+                )
+            plot_phi.set_legend()
+            plot_phi.add_labels("$M$", "$\\phi_{бал}[град]$")
+            if save:
+                plot_phi.save_figure("phi_bal_graph", self.save_path)
+            plot_phi.close_plot()
+
+    def plot_phi_n(self, alts, mach_speeds, phi_n, save=True):
+        for type_name in self.TYPE_NAMES:
+            plot_phi_n = plot(
+                mach_speeds[0],
+                save_type=type_name,
+                fun1=phi_n[0],
+            )
+            plot_phi_n.get_figure(
+                "$\\phi^{n}(M,H=%s)$" % (alts[0]),
+            )
+            for i in range(1, len(alts)):
+                plot_phi_n.add_plot(
+                    mach_speeds[i], phi_n[i], "$\\phi^{n}(M,H=%s)$" % (alts[i])
+                )
+            plot_phi_n.set_legend()
+            plot_phi_n.add_labels("$M$", "$\\phi^{n}[град/ед.перег.]$")
+            if save:
+                plot_phi_n.save_figure("phi_n_graph", self.save_path)
+            plot_phi_n.close_plot()
+
+    def plot_ny_p(self, alts, mach_speeds, ny_p, save=True):
+        for type_name in self.TYPE_NAMES:
+            plot_phi_n = plot(
+                mach_speeds[0],
+                save_type=type_name,
+                fun1=ny_p[0],
+            )
+            plot_phi_n.get_figure(
+                "$n_{yp}(M,H=%s)$" % (alts[0]),
+            )
+            for i in range(1, len(alts)):
+                plot_phi_n.add_plot(
+                    mach_speeds[i], ny_p[i], "$n_{yp}(M,H=%s)$" % (alts[i])
+                )
+            plot_phi_n.set_legend()
+            plot_phi_n.add_labels("$M$", "$n_{yp}$")
+            if save:
+                plot_phi_n.save_figure("ny_p_graph", self.save_path)
+            plot_phi_n.close_plot()
