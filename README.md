@@ -5,22 +5,24 @@
 ## Использование
 
 1. Установите модули из requirements.txt
+```sh
+$ pip install -r path\to\requirements.txt
+```
+2. Уставновите tkinter 
 
-	pip install -r path\to\requirements.txt
+3. Запустите run.py
 
-2. Запустите run.py
+4. В окне tkinter с названием "Coursework" введите вариант в поле "Вариант:" и выберите папку сохранения.
 
-3. В окне tkinter с названием "Coursework" введите вариант в поле "Вариант:" и выберите папку сохранения.
+5. Вsберите формат сохранения графиков.
 
-4. Вsберите формат сохранения графиков.
-
-5. Запустите кнопкой "Запустить"
+6. Запустите кнопкой "Запустить"
 
 ## Соответствие результатов с методическим указанием
 
 Результаты таблиц будут сохранены в папке "RESULTS". 
 Порядок и пункты будут в соответствии с методическими указаниями. 
-Ссылка[здесь](https://disk.yandex.ru/i/hzpGRXPHZ-vW9g)   
+Ссылка [https://disk.yandexi/hzpGRXPHZ-vW9g](https://disk.yandexi/hzpGRXPHZ-vW9g)   
 
 **Пункт 2.2 Расчет летно-технических характеристик самолета**
 
@@ -99,7 +101,7 @@
 	scipy==1.7.1
 	data_handler_csv==0.0.2
 
-[Git link: data_handler_csv](https://github.com/lalapopa/data_handler_csv)
+[https://github.com/lalapopa/data_handler_csv](https://github.com/lalapopa/data_handler_csv)
 
 
 
