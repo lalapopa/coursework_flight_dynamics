@@ -99,15 +99,7 @@ $ pip install -r path\to\requirements.txt
 	numpy==1.21.3
 	Pillow==8.4.0
 	scipy==1.7.1
-	data_handler_csv==0.0.2
+	data_handler_csv==0.0.3
 
 [https://github.com/lalapopa/data_handler_csv](https://github.com/lalapopa/data_handler_csv)
-
-
-
-
-
-
-
-
 
