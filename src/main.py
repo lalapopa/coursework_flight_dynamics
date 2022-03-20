@@ -12,18 +12,18 @@ from .text_engine import TextHandler as text_handler
 from .plot_creating_using_data import PlotBuilderUsingData as pbud
 
 
-def main(var: int, save_type: list[str], save_folder: str):
+def main(
+    var: int,
+    save_type: list[str],
+    save_folder: str,
+    step_size: float=1,
+    ):
     global const
 
     const = cnst(var, save_type, save_folder)
-
     calc = Calculation()
-
     H_static, H_practical = find_celling(calc)
-
-    add_pos = bisect.bisect(const.H, H_static)
-    H = np.insert(const.H, add_pos, H_static)
-    const.H = H[: add_pos + 1]
+    const.H = dh.proper_array(0, H_static, step_size)
 
     for alt in const.H:
         if alt <= 11:
@@ -75,7 +75,6 @@ class Calculation:
         return self.calculate_using_formulas()
 
     def get_V_y(self, altitude):
-
         self.altitude = altitude
         self.take_constant()
         DATA = self.calculate_using_formulas()
@@ -331,6 +330,7 @@ class Calculation:
         M_0 = 1.2 * self.M_min_dop[0]
         const.Hk = 11
         self.H_nab = frmls.find_H_nab(self.altitude, const.Hk, self.Vy_max)
+        print('H-descent : ', self.H_nab)
 
         Mk = frmls.find_Vk(self.H_nab, self.M_4)
         self.M_nab = frmls.find_M_nab(M_0, self.M_2, self.H_nab, Mk)
@@ -487,6 +487,7 @@ class Calculation:
         M_0 = 0.6
         const.Hk = 11
         self.H_des = np.flip(frmls.find_H_nab(const.H, const.Hk, self.Vy_max))
+        print('H-descent : ', self.H_des)
 
         self.M_des = frmls.find_M_des(M_0, self.M_1, self.H_des)
 
@@ -565,6 +566,19 @@ class Calculation:
         CeP_Vy_avg,
         v_y_avg,
     ):
+#        print(
+#            'dVdH', dVdH,'\n',
+#            'n_x_des', n_x_des, '\n',
+#            'Vy_des', Vy_des, '\n',
+#            'H_e', H_e, '\n',
+#            'delta_H_e', delta_H_e, '\n',
+#            'n_x_avg', n_x_avg, '\n',
+#            'P_des', P_des, '\n',
+#            'Ce_des', Ce_des, '\n',
+#            'CeP_Vy_avg', CeP_Vy_avg, '\n',
+#            'v_y_avg', v_y_avg, '\n',
+#        )
+
         dh.save_data(
             [
                 self.M_des,
@@ -588,7 +602,7 @@ class Calculation:
                 self.t_des,
                 Ce_des,
             ],
-            text_handler.get_row_name_table_3(self.H_nab, descent_or_climb="descent"),
+            text_handler.get_row_name_table_3(self.H_des, descent_or_climb="descent"),
             "descent_data.csv",
             const.PATH_TO_RESULTS,
         )

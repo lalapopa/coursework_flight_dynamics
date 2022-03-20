@@ -19,14 +19,19 @@ class PlotBuilderUsingData:
             self.MACH, P_potr, P_rasp, remove_first_element=True
         )
         cross_position = dh.get_crossing_point(P_rasp_int, P_potr_int)
-        try:
-            MminP, MmaxP = MACH_int[cross_position]
-        except ValueError as e:
-            MminP, MmaxP = 0, 0
 
         min_position = dh.get_min_or_max(P_potr_int)
         M_1, Ppmin = MACH_int[min_position], P_potr_int[min_position]
-
+        try:
+            MminP, MmaxP = MACH_int[cross_position]
+        except ValueError as e:
+            result = MACH_int[cross_position]
+            if result > M_1:
+                MmaxP = result
+                MminP = 0
+            elif result < M_1:
+                MminP = result
+                MmaxP = 0
         for type_name in self.TYPE_NAMES:
             ploter_P_p_P_r = plot(
                 MACH_int, save_type=type_name, fun1=P_rasp_int, fun2=P_potr_int
@@ -39,13 +44,22 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
-            ploter_P_p_P_r.add_text(
-                MACH_int,
-                P_rasp_int,
-                cross_position,
-                self.pth.get_plot_text("P")[0],
-                self.pth.get_plot_text("P")[1],
-            )
+            if len(cross_position) == 1:
+                ploter_P_p_P_r.add_text(
+                    MACH_int,
+                    P_rasp_int,
+                    cross_position,
+                    self.pth.get_plot_text("P")[1],
+                )
+            else:
+                ploter_P_p_P_r.add_text(
+                    MACH_int,
+                    P_rasp_int,
+                    cross_position,
+                    self.pth.get_plot_text("P")[0],
+                    self.pth.get_plot_text("P")[1],
+                )
+
             ploter_P_p_P_r.add_text(
                 MACH_int,
                 P_potr_int,
@@ -232,23 +246,48 @@ class PlotBuilderUsingData:
 
     def plot_H_M(self, alts, M_min_P, M_max_P, M_min_dop, M_Vi_max, M_OGR, save=True):
         for type_name in self.TYPE_NAMES:
-            plotter_H_M = plot(
-                alts,
-                save_type=type_name,
-                fun1=M_min_P,
-                fun2=M_max_P,
-                fun3=M_min_dop,
-                fun4=M_Vi_max,
-                fun5=M_OGR,
-            )
-            plotter_H_M.get_figure(
-                "$M_{min_{P}}$",
-                "$M_{max_{P}}$",
-                "$M_{Cy_{доп}}$",
-                "$M_{q_{max}}$",
-                "$M_{пред}$",
-                t_graph=True,
-            )
+            try:
+                no_limit_index = np.where(M_min_P == 0)[0][-1]
+            except IndexError:
+                no_limit_index = False
+            print('#'*40)
+            print(f'{no_limit_index} <------')
+            if not isinstance(no_limit_index, bool):
+                plotter_H_M = plot(
+                    alts,
+                    save_type=type_name,
+                    fun1=M_min_dop,
+                    fun2=M_Vi_max,
+                    fun3=M_OGR,
+                    fun4=M_max_P,
+                )
+                plotter_H_M.get_figure(
+                    "$M_{Cy_{доп}}$",
+                    "$M_{q_{max}}$",
+                    "$M_{пред}$",
+                    "$M_{max_{P}}$",
+                    t_graph=True,
+                )
+                plotter_H_M.add_plot(M_min_P[no_limit_index+1:], alts[no_limit_index+1:], "$M_{min_{P}}$")
+            else:
+                plotter_H_M = plot(
+                    alts,
+                    save_type=type_name,
+                    fun1=M_min_P,
+                    fun2=M_max_P,
+                    fun3=M_min_dop,
+                    fun4=M_Vi_max,
+                    fun5=M_OGR,
+                )
+                
+                plotter_H_M.get_figure(
+                    "$M_{min_{P}}$",
+                    "$M_{max_{P}}$",
+                    "$M_{Cy_{доп}}$",
+                    "$M_{q_{max}}$",
+                    "$M_{пред}$",
+                    t_graph=True,
+                )
             plt.xlim(0, 1)
             plt.ylim(0, alts[-1] + 1)
             plt.xticks(np.arange(0, 1, 0.1))
@@ -386,9 +425,9 @@ class PlotBuilderUsingData:
                 self.MACH,
                 save_type=type_name,
                 fun1=ny,
-                fun2=omega * (10 ** 2),
-                fun3=r * (10 ** -3),
-                fun4=t * (10 ** -1),
+                fun2=omega * (10**2),
+                fun3=r * (10**-3),
+                fun4=t * (10**-1),
             )
             plot_turn.get_figure(
                 "$n_{y_{вир}}$",

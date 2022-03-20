@@ -34,10 +34,9 @@ class Constant:
         self.MACH = np.array(
             [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
         )
-        self.H = np.arange(start=0, stop=11, step=2, dtype="f")
-        self.H = np.append(self.H, 11)
         self.Hk = 11
-
+        self.H_step = 1
+        self.H = np.arange(stop=self.Hk+self.H_step, step=self.H_step, dtype="f")
         self.OTN_M = 0.95
 
         self.OTN_M_T_SNP = 0.015

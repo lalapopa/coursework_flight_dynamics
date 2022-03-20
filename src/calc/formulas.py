@@ -69,7 +69,7 @@ class Formulas:
         H = np.array(
             [val for i, val in enumerate(alts) if val <= H_k and i in valid_pos]
         )
-        H = np.array([val for i, val in enumerate(H) if not np.mod(val, 1)])
+#        H = np.array([val for i, val in enumerate(H) if not np.mod(val, 1)])
         return H
 
     def find_Vk(H_nab, V_4):
@@ -199,7 +199,7 @@ class Formulas:
         return 1 - otn_m_t_nab - otn_m_t_pr - otn_m_t_kr
 
     def Ro_kr_equation(otn_m_kkr, Ps, Cy_gp, V):
-        return (2 * otn_m_kkr * Ps * 10) / (Cy_gp * V ** 2)
+        return (2 * otn_m_kkr * Ps * 10) / (Cy_gp * V**2)
 
     def V_rotate_equation(Ps, otn_P_to, alpha_r, ro_0, Cy_r):
         return math.sqrt(
@@ -213,19 +213,19 @@ class Formulas:
         return (Cx_p - f_p * Cy_p) * (ro_0) / (2 * Ps * 10)
 
     def L_takeoff_equation(g, bp, Cp, V_r):
-        return (1 / (2 * g * bp)) * np.log((Cp / (Cp - bp * V_r ** 2)))
+        return (1 / (2 * g * bp)) * np.log((Cp / (Cp - bp * V_r**2)))
 
     def V2_equation(V_r):
         return 1.1 * V_r
 
     def hat_V_avg_equation(V2, V_r):
-        return math.sqrt((V2 ** 2 + V_r ** 2) / 2)
+        return math.sqrt((V2**2 + V_r**2) / 2)
 
     def hat_nx_avg_equation(otn_P_to, Cx_r, ro_0, V_avg, Ps):
-        return otn_P_to - ((Cx_r * ro_0 * V_avg ** 2) / (Ps * 20))
+        return otn_P_to - ((Cx_r * ro_0 * V_avg**2) / (Ps * 20))
 
     def L_vuv_equation(nx_avg, V2, V_r, g, H_vzl):
-        return (1 / nx_avg) * (((V2 ** 2 - V_r ** 2) / (2 * g)) + H_vzl)
+        return (1 / nx_avg) * (((V2**2 - V_r**2) / (2 * g)) + H_vzl)
 
     def otn_m_landing_equation(otn_m_kkr, otn_m_t_snp):
         return otn_m_kkr - otn_m_t_snp
@@ -246,7 +246,7 @@ class Formulas:
         return ((ro_0) / (otn_m_la * Ps * 20)) * (Cx_run - f_la * Cy_run)
 
     def L_run_equation(g, b_n, a_n, V_touch):
-        return (1 / (2 * g * b_n)) * np.log((a_n - b_n * V_touch ** 2) / (a_n))
+        return (1 / (2 * g * b_n)) * np.log((a_n - b_n * V_touch**2) / (a_n))
 
     def Cy_landing_equation(Cy_touch):
         return 0.7 * Cy_touch
@@ -258,7 +258,7 @@ class Formulas:
         return Cy_la / Cx_la
 
     def L_vup_equation(K_la, H_la, V_flare, V_touch, g):
-        return K_la * (H_la + (V_flare ** 2 - V_touch ** 2) / (2 * g))
+        return K_la * (H_la + (V_flare**2 - V_touch**2) / (2 * g))
 
     def L_landing_equation(L_prob, L_vup):
         return L_prob + L_vup
@@ -280,7 +280,7 @@ class Formulas:
         return np.array([val for val in M_ready if val > M_min_t and val < M_max_t])
 
     def turn_omega_equation(g, V, ny):
-        return (g / V) * ((ny ** 2 - 1) ** (1 / 2))
+        return (g / V) * ((ny**2 - 1) ** (1 / 2))
 
     def turn_radius_equation(V, omega):
         return V / omega
@@ -296,7 +296,7 @@ class Formulas:
         )
 
     def Cy_bgo_equation(Cy0_bgo, Cya_bgo, alpha):
-        return Cy0_bgo + Cya_bgo ** 2 * alpha
+        return Cy0_bgo + Cya_bgo**2 * alpha
 
     def Cy_go_equation(Cya_go_go, alpha, epsilon_alpha, phi_ef):
         return Cya_go_go * (alpha * (1 - epsilon_alpha) + phi_ef)
@@ -314,7 +314,7 @@ class Formulas:
         return (2 * Ps * 10) / (Ro * g * b_a)
 
     def m_otn_omega_z_z_go_equation(Cya_go_go, otn_S_go, otn_L_go, K_go):
-        return -Cya_go_go * otn_S_go * (otn_L_go ** 2) * (K_go) ** (1 / 2)
+        return -Cya_go_go * otn_S_go * (otn_L_go**2) * (K_go) ** (1 / 2)
 
     def otn_x_f_equation(otn_x_f_bgo, delta_otn_x_f):
         return otn_x_f_bgo + delta_otn_x_f

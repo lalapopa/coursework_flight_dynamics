@@ -13,7 +13,6 @@ class Validator:
         try:
             self.variant.get()
         except:
-            print("heello unvalid btw")
             return False
 
         try:
@@ -36,3 +35,16 @@ class Validator:
         if self.png_state:
             return True
         return False
+
+    @staticmethod    
+    def step_size_validate(step_size_box):
+        try:
+            step_size = float(step_size_box.get().replace(',','.'))
+        except ValueError:
+            return False
+        return True
+            
+            
+            
+
+       
