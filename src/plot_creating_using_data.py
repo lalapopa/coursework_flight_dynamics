@@ -250,8 +250,7 @@ class PlotBuilderUsingData:
                 no_limit_index = np.where(M_min_P == 0)[0][-1]
             except IndexError:
                 no_limit_index = False
-            print('#'*40)
-            print(f'{no_limit_index} <------')
+
             if not isinstance(no_limit_index, bool):
                 plotter_H_M = plot(
                     alts,
@@ -269,6 +268,7 @@ class PlotBuilderUsingData:
                     t_graph=True,
                 )
                 plotter_H_M.add_plot(M_min_P[no_limit_index+1:], alts[no_limit_index+1:], "$M_{min_{P}}$")
+
             else:
                 plotter_H_M = plot(
                     alts,
@@ -288,6 +288,9 @@ class PlotBuilderUsingData:
                     "$M_{пред}$",
                     t_graph=True,
                 )
+            
+            plt.plot([0, 1], [alts[-1], alts[-1]], 'k', linewidth=2)
+            plotter_H_M.add_text([0, 0.5, 1], [alts[-1], alts[-1], alts[-1]], 1, str('$H_{пр}= %.2f \ км$' % (alts[-1])),add_value=None, marker_style='-')
             plt.xlim(0, 1)
             plt.ylim(0, alts[-1] + 1)
             plt.xticks(np.arange(0, 1, 0.1))
@@ -295,7 +298,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("H"),
             )
-            plotter_H_M.set_legend()
+            plt.legend(loc=2)
             if save:
                 plotter_H_M.save_figure(f"H_M_flight_area", self.save_path)
                 plotter_H_M.close_plot()

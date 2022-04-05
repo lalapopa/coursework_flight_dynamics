@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import collections
-import bisect
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
@@ -23,7 +22,7 @@ def main(
     const = cnst(var, save_type, save_folder)
     calc = Calculation()
     H_static, H_practical = find_celling(calc)
-    const.H = dh.proper_array(0, H_static, step_size)
+    const.H = dh.proper_array(0, H_practical, step_size)
 
     for alt in const.H:
         if alt <= 11:
@@ -109,6 +108,7 @@ class Calculation:
                 self.M_2,
                 self.V_3,
                 self.V_4,
+                self.M_4,
                 self.q_ch_min,
                 self.q_km_min,
             ]
@@ -248,28 +248,29 @@ class Calculation:
         MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, save=run_save)
         M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop, save=run_save)
         M_2, Vy_max = build_plot.plot_V_y(self.V_y, save=run_save)
-        if self.altitude < const.H[-1]:
-            if self.altitude >= 11:
-                V_3, q_ch_min = build_plot.plot_q_ch(self.V, self.q_ch, save=run_save)
-                V_4, q_km_min = build_plot.plot_q_km(self.V, self.q_km, save=run_save)
-            else:
-                V_3, q_ch_min = build_plot.plot_q_ch(
-                    self.V_flying, self.q_ch_flying, save=run_save
-                )
-                V_4, q_km_min = build_plot.plot_q_km(
-                    self.V_flying, self.q_km_flying, save=run_save
-                )
-            M_4 = V_4 / self.a_H
+#        if self.altitude < const.H[-1]:
+        if self.altitude >= 11:
+            V_3, q_ch_min = build_plot.plot_q_ch(self.V, self.q_ch, save=run_save)
+            V_4, q_km_min = build_plot.plot_q_km(self.V, self.q_km, save=run_save)
         else:
-            V_3, V_4, q_ch_min, q_km_min = np.array(
-                [
-                    np.inf,
-                    np.inf,
-                    np.inf,
-                    np.inf,
-                ]
+            V_3, q_ch_min = build_plot.plot_q_ch(
+                self.V_flying, self.q_ch_flying, save=run_save
             )
-            M_4 = np.array([np.inf])
+            V_4, q_km_min = build_plot.plot_q_km(
+                self.V_flying, self.q_km_flying, save=run_save
+            )
+        M_4 = V_4 / self.a_H
+        print(f'here! >>>',V_3, q_ch_min)
+#        else:
+#            V_3, V_4, q_ch_min, q_km_min = np.array(
+#                [
+#                    np.inf,
+#                    np.inf,
+#                    np.inf,
+#                    np.inf,
+#                ]
+#            )
+#            M_4 = np.array([np.inf])
 
         self.M_min_P = np.append(self.M_min_P, MminP)
         self.M_max_P = np.append(self.M_max_P, MmaxP)

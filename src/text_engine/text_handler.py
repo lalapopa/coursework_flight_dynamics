@@ -114,6 +114,7 @@ class TextHandler:
                     "M_2",
                     "V_3",
                     "V_4",
+                    "M_4",
                     "q_ch_min",
                     "q_km_min",
                 ],

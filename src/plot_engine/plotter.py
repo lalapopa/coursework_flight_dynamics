@@ -34,8 +34,8 @@ class Plotter:
         plt.xlabel(x_label)
         plt.ylabel(y_label)
 
-    def add_text(self, x, y, positions, *texts, add_value="x", text_location="up"):
-        plt.plot(x[positions], y[positions], "o")
+    def add_text(self, x, y, positions, *texts, add_value="x", text_location="up", marker_style='o'):
+        plt.plot(x[positions], y[positions], marker_style)
         if add_value == "x":
             prefix_value = lambda pos: str(round(x[pos], 3))
         elif add_value == "y":
