@@ -31,9 +31,10 @@ class Constant:
         self.OTN_L_GO = variable.OTN_L_GO
 
         self.G = 9.81
-        self.MACH = np.array(
-            [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
-        )
+        self.MACH = np.arange(0, 0.95, 0.01)
+#        self.MACH = np.array(
+#            [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
+#        )
         self.Hk = 11
         self.H_step = 1
         self.H = np.arange(stop=self.Hk+self.H_step, step=self.H_step, dtype="f")
