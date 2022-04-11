@@ -68,6 +68,7 @@ class PlotBuilderUsingData:
             )
             ploter_P_p_P_r.set_legend()
             ploter_P_p_P_r.set_notation(4)
+            plt.ylim([0, P_rasp_int[cross_position][-1]*1.35])
             if save:
                 ploter_P_p_P_r.save_figure(
                     f"P_H={round(self.altitude, 1)}", self.save_path

@@ -62,7 +62,7 @@ class Plotter:
             self._render_text(
                 texts[0],
                 x[positions],
-                y[positions] + position_sign * Plotter.two_percent_of_axis(y),
+                y[positions],
                 prefix_value(positions),
             )
         return
