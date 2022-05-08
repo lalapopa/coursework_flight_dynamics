@@ -1,3 +1,4 @@
+# M_4 bug if M_4 > M_max:  <20-04-22, yourname> #
 import numpy as np
 import os
 import collections
@@ -57,6 +58,7 @@ class Calculation:
         self.df = dh(const.DATA_TABLE_NAME)
 
     def first_part(self, altitude, save_plot=False, save_data=False):
+        self.altitude = altitude
         DATA = self.run_calculation_part_one(altitude)
 
         self.run_plot_first_part(run_save=save_plot)
@@ -248,19 +250,6 @@ class Calculation:
         MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, save=run_save)
         M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop, save=run_save)
         M_2, Vy_max = build_plot.plot_V_y(self.V_y, save=run_save)
-        try:
-            V_3, q_ch_min = build_plot.plot_q_ch(
-                    self.V_flying, self.q_ch_flying, save=run_save
-                    )
-            V_4, q_km_min = build_plot.plot_q_km(
-                    self.V_flying, self.q_km_flying, save=run_save
-                    )
-        except ValueError:
-            V_3, q_ch_min = build_plot.plot_q_ch(self.V, self.q_ch, save=run_save)
-            V_4, q_km_min = build_plot.plot_q_km(self.V, self.q_km, save=run_save)
-
-        M_4 = V_4 / self.a_H
-        print(f'here! >>>', V_4, q_km_min, self.a_H, M_4)
 
         self.M_min_P = np.append(self.M_min_P, MminP)
         self.M_max_P = np.append(self.M_max_P, MmaxP)
@@ -268,9 +257,29 @@ class Calculation:
         self.M_min_dop = np.append(self.M_min_dop, M_min_dop)
         self.M_2 = np.append(self.M_2, M_2)
         self.Vy_max = np.append(self.Vy_max, Vy_max)
+
+        self.find_fuel_consumption(build_plot, run_save=run_save)
+
+    def find_fuel_consumption(self, plot_builder, run_save=False):
+        self.M_max_dop = self.find_M_max_dop(self.altitude)
+        M_max = self.find_M_max()
+        print(M_max)
+
+        try:
+
+            V_3, q_ch_min = plot_builder.plot_q_ch(
+                    self.V_flying, self.q_ch_flying, save=run_save
+                    )
+            V_4, q_km_min = plot_builder.plot_q_km(
+                    self.V_flying, self.q_km_flying, save=run_save
+                    )
+        except ValueError:
+            V_3, q_ch_min = plot_builder.plot_q_ch(self.V, self.q_ch, save=run_save)
+            V_4, q_km_min = plot_builder.plot_q_km(self.V, self.q_km, save=run_save)
+        M_4 = V_4 / self.a_H
+        self.M_4 = np.append(self.M_4, M_4)
         self.V_3 = np.append(self.V_3, V_3)
         self.V_4 = np.append(self.V_4, V_4)
-        self.M_4 = np.append(self.M_4, M_4)
         self.q_ch_min = np.append(self.q_ch_min, q_ch_min)
         self.q_km_min = np.append(self.q_km_min, q_km_min)
 
@@ -284,11 +293,13 @@ class Calculation:
         return value[accept_position], V_speed[accept_position]
 
     def find_M_max_dop(self, alts):
+        alts = np.array([alts])
         sqrt_delta_minus = self.df.get_column(
             "square_delta", "H", alts, inter_value=True
         )
         self.M_Vi_max = frmls.M_V_i_max(const.V_I_MAX, sqrt_delta_minus, self.a_H)
         self.M_OGR = np.array([const.M_OGR for i in alts])
+        print(f'MVI = {self.M_Vi_max} M_OGR = {self.M_OGR}')
         return dh.find_min_max_from_arrays(self.M_OGR, self.M_Vi_max)
 
     def find_M_min(self):
@@ -298,6 +309,7 @@ class Calculation:
         return dh.find_min_max_from_arrays(self.M_max_dop, self.M_max_P, self.M_OGR)
 
     def run_plot_second_part(self, run_save=True):
+
         build_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )

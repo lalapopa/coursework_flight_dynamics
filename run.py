@@ -46,11 +46,12 @@ def menu():
 
 def window_setup():
     root.title("Coursework")
-    window_width = 400
-    window_height = 600
     # get the screen dimension
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
+
+    window_width = int(screen_width/3.2)
+    window_height = int(screen_height/1.8) 
 
     # find the center point
     center_x = int(screen_width / 2 - window_width / 2)
@@ -122,7 +123,7 @@ class BoxWidget:
         box_entry = ttk.Entry(
             self.space, validate="key", validatecommand=vcmd, textvariable=value
         )
-        self.space.grid(sticky="w", padx=39)
+        self.space.grid(sticky="w", padx=72)
         self.above_box_text.grid(sticky="w")
         box_entry.grid(sticky="w")
         return value
