@@ -83,6 +83,7 @@ class Calculation:
 
     def second_part(self, alts, H_pr, H_st, save_plot=False):
         self.altitude = alts
+        print('second_part alts = ', alts)
         self.H_pr = H_pr
         self.H_st = H_st
         self.M_max_dop = self.find_M_max_dop(self.altitude)
@@ -263,8 +264,6 @@ class Calculation:
     def find_fuel_consumption(self, plot_builder, run_save=False):
         self.M_max_dop = self.find_M_max_dop(self.altitude)
         M_max = self.find_M_max()
-        print(M_max)
-
         try:
 
             V_3, q_ch_min = plot_builder.plot_q_ch(
@@ -293,13 +292,14 @@ class Calculation:
         return value[accept_position], V_speed[accept_position]
 
     def find_M_max_dop(self, alts):
-        alts = np.array([alts])
+        alts = np.unique(np.array([alts]))
+        print(alts)
         sqrt_delta_minus = self.df.get_column(
             "square_delta", "H", alts, inter_value=True
         )
         self.M_Vi_max = frmls.M_V_i_max(const.V_I_MAX, sqrt_delta_minus, self.a_H)
         self.M_OGR = np.array([const.M_OGR for i in alts])
-        print(f'MVI = {self.M_Vi_max} M_OGR = {self.M_OGR}')
+        print('heyo', self.M_OGR)
         return dh.find_min_max_from_arrays(self.M_OGR, self.M_Vi_max)
 
     def find_M_min(self):
@@ -309,7 +309,6 @@ class Calculation:
         return dh.find_min_max_from_arrays(self.M_max_dop, self.M_max_P, self.M_OGR)
 
     def run_plot_second_part(self, run_save=True):
-
         build_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
@@ -333,8 +332,6 @@ class Calculation:
         M_0 = 1.2 * self.M_min_dop[0]
         const.Hk = 11
         self.H_nab = frmls.find_H_nab(self.altitude, const.Hk, self.Vy_max)
-        print('H-descent : ', self.H_nab)
-
         Mk = frmls.find_Vk(self.H_nab, self.M_4)
         self.M_nab = frmls.find_M_nab(M_0, self.M_2, self.H_nab, Mk)
         a_H = self.df.get_column("a_H", "H", np.array([self.H_nab]), inter_value=True)
@@ -490,7 +487,6 @@ class Calculation:
         M_0 = 0.6
         const.Hk = 11
         self.H_des = np.flip(frmls.find_H_nab(const.H, const.Hk, self.Vy_max))
-        print('H-descent : ', self.H_des)
 
         self.M_des = frmls.find_M_des(M_0, self.M_1, self.H_des)
 
@@ -508,7 +504,8 @@ class Calculation:
                 n_x_des, self.find_value_nab_des(self.n_x_des, self.V_des[i])
             )
             index_des = int(
-                dh.get_index_element(const.MACH, round(self.M_des[i], 3))[0]
+                dh.get_index_nearest_element_in_array(const.MACH, 
+                    self.M_des[i])
             )
             Vy_des = np.append(Vy_des, -self.V_y[index_des - 1])
 
