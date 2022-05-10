@@ -44,6 +44,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
+            plt.ylim([0, P_rasp_int[cross_position][-1]*1.35])
             if len(cross_position) == 1:
                 ploter_P_p_P_r.add_text(
                     MACH_int,
@@ -66,9 +67,8 @@ class PlotBuilderUsingData:
                 min_position,
                 self.pth.get_plot_text("P")[-1],
             )
-            ploter_P_p_P_r.set_legend()
+            ploter_P_p_P_r.set_legend(loc_code=3)
             ploter_P_p_P_r.set_notation(4)
-            plt.ylim([0, P_rasp_int[cross_position][-1]*1.35])
             if save:
                 ploter_P_p_P_r.save_figure(
                     f"P_H={round(self.altitude, 1)}", self.save_path
@@ -97,10 +97,11 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("C_y"),
             )
+            plt.ylim([0, C_y_n_int[cross_position]+C_y_n_int[cross_position]*0.15])
             plotter_C_y.add_text(
                 MACH_int, C_y_n_int, cross_position, self.pth.get_plot_text("C_y")[0]
             )
-            plotter_C_y.set_legend()
+            plotter_C_y.set_legend(loc_code=3)
             if save:
                 plotter_C_y.save_figure(
                     f"Cy_H={round(self.altitude, 1)}", self.save_path
@@ -124,6 +125,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V"),
                 self.pth.get_label("V_y"),
             )
+            plt.ylim([0, Vy_max+Vy_max*0.15])
             plotter_Vy.add_text(
                 MACH_int,
                 V_y_int,
@@ -131,7 +133,7 @@ class PlotBuilderUsingData:
                 self.pth.get_plot_text("V_y")[0],
                 add_value="y",
             )
-            plotter_Vy.set_legend()
+            plotter_Vy.set_legend(loc_code=3)
             if save:
                 plotter_Vy.save_figure(
                     f"V_y_H={round(self.altitude, 1)}", self.save_path
@@ -155,6 +157,7 @@ class PlotBuilderUsingData:
         for type_name in self.TYPE_NAMES:
             plotter_q_ch = plot(V_int, save_type=type_name, fun1=q_ch_int)
             plotter_q_ch.get_figure(self.pth.get_label_in_box("q_ch")[0])
+            plt.ylim([q_ch_min-q_ch_min*0.05, q_ch_int[-1]+q_ch_int[-1]*0.2])
             plotter_q_ch.add_labels(
                 self.pth.get_label("V"),
                 self.pth.get_label("q_ch")[0],
@@ -192,6 +195,7 @@ class PlotBuilderUsingData:
         for type_name in self.TYPE_NAMES:
             plotter_q_km = plot(V_int, save_type=type_name, fun1=q_km_int)
             plotter_q_km.get_figure(self.pth.get_label_in_box("q_km")[0])
+            plt.ylim([q_km_min-q_km_min*0.05, q_km_int[-1]+q_km_int[-1]*0.2])
             plotter_q_km.add_labels(
                 self.pth.get_label("V"),
                 self.pth.get_label("q_km"),

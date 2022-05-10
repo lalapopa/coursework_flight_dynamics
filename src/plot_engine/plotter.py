@@ -55,7 +55,7 @@ class Plotter:
                 self._render_text(
                     text,
                     x[pos],
-                    y[pos] + position_sign * Plotter.two_percent_of_axis(y),
+                    y[pos] + position_sign * self.two_percent_of_axis(),
                     prefix_value(pos),
                 )
         except TypeError:
@@ -70,16 +70,16 @@ class Plotter:
     def _render_text(self, text, x_pos, y_pos, adding_value=""):
         plt.annotate(text + adding_value, xy=(x_pos, y_pos))
 
-    @staticmethod
-    def two_percent_of_axis(x):
-        full_size = np.amax(x)
-        return (2 * full_size) / 100
+    def two_percent_of_axis(self):
+        axes = plt.gca()
+        _, y_max = axes.get_ylim()
+        return (2 * y_max) / 100
 
     def show_plot(self):
         plt.show()
 
-    def set_legend(self):
-        plt.legend()
+    def set_legend(self, loc_code=0):
+        plt.legend(loc=loc_code)
 
     def save_figure(self, name, path):
         self.path = path

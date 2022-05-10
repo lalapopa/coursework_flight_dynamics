@@ -265,7 +265,6 @@ class Calculation:
         self.M_max_dop = self.find_M_max_dop(self.altitude)
         M_max = self.find_M_max()
         try:
-
             V_3, q_ch_min = plot_builder.plot_q_ch(
                     self.V_flying, self.q_ch_flying, save=run_save
                     )
@@ -293,13 +292,11 @@ class Calculation:
 
     def find_M_max_dop(self, alts):
         alts = np.unique(np.array([alts]))
-        print(alts)
         sqrt_delta_minus = self.df.get_column(
             "square_delta", "H", alts, inter_value=True
         )
         self.M_Vi_max = frmls.M_V_i_max(const.V_I_MAX, sqrt_delta_minus, self.a_H)
         self.M_OGR = np.array([const.M_OGR for i in alts])
-        print('heyo', self.M_OGR)
         return dh.find_min_max_from_arrays(self.M_OGR, self.M_Vi_max)
 
     def find_M_min(self):

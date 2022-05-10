@@ -5,6 +5,7 @@ from tkinter import messagebox
 from tkinter.messagebox import showinfo
 from PIL import ImageTk, Image
 from functools import partial
+import sys
 
 from src.main import main
 from validate_state import Validator
@@ -23,6 +24,13 @@ def menu():
     global checkbutton_pgf
     global step_size_input
 
+    if sys.argv: 
+        variant_value = int(sys.argv[1])
+        save_names = [sys.argv[2]]
+        path = sys.argv[3]
+        step_size = 2
+        main(variant_value, save_names, path, step_size=step_size)
+        return
 
     root = tk.Tk()
 
