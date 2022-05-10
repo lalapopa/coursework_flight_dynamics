@@ -1,4 +1,4 @@
-# M_4 bug if M_4 > M_max:  <20-04-22, yourname> #
+# Crate table 2.8 using latex table: part 2 calculation <10-05-22, LALAPOPA> #
 import numpy as np
 import os
 import collections
@@ -65,9 +65,17 @@ class Calculation:
         if save_data:
             dh.save_data(
                 DATA,
-                text_handler.get_row_name_table_1(const.MACH),
+                text_handler.get_row_name_table_1(),
                 f"alt_{str(self.altitude)}.csv",
                 const.PATH_TO_RESULTS,
+            )
+            DATA_tex = [[str(round(value,2)) for i, value in enumerate(val) if i in const.MACH_output_index] for val in DATA] 
+            dh.save_data_tex(
+                DATA_tex,
+                text_handler.get_row_name_table_1(),
+                f"alt_{str(self.altitude)}.tex",
+                const.PATH_TO_RESULTS,
+                units_value=text_handler.get_row_units_table_1(),
             )
 
     def run_calculation_part_one(self, altitude):
@@ -79,7 +87,7 @@ class Calculation:
         self.altitude = altitude
         self.take_constant()
         DATA = self.calculate_using_formulas()
-        return DATA[8]
+        return DATA[9]
 
     def second_part(self, alts, H_pr, H_st, save_plot=False):
         self.altitude = alts
@@ -92,7 +100,7 @@ class Calculation:
         DATA = self.prepare_data_for_H_tab()
         dh.save_data(
             DATA,
-            text_handler.get_row_name_table_2(self.altitude),
+            text_handler.get_row_name_table_2(),
             "table_2.csv",
             const.PATH_TO_RESULTS,
         )
@@ -102,6 +110,7 @@ class Calculation:
     def prepare_data_for_H_tab(self):
         return np.array(
             [
+                self.altitude,
                 self.Vy_max,
                 self.M_min_dop,
                 self.M_max_dop,
@@ -229,6 +238,7 @@ class Calculation:
         self.M_flying = self.V_flying / self.a_H
         return np.array(
             [
+                const.MACH,
                 self.V,
                 self.V_km_h,
                 self.q,
@@ -409,6 +419,7 @@ class Calculation:
         )
         dh.save_data(
             [
+                self.H_nab,
                 self.M_nab,
                 self.V_nab,
                 self.V_nab * 3.6,
@@ -430,7 +441,7 @@ class Calculation:
                 self.t_nab,
                 Ce_nab,
             ],
-            text_handler.get_row_name_table_3(self.H_nab, descent_or_climb="climb"),
+            text_handler.get_row_name_table_3(descent_or_climb="climb"),
             "climb_data.csv",
             const.PATH_TO_RESULTS,
         )
@@ -578,6 +589,7 @@ class Calculation:
 
         dh.save_data(
             [
+                self.H_des,
                 self.M_des,
                 self.V_des,
                 self.V_des * 3.6,
@@ -599,7 +611,7 @@ class Calculation:
                 self.t_des,
                 Ce_des,
             ],
-            text_handler.get_row_name_table_3(self.H_des, descent_or_climb="descent"),
+            text_handler.get_row_name_table_3(descent_or_climb="descent"),
             "descent_data.csv",
             const.PATH_TO_RESULTS,
         )
@@ -819,6 +831,7 @@ class Calculation:
         self.save_turn_data(
             np.array(
                 [
+                    MACH,
                     otn_P,
                     n_y_p,
                     n_y_turn,
@@ -827,15 +840,14 @@ class Calculation:
                     t_turn,
                 ]
             ),
-            MACH,
         )
         if save_plot:
             self.run_plot_turn_part(MACH, n_y_turn, omega_turn, r_turn, t_turn)
 
-    def save_turn_data(self, data, M):
+    def save_turn_data(self, data):
         dh.save_data(
             data,
-            text_handler.get_row_name_turn_table(M),
+            text_handler.get_row_name_turn_table(),
             "turn_data_table.csv",
             const.PATH_TO_RESULTS,
         )
@@ -870,13 +882,14 @@ class Calculation:
         dh.save_data(
             np.array(
                 [
+                    const.MACH,
                     otn_x_F,
                     otn_x_H,
                     otn_x_TPZ,
                     sigma_n,
                 ]
             ),
-            text_handler.get_row_name_sigmas(const.MACH),
+            text_handler.get_row_name_sigmas(),
             "sigmas_table.csv",
             const.PATH_TO_RESULTS,
         )
@@ -928,14 +941,14 @@ class Calculation:
         fi_n = frmls.phi_n_equation(Cy_gp, sigma_n, m_z_delta)
         nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal, fi_n)
 
-        DATA = np.array([self.V_flying, fi_bal, fi_n, nyp])
-        self.save_data_phi(DATA, alt, self.M_flying)
+        DATA = np.array([self.M_flying, self.V_flying, fi_bal, fi_n, nyp])
+        self.save_data_phi(DATA, alt)
         return fi_bal, fi_n, nyp
 
-    def save_data_phi(self, data, H, M):
+    def save_data_phi(self, data, H):
         dh.save_data(
             data,
-            text_handler.get_row_name_phis_table(M),
+            text_handler.get_row_name_phis_table(),
             f"phi_table_H={H}.csv",
             const.PATH_TO_RESULTS,
         )

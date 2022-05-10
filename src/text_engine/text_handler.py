@@ -78,33 +78,50 @@ class TextHandler:
         return [label for label in self.values]
 
     @staticmethod
-    def get_row_name_table_1(MACH):
+    def get_row_name_table_1():
         return np.array(
-            [
-                [
-                    "V",
-                    "V_km_h",
-                    "q",
-                    "C_y_n",
-                    "K_n",
-                    "P_potr*10^-5",
-                    "P_rasp*10^-5",
-                    "n_x",
-                    "V_y",
-                    "otn_R",
-                    "q_ch",
-                    "q_km",
+                [ 
+                    "$M$",
+                    "$V$",
+                    "$V$",
+                    "$q$",
+                    "$C_{y_n}$",
+                    "$K_n$",
+                    "$P_n*10^-5$",
+                    "$P_p*10^-5$",
+                    r"$\Delta \bar{p}n_x$",
+                    "$V_y^*$",
+                    r"$\bar{R}_{кр}$",
+                    "$q_{ч}$",
+                    "$q_{км}$",
                 ],
-                MACH,
-            ],
-            dtype=object,
         )
 
     @staticmethod
-    def get_row_name_table_2(alts):
+    def get_row_units_table_1():
         return np.array(
-            [
+                [ 
+                    r"$-$",
+                    r"$\frac{м}{с}$",
+                    r"$\frac{км}{ч}$",
+                    r"$\frac{H}{м^2}$",
+                    r"$-$",
+                    r"$-$",
+                    r"$H$",
+                    r"$H$",
+                    r"$-$",
+                    r"$\frac{м}{с}$",
+                    r"$-$",
+                    r"$\frac{кг}{ч}$",
+                    r"$\frac{кг}{км}$",
+                ],
+        )
+
+    @staticmethod
+    def get_row_name_table_2():
+        return np.array(
                 [
+                    "H",
                     "Vy*_max",
                     "M_min_dop",
                     "M_max_dop",
@@ -117,14 +134,32 @@ class TextHandler:
                     "M_4",
                     "q_ch_min",
                     "q_km_min",
-                ],
-                alts,
-            ],
-            dtype=object,
+                ]
         )
 
     @staticmethod
-    def get_row_name_table_3(alts, descent_or_climb="climb"):
+    def get_row_name_table_2_latex():
+        return np.array(
+                [
+                    r"$H$",
+                    r"$V_{y_{max}}^*$",
+                    r"$\underset{\min \, доп}{M [V]}$",
+                    r"$\underset{\max \, доп}{M [V]}$",
+                    r"$\underset{\min}{M [V]}$",
+                    r"$\underset{\max}{M [V]}$",
+                    r"$\underset{(P_п\, min)}{M_1 [V_1]}$",
+                    r"$\underset{(V_{y_{max}}^*)}{M_2 [V_2]}$",
+                    r"$\underset{(q_{ч_{\min}})}{V_3}$",
+                    r"$\underset{(q_{{км}_{\min}})}{V_4}$",
+                    r"$q_{ч_{\min}}$",
+                    r"$q_{{км}_{\min}}$",
+                ]
+        )
+
+        
+
+    @staticmethod
+    def get_row_name_table_3(descent_or_climb="climb"):
         condition = ("climb", "descent")
         if descent_or_climb not in condition:
             raise InvalidNameError(descent_or_climb)
@@ -141,8 +176,8 @@ class TextHandler:
             t_text = "t_des"
             mass_fuel_text = "m_T_des"
         return np.array(
-            [
                 [
+                    "H",
                     M_text,
                     "V",
                     "V_km",
@@ -164,9 +199,6 @@ class TextHandler:
                     t_text,
                     "Ce",
                 ],
-                alts,
-            ],
-            dtype=object,
         )
 
     @staticmethod
@@ -205,10 +237,10 @@ class TextHandler:
         )
 
     @staticmethod
-    def get_row_name_turn_table(mach):
+    def get_row_name_turn_table():
         return np.array(
-            [
                 [
+                    "M",
                     "otn_P",
                     "n_y_p",
                     "n_y_vir",
@@ -216,9 +248,6 @@ class TextHandler:
                     "radius_vir [m]",
                     "time_vir [s]",
                 ],
-                mach,
-            ],
-            dtype=object,
         )
 
     @staticmethod
@@ -229,32 +258,26 @@ class TextHandler:
         )
 
     @staticmethod
-    def get_row_name_phis_table(mach):
+    def get_row_name_phis_table():
         return np.array(
-            [
                 [
+                    "M",
                     "V",
                     "phi_bal",
                     "phi_n",
                     "n_y_p",
                 ],
-                mach,
-            ],
-            dtype=object,
         )
 
-    def get_row_name_sigmas(mach):
+    def get_row_name_sigmas():
         return np.array(
-            [
                 [
+                    "M",
                     "otn_x_F",
                     "otn_x_H",
                     "otn_x_TPZ",
                     "sigma_n",
                 ],
-                mach,
-            ],
-            dtype=object,
         )
 
     @staticmethod
