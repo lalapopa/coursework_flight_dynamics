@@ -87,9 +87,9 @@ class TextHandler:
                     "$q$",
                     "$C_{y_n}$",
                     "$K_n$",
-                    "$P_n*10^-5$",
-                    "$P_p*10^-5$",
-                    r"$\Delta \bar{p}n_x$",
+                    "$P_n*10^{-5}$",
+                    "$P_p*10^{-5}$",
+                    r"$\Delta \bar{p}(n_x)$",
                     "$V_y^*$",
                     r"$\bar{R}_{кр}$",
                     "$q_{ч}$",
@@ -151,11 +151,31 @@ class TextHandler:
                     r"$\underset{(V_{y_{max}}^*)}{M_2 [V_2]}$",
                     r"$\underset{(q_{ч_{\min}})}{V_3}$",
                     r"$\underset{(q_{{км}_{\min}})}{V_4}$",
+                    r"$M_4$",
                     r"$q_{ч_{\min}}$",
                     r"$q_{{км}_{\min}}$",
                 ]
         )
 
+    @staticmethod
+    def get_row_units_table_2_latex():
+        return np.array(
+                [
+                    r"$км$",
+                    r"$\frac{м}{с}$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$-\,[\frac{км}{ч}]$",
+                    r"$\frac{км}{ч}$",
+                    r"$\frac{км}{ч}$",
+                    r"$-$",
+                    r"$\frac{кг}{ч}$",
+                    r"$\frac{кг}{км}$",
+                ]
+        )
         
 
     @staticmethod
@@ -200,6 +220,79 @@ class TextHandler:
                     "Ce",
                 ],
         )
+
+    @staticmethod
+    def get_row_name_table_3_tex(descent_or_climb="climb"):
+        condition = ("climb", "descent")
+        if descent_or_climb not in condition:
+            raise InvalidNameError(descent_or_climb)
+        if descent_or_climb == "climb":
+            M_text = r"$\underset{наб}{M}$"
+            Vy_text = r"$V_{y_{наб}}$"
+            L_text = r"$L_{наб}$"
+            t_text = r"$t_{наб}$"
+            mass_fuel_text = r"$m_{T_{наб}}$"
+        if descent_or_climb == "descent":
+            M_text = r"$\underset{сн}{M}$"
+            Vy_text = r"$V_{y_{сн}}$"
+            L_text = r"$L_{сн}$"
+            t_text = r"$t_{сн}$"
+            mass_fuel_text = r"$m_{T_{сн}}$"
+        return np.array(
+                [
+                    [
+                        r"$\underset{узел}{H}$",
+                        M_text,
+                        r"$V$",
+                        r"$V_{км}$",
+                        r"$\frac{\Delta V}{\Delta H}$",
+                        r"$n_x$",
+                        r"V_{y}^*",
+                        r"$\theta$",
+                        Vy_text,
+                        r"$H_э$",
+                        r"$\Delta H_э$",
+                        r"$n_{x_{ср}}$",
+                        r"$\frac{\Delta H_{э}}{1000 n_x}$",
+                        ],[
+                            r"$P$",
+                            r"$\frac{CeP}{V_y^*}$",
+                            r"$(\frac{CeP}{V_y^*})_{ср}$",
+                            r"$\frac{\Delta H_э}{3600}(\frac{CeP}{V_y^*})_{ср}$",
+                            L_text,
+                            r"$V_{y_{ср}}^*$",
+                            t_text,
+                            r"$Ce$",
+                            ],
+                        ]
+        )
+    @staticmethod
+    def get_row_units_table_3_latex():
+        return np.array([[
+            r'м', 
+            '-',
+            r'$\frac{м}{с}$',
+            r'$\frac{км}{ч}$',
+            r'$\frac{1}{с}$',
+            r'-', 
+            r'$\frac{м}{с}$',
+            r'$град.$',
+            r'$\frac{м}{с}$',
+            r'м', 
+            r'м', 
+            r'-', 
+            r'км',
+            ], 
+            [
+            r'$H$',
+            r'-',
+            r'-',
+            r'кг',
+            r'км',
+            r'$\frac{м}{с}$',
+            r'мин',
+            r'$\frac{кг}{H ч}$',
+            ]])
 
     @staticmethod
     def get_mini_table_3(descent_or_climb="climb"):

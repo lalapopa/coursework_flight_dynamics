@@ -69,7 +69,23 @@ class Calculation:
                 f"alt_{str(self.altitude)}.csv",
                 const.PATH_TO_RESULTS,
             )
-            DATA_tex = [[str(round(value,2)) for i, value in enumerate(val) if i in const.MACH_output_index] for val in DATA] 
+            c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13 = DATA 
+            DATA_tex = np.array([
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c1) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c2) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c3) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=0) for i, c in enumerate(c4) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c5) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c6) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c7) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c8) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c9) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c10) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c11) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=0) for i, c in enumerate(c12) if i in const.MACH_output_index]),
+                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c13) if i in const.MACH_output_index]),
+                ])
+
             dh.save_data_tex(
                 DATA_tex,
                 text_handler.get_row_name_table_1(),
@@ -92,6 +108,7 @@ class Calculation:
     def second_part(self, alts, H_pr, H_st, save_plot=False):
         self.altitude = alts
         print('second_part alts = ', alts)
+
         self.H_pr = H_pr
         self.H_st = H_st
         self.M_max_dop = self.find_M_max_dop(self.altitude)
@@ -103,6 +120,15 @@ class Calculation:
             text_handler.get_row_name_table_2(),
             "table_2.csv",
             const.PATH_TO_RESULTS,
+        )
+        DATA_tex = self. prepare_data_for_H_tab_latex()
+        print('speed of sound is = ', self.a_H)
+        dh.save_data_tex(
+            DATA_tex,
+            text_handler.get_row_name_table_2_latex(),
+            "table_2.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_table_2_latex(),
         )
         if save_plot:
             self.run_plot_second_part()
@@ -126,6 +152,51 @@ class Calculation:
             ]
         )
 
+    def prepare_data_for_H_tab_latex(self):
+        a_H = self.df.get_column(
+                "a_H", "H", np.array([self.altitude]), inter_value=True
+                )
+        M_min_dop_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_min_dop)]
+                )
+        
+        M_max_dop_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max_dop)]
+                )
+        M_min_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_min)]
+                )
+
+        M_max_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max)]
+                )
+
+        M_max_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max)]
+                )
+        M_1_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_1)]
+                )
+        M_2_column = np.array(
+                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_2)]
+                )
+        return np.array(
+            [
+                [str(round(val,2)) for val in self.altitude],
+                [str(round(val,2)) for val in self.Vy_max],
+                M_min_dop_column,
+                M_max_dop_column,
+                M_min_column,
+                M_max_column,
+                M_1_column,
+                M_2_column,
+                [str(round(val,2)) for val in self.V_3],
+                [str(round(val,2)) for val in self.V_4],
+                [str(round(val,3)) for val in self.M_4],
+                [str(round(val,2)) for val in self.q_ch_min],
+                [str(round(val,2)) for val in self.q_km_min],
+            ]
+        )
     def take_constant(self):
         self.tilda_P = self.find_tilda_P(const.MACH, self.altitude)
         self.tilda_Ce = self.find_Ce_tilda(const.MACH, self.altitude)
@@ -444,6 +515,43 @@ class Calculation:
             text_handler.get_row_name_table_3(descent_or_climb="climb"),
             "climb_data.csv",
             const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            [
+                [f"{round(val,1)}" for val in self.H_nab],
+                [f"{round(val,2)}" for val in self.M_nab],
+                [f"{round(val,1)}" for val in self.V_nab],
+                [f"{round(val,1)}" for val in self.V_nab * 3.6],
+                [f"{round(val,3)}" for val in dVdH],
+                [f"{round(val,3)}" for val in n_x_nab],
+                [f"{round(val,1)}" for val in self.Vy_max],
+                [f"{round(val,1)}" for val in self.teta_nab],
+                [f"{round(val,1)}" for val in self.v_y_nab],
+                [f"{round(val,0)}" for val in H_e],
+                [f"{round(val,0)}" for val in delta_H_e],
+                [f"{round(val,3)}" for val in 1 / n_x_avg],
+                [f"{round(val,2)}" for val in delta_H_e / (1000 * n_x_nab)],
+            ],
+            text_handler.get_row_name_table_3_tex(descent_or_climb="climb")[0],
+            "climb_data_part1.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_table_3_latex()[0]
+        )
+        dh.save_data_tex(
+            [
+    [f"{round(val,0)}" for val in P_nab],
+    [f"{round(val,1)}" for val in (Ce_nab * P_nab) / self.Vy_max],
+    [f"{round(val,1)}" for val in CeP_Vy_avg],
+    [f"{round(val,1)}" for val in self.m_t_nab],
+    [f"{round(val,1)}" for val in self.L_nab],
+    [f"{round(val,1)}" for val in v_y_avg],
+    [f"{round(val,2)}" for val in self.t_nab],
+    [f"{round(val,3)}" for val in Ce_nab],
+            ],
+            text_handler.get_row_name_table_3_tex(descent_or_climb="climb")[1],
+            "climb_data_part2.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_table_3_latex()[1]
         )
 
     def level_flight_part(self, debug=False):
