@@ -406,6 +406,7 @@ class Calculation:
             self.altitude, self.q_km_min, self.q_ch_min, save=run_save
         )
 
+
     def climb_part(self, save_plot=False):
         M_0 = 1.2 * self.M_min_dop[0]
         const.Hk = 11
@@ -460,8 +461,13 @@ class Calculation:
 
         if save_plot:
             self.run_plot_climb_part()
-        self.save_data_climb_part(
-            dVdH, H_e, delta_H_e, n_x_avg, v_y_avg, CeP_Vy_avg, n_x_nab, P_nab, Ce_nab
+        self.save_data_descent_climb_part(
+            self.H_nab, self.M_nab, self.V_nab,
+            dVdH, self.Vy_max, self.teta_nab,
+            self.v_y_nab,
+            H_e, delta_H_e, n_x_avg,
+            v_y_avg, CeP_Vy_avg , n_x_nab,
+            P_nab, Ce_nab, self.m_t_nab, self.L_nab, self.t_nab, move='climb'
         )
 
     def find_value_nab_des(self, value, V_nab):
@@ -478,81 +484,6 @@ class Calculation:
         )
         plot_part3.plot_L_m(self.t_nab, self.L_nab, self.m_t_nab, file_name="L_m_climb")
         plot_part3.plot_H_M_profile(self.M_nab, self.H_nab, file_name="H_climb")
-
-    def save_data_climb_part(
-        self, dVdH, H_e, delta_H_e, n_x_avg, v_y_avg, CeP_Vy_avg, n_x_nab, P_nab, Ce_nab
-    ):
-        dh.save_data(
-            [sum(self.m_t_nab), sum(self.L_nab), sum(self.t_nab)],
-            text_handler.get_mini_table_3(descent_or_climb="climb"),
-            "climb_mini_table.csv",
-            const.PATH_TO_RESULTS,
-        )
-        dh.save_data(
-            [
-                self.H_nab,
-                self.M_nab,
-                self.V_nab,
-                self.V_nab * 3.6,
-                dVdH,
-                n_x_nab,
-                self.Vy_max,
-                self.teta_nab,
-                self.v_y_nab,
-                H_e,
-                delta_H_e,
-                1 / n_x_avg,
-                delta_H_e / (1000 * n_x_nab),
-                P_nab,
-                (Ce_nab * P_nab) / self.Vy_max,
-                CeP_Vy_avg,
-                self.m_t_nab,
-                self.L_nab,
-                v_y_avg,
-                self.t_nab,
-                Ce_nab,
-            ],
-            text_handler.get_row_name_table_3(descent_or_climb="climb"),
-            "climb_data.csv",
-            const.PATH_TO_RESULTS,
-        )
-        dh.save_data_tex(
-            [
-                [f"{round(val,1)}" for val in self.H_nab],
-                [f"{round(val,2)}" for val in self.M_nab],
-                [f"{round(val,1)}" for val in self.V_nab],
-                [f"{round(val,1)}" for val in self.V_nab * 3.6],
-                [f"{round(val,3)}" for val in dVdH],
-                [f"{round(val,3)}" for val in n_x_nab],
-                [f"{round(val,1)}" for val in self.Vy_max],
-                [f"{round(val,1)}" for val in self.teta_nab],
-                [f"{round(val,1)}" for val in self.v_y_nab],
-                [f"{round(val,0)}" for val in H_e],
-                [f"{round(val,0)}" for val in delta_H_e],
-                [f"{round(val,3)}" for val in 1 / n_x_avg],
-                [f"{round(val,2)}" for val in delta_H_e / (1000 * n_x_nab)],
-            ],
-            text_handler.get_row_name_table_3_tex(descent_or_climb="climb")[0],
-            "climb_data_part1.tex",
-            const.PATH_TO_RESULTS,
-            units_value=text_handler.get_row_units_table_3_latex()[0]
-        )
-        dh.save_data_tex(
-            [
-    [f"{round(val,0)}" for val in P_nab],
-    [f"{round(val,1)}" for val in (Ce_nab * P_nab) / self.Vy_max],
-    [f"{round(val,1)}" for val in CeP_Vy_avg],
-    [f"{round(val,1)}" for val in self.m_t_nab],
-    [f"{round(val,1)}" for val in self.L_nab],
-    [f"{round(val,1)}" for val in v_y_avg],
-    [f"{round(val,2)}" for val in self.t_nab],
-    [f"{round(val,3)}" for val in Ce_nab],
-            ],
-            text_handler.get_row_name_table_3_tex(descent_or_climb="climb")[1],
-            "climb_data_part2.tex",
-            const.PATH_TO_RESULTS,
-            units_value=text_handler.get_row_units_table_3_latex()[1]
-        )
 
     def level_flight_part(self, debug=False):
         self.otn_m_t_nab = frmls.otn_m_t_nab_equation(sum(self.m_t_nab), const.M0)
@@ -595,7 +526,20 @@ class Calculation:
             "level_flight_data.csv",
             const.PATH_TO_RESULTS,
         )
+        dh.save_data_tex(
+            [
+            str(round(T_kr,2)), 
+            str(round(self.L_kr, 0)),
+            str(round(Ro_H_kr, 4)),
+            str(round(const.Hk, 1)), 
+            np.around(self.H_k_kr, 1)
+            ],
+            text_handler.get_kr_table_latex(),
+            "level_flight_data.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_kr_units_table(),
 
+        )
         if debug:
             debug_level_flight_part(self.Ce_gp, T_kr, self.L_kr, Ro_H_kr, self.H_k_kr)
 
@@ -656,79 +600,112 @@ class Calculation:
         self.H_plot, self.L_plot = self.prepare_data_for_H_L_tab()
         if save_plot:
             self.run_plot_descent_part()
-        self.save_data_descent_part(
-            dVdH,
-            n_x_des,
-            Vy_des,
-            H_e,
-            delta_H_e,
-            n_x_avg,
-            P_des,
-            Ce_des,
-            CeP_Vy_avg,
-            v_y_avg,
+
+        self.save_data_descent_climb_part(
+            self.H_des, self.M_des, self.V_des,
+            dVdH, self.Vy_max, self.teta_des,
+            self.v_y_des,
+            H_e, delta_H_e, n_x_avg,
+            v_y_avg, CeP_Vy_avg , n_x_des,
+            P_des, Ce_des, self.m_t_des, self.L_des, self.t_des, move='descent'
         )
 
-    def save_data_descent_part(
-        self,
-        dVdH,
-        n_x_des,
-        Vy_des,
-        H_e,
-        delta_H_e,
-        n_x_avg,
-        P_des,
-        Ce_des,
-        CeP_Vy_avg,
-        v_y_avg,
+    def save_data_descent_climb_part(
+        self, H_move, M_move, V_move, 
+        dVdH, V_y_star, theta_move,
+        V_y_move, 
+        H_e, delta_H_e, n_x_avg,
+        v_y_avg, CeP_Vy_avg, n_x_move,
+        P_move, Ce_move, m_t_move, L_move, t_move,
+        move='descent',
+
     ):
-#        print(
-#            'dVdH', dVdH,'\n',
-#            'n_x_des', n_x_des, '\n',
-#            'Vy_des', Vy_des, '\n',
-#            'H_e', H_e, '\n',
-#            'delta_H_e', delta_H_e, '\n',
-#            'n_x_avg', n_x_avg, '\n',
-#            'P_des', P_des, '\n',
-#            'Ce_des', Ce_des, '\n',
-#            'CeP_Vy_avg', CeP_Vy_avg, '\n',
-#            'v_y_avg', v_y_avg, '\n',
-#        )
+        if move == 'descent':
+            file_name_mini_table = "descent_mini_table"
+            file_name = "descent_data"
+        elif move == 'climb':
+            file_name_mini_table = "climb_mini_table"
+            file_name = "climb_data"
+        else:
+            raise ValueError(f'Can use only "descent" or "climb" value in move parameter, but given {move}')
 
         dh.save_data(
+            [sum(m_t_move), sum(L_move), sum(t_move)],
+            text_handler.get_mini_table_3(descent_or_climb=move),
+            file_name_mini_table+'.csv',
+            const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            [f"{round(sum(m_t_move), 1)}", f"{round(sum(L_move), 1)}", f"{round(sum(t_move),1)}"],
+            text_handler.get_mini_table_3_latex(descent_or_climb=move),
+            file_name_mini_table+'.tex',
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_mini_table_3_units()
+        )
+        dh.save_data(
             [
-                self.H_des,
-                self.M_des,
-                self.V_des,
-                self.V_des * 3.6,
+                H_move,
+                M_move,
+                V_move,
+                V_move * 3.6,
                 dVdH,
-                n_x_des,
-                self.v_y_des,
-                self.teta_des,
-                Vy_des,
+                n_x_move,
+                V_y_star,
+                theta_move,
+                V_y_move,
                 H_e,
                 delta_H_e,
                 1 / n_x_avg,
-                delta_H_e / (1000 * n_x_des),
-                P_des,
-                (Ce_des * P_des) / self.v_y_des,
+                delta_H_e / (1000 * n_x_move),
+                P_move,
+                (Ce_move * P_move) / V_y_move,
                 CeP_Vy_avg,
-                self.m_t_des,
-                self.L_des,
+                m_t_move,
+                L_move,
                 v_y_avg,
-                self.t_des,
-                Ce_des,
+                t_move,
+                Ce_move,
             ],
-            text_handler.get_row_name_table_3(descent_or_climb="descent"),
-            "descent_data.csv",
+            text_handler.get_row_name_table_3(descent_or_climb=move),
+            file_name+".csv",
             const.PATH_TO_RESULTS,
         )
-
-        dh.save_data(
-            [sum(self.m_t_des), sum(self.L_des), sum(self.t_des)],
-            text_handler.get_mini_table_3(descent_or_climb="descent"),
-            "descent_mini_table.csv",
+        dh.save_data_tex(
+            [
+                [f"{round(val,1)}" for val in H_move],
+                [f"{round(val,2)}" for val in M_move],
+                [f"{round(val,1)}" for val in V_move],
+                [f"{round(val,1)}" for val in V_move * 3.6],
+                [f"{round(val,3)}" for val in dVdH],
+                [f"{round(val,3)}" for val in n_x_move],
+                [f"{round(val,1)}" for val in V_y_star],
+                [f"{round(val,1)}" for val in theta_move],
+                [f"{round(val,1)}" for val in V_y_move],
+                [f"{round(val,0)}" for val in H_e],
+                [f"{round(val,0)}" for val in delta_H_e],
+                [f"{round(val,3)}" for val in 1 / n_x_avg],
+                [f"{round(val,2)}" for val in delta_H_e / (1000 * n_x_move)],
+            ],
+            text_handler.get_row_name_table_3_tex(descent_or_climb=move)[0],
+            file_name+".tex",
             const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_table_3_latex()[0]
+        )
+        dh.save_data_tex(
+            [
+    [f"{round(val,0)}" for val in P_move],
+    [f"{round(val,1)}" for val in (Ce_move * P_move) / V_y_move],
+    [f"{round(val,1)}" for val in CeP_Vy_avg],
+    [f"{round(val,1)}" for val in m_t_move],
+    [f"{round(val,1)}" for val in L_move],
+    [f"{round(val,1)}" for val in v_y_avg],
+    [f"{round(val,2)}" for val in t_move],
+    [f"{round(val,3)}" for val in Ce_move],
+            ],
+            text_handler.get_row_name_table_3_tex(descent_or_climb=move)[1],
+            file_name+"_part2.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_table_3_latex()[1]
         )
 
     def prepare_data_for_H_L_tab(self):
@@ -802,12 +779,23 @@ class Calculation:
             ]
         )
         m_cargo_array = np.array([m_tsn_mode1, m_tsn_mode2, 0])
-
+        configuration_numbers = np.arange(1, len(L_array)+1) 
         dh.save_data(
-            [L_array, m_cargo_array],
+                [L_array, m_cargo_array],
             text_handler.get_row_cargo_table(),
             "cargo_load.csv",
             const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+                [
+                configuration_numbers, 
+                [f"{round(val,0)}" for val in L_array],
+                [f"{round(val,0)}" for val in m_cargo_array],
+                ],
+            text_handler.get_row_cargo_table_latex(),
+            "cargo_load.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_cargo_table()
         )
         if save_plot:
             self.run_plot_cargo_part(L_array, m_cargo_array)
@@ -878,12 +866,12 @@ class Calculation:
         L_landing = frmls.L_landing_equation(L_ground, L_vup)
         self.save_takeoff_landing_data(
             [
-                V_rotate,
-                L_run[0],
-                L_run[0] + L_vuv[0],
-                V_touch,
-                L_ground[0],
-                L_landing[0],
+                f"{round(V_rotate, 0)}",
+                f"{round(L_run[0],0)}",
+                f"{round(L_run[0] + L_vuv[0],0)}",
+                f"{round(V_touch,0)}",
+                f"{round(L_ground[0],0)}",
+                f"{round(L_landing[0],0)}",
             ]
         )
 
@@ -894,11 +882,23 @@ class Calculation:
             "takeoff_landing_table.csv",
             const.PATH_TO_RESULTS,
         )
+        dh.save_data_tex(
+            data,
+            text_handler.get_to_la_table_latex(),
+            "takeoff_landing_table.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_to_la_units_table()
+        )
 
     def turn_part(self, save_plot=False):
         self.first_part(const.TURN_H)
 
         MACH = frmls.turn_mach(const.TURN_M_MIN, const.TURN_M_MAX, self.M_flying)
+        MACH = MACH.astype(np.float32)
+
+        index_MACH_out = np.array([i for i,val in enumerate(np.isin(MACH, const.MACH_output, assume_unique=True)) if val == True])
+        index_MACH_out = np.append(index_MACH_out, len(MACH))
+            
         TURN_Cy_dop = self.df.get_column("Cydop", "M", MACH, inter_value=True)
         TURN_Ro = self.df.get_column(
             "Ro_H", "H", np.array([const.TURN_H]), inter_value=True
@@ -909,15 +909,20 @@ class Calculation:
         TURN_A = self.df.get_column("A", "M", MACH, inter_value=True)
         TURN_Cym = self.df.get_column("Cym", "M", MACH, inter_value=True)
         TURN_Cxm = self.df.get_column("Cxm", "M", MACH, inter_value=True)
+        
 
         V = frmls.v_speed(MACH, TURN_a_sos)
 
         q = frmls.q_dynamic_pressure(V, TURN_Ro)
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
         TURN_Cy_GP = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q)
+        TURN_Cx_GP = frmls.C_x_n_drag_coefficient(TURN_Cxm, TURN_A, TURN_Cy_GP, TURN_Cym)
+        TURN_K_GP = frmls.K_n_lift_to_drag_ratio(TURN_Cy_GP, TURN_Cx_GP)
+
         n_y = frmls.n_y_equation(TURN_Cy_dop, TURN_Cy_GP)
         n_y_dop = dh.find_min_max_from_arrays(n_y, const.TURN_n_ye)
         TURN_MASS = otn_m_plane * const.M0
+
         TURN_P_rasp = frmls.P_rasp_equation(
             const.OTN_P_0,
             TURN_MASS,
@@ -927,7 +932,9 @@ class Calculation:
             self.p_h_11,
             TURN_Ro,
         )
-
+        TURN_P_potr = frmls.P_potr_equation(
+                otn_m_plane, TURN_MASS, const.G, TURN_K_GP  
+        )
         otn_P = frmls.otn_P_equation(TURN_P_rasp, TURN_MASS, const.G)
         n_y_p = frmls.n_y_p_equation(TURN_Cy_GP, TURN_Cym, otn_P, TURN_Cxm, TURN_A)
         n_y_turn = dh.find_min_max_from_arrays(n_y_p, n_y_dop)
@@ -937,27 +944,58 @@ class Calculation:
         t_turn = frmls.turn_time_equation(r_turn, V)
 
         self.save_turn_data(
+                np.array([
+                    [f"{np.format_float_positional(val,2)}"for i, val in enumerate(MACH) if i in index_MACH_out],
+                    [f"{round(val,0)}"for i, val in enumerate(V) if i in index_MACH_out],
+                    [f"{np.format_float_positional(val*3.6,0)}"for i, val in enumerate(V) if i in index_MACH_out],
+                    [f"{round(val,0)}"for i, val in enumerate(q) if i in index_MACH_out],
+                    [f"{round(val,3)}"for i, val in enumerate(TURN_Cy_GP) if i in index_MACH_out],
+                    [f"{round(val,3)}"for i, val in enumerate(TURN_Cy_dop) if i in index_MACH_out],
+                    [f"{round(val,3)}"for i, val in enumerate(n_y_dop) if i in index_MACH_out],
+                    [f"{round(val,2)}"for i, val in enumerate(TURN_K_GP) if i in index_MACH_out],
+                    [f"{round(val/10000,3)}"for i, val in enumerate(TURN_P_potr) if i in index_MACH_out],
+                    [f"{round(val/10000,3)}"for i, val in enumerate(TURN_P_rasp) if i in index_MACH_out],
+                    ]),
             np.array(
                 [
-                    MACH,
-                    otn_P,
-                    n_y_p,
-                    n_y_turn,
-                    omega_turn,
-                    r_turn,
-                    t_turn,
+                    [f"{round(val,3)}" for i, val in enumerate(otn_P) if i in index_MACH_out],
+                    [f"{round(val,3)}" for i, val in enumerate(n_y_p) if i in index_MACH_out],
+                    [f"{round(val,3)}" for i, val in enumerate(n_y_turn) if i in index_MACH_out],
+                    [f"{round(val,3)}" for i, val in enumerate(omega_turn) if i in index_MACH_out],
+                    [f"{round(val,1)}" for i, val in enumerate(r_turn) if i in index_MACH_out],
+                    [f"{round(val,1)}" for i, val in enumerate(t_turn) if i in index_MACH_out],
                 ]
             ),
         )
         if save_plot:
             self.run_plot_turn_part(MACH, n_y_turn, omega_turn, r_turn, t_turn)
 
-    def save_turn_data(self, data):
+    def save_turn_data(self, data1, data2):
         dh.save_data(
-            data,
-            text_handler.get_row_name_turn_table(),
-            "turn_data_table.csv",
+            data1,
+            text_handler.get_row_name_turn_table_part_1(),
+            "turn_data_table_part1.csv",
             const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            data1,
+            text_handler.get_row_name_turn_table_part_1(latex=True),
+            "turn_data_table_part1.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_name_turn_table_part_1_units(),
+        )
+        dh.save_data(
+            data2,
+            text_handler.get_row_name_turn_table_part_2(),
+            "turn_data_table_part2.csv",
+            const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            data2,
+            text_handler.get_row_name_turn_table_part_2(latex=True),
+            "turn_data_table_part2.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_name_turn_table_part_2_units()
         )
 
     def run_plot_turn_part(self, M, ny, omega, r, t):

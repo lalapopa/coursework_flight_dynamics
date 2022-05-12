@@ -247,7 +247,7 @@ class TextHandler:
                         r"$V_{км}$",
                         r"$\frac{\Delta V}{\Delta H}$",
                         r"$n_x$",
-                        r"V_{y}^*",
+                        r"$V_{y}^*$",
                         r"$\theta$",
                         Vy_text,
                         r"$H_э$",
@@ -305,6 +305,21 @@ class TextHandler:
             return np.array(["m_t_des [kg]", "L_des [km]", "t_des [min]"])
 
     @staticmethod
+    def get_mini_table_3_latex(descent_or_climb="climb"):
+        condition = ("climb", "descent")
+        if descent_or_climb not in condition:
+            raise InvalidNameError(descent_or_climb)
+        if descent_or_climb == "climb":
+            return np.array(["$m_{T_{наб}}$", "$L_{наб}$", "$t_{наб}$"])
+        if descent_or_climb == "descent":
+            return np.array(["$m_{T_{сн}}$", "$L_{сн}$", "$t_{сн}$"])
+
+    @staticmethod
+    def get_mini_table_3_units():
+        return np.array(['Кг', 'Км', 'Мин'], dtype=object)
+
+
+    @staticmethod
     def get_kr_table():
         return np.array(
             [
@@ -313,6 +328,30 @@ class TextHandler:
                 "Ro [kg/m^3]",
                 "H_0kr [km]",
                 "H_kkr [km]",
+            ]
+        )
+
+    @staticmethod
+    def get_kr_table_latex():
+        return np.array(
+            [
+                r"$T_{кр}$",
+                r"$L_{кр}$",
+                r"$\rho_{H\, кр}$",
+                r"$H_{0\, кр}$",
+                r"$H_{к\, кр}$",
+            ]
+        )
+
+    @staticmethod
+    def get_kr_units_table():
+        return np.array(
+            [
+                r"мин",
+                r"км",
+                r"$\frac{кг}{м^3}$",
+                r"км",
+                r"км",
             ]
         )
 
@@ -330,10 +369,76 @@ class TextHandler:
         )
 
     @staticmethod
-    def get_row_name_turn_table():
+    def get_to_la_table_latex():
         return np.array(
+            [
+                r"$V_{отр}$",
+                r"$L_{р}$",
+                r"$L_{вд}$",
+                r"$V_{кас}$",
+                r"$L_{пр}$",
+                r"$L_{пд}$",
+            ]
+        )
+
+    @staticmethod
+    def get_to_la_units_table():
+        return np.array(
+            [
+                r"$\frac{м}{с}$",
+                r"$м$",
+                r"$м$",
+                r"$\frac{м}{с}$",
+                r"$м$",
+                r"$м$",
+            ]
+        )
+
+    @staticmethod
+    def get_row_name_turn_table_part_1(latex=False):
+        if latex:
+            return np.array([
+                r"$M$",
+                r"$V$",
+                r"$V$",
+                r"$q$",
+                r"$C_{y_{ГП}}$",
+                r"$C_{y_{доп}}$",
+                r"$n_{y_{доп}}$",
+                r"$K_{ГП}$",
+                r"$P_{n}*10^{-5}$",
+                r"$P_{p}*10^{-5}$",
+                ])
+        else:
+            return np.array(
                 [
                     "M",
+                    "V [m/s]",
+                    "V [km/h]",
+                    "q [H/m^2]",
+                    "Cy_gp",
+                    "Cy_dop",
+                    "n_y_dop",
+                    "K_gp",
+                    "P_potr",
+                    "P_rasp",
+                ],
+        )
+
+    @staticmethod
+    def get_row_name_turn_table_part_2(latex=False):
+        if latex:
+            return np.array([
+                r"$\bar{P}$",
+                r"$n_{y_{p}}$",
+                r"$n_{y_{вир}}$",
+                r"$\omega_{вир}$",
+                r"$r_{вир}$",
+                r"$t_{вир}$",
+                ])
+        else:
+            return np.array(
+                [
                     "otn_P",
                     "n_y_p",
                     "n_y_vir",
@@ -342,6 +447,31 @@ class TextHandler:
                     "time_vir [s]",
                 ],
         )
+    @staticmethod
+    def get_row_name_turn_table_part_1_units():
+        return np.array([
+            r"-",
+            r"$\frac{м}{с}$",
+            r"$\frac{км}{ч}$",
+            r"$\frac{H}{м^2}$",
+            r"-",
+            r"-",
+            r"-",
+            r"-",
+            r"H",
+            r"H",
+            ])
+
+    @staticmethod
+    def get_row_name_turn_table_part_2_units():
+        return np.array([
+            r"-",
+            r"-",
+            r"-",
+            r"$\frac{1}{с}$",
+            r"$м$",
+            r"$с$",
+            ])
 
     @staticmethod
     def get_row_name_otn_S_go():
@@ -387,6 +517,20 @@ class TextHandler:
             dtype=object,
         )
 
+    @staticmethod
+    def get_row_cargo_table_latex():
+        return np.array(
+                        ["Режим", "$L$", "$m_{цн}$"],
+                        dtype=object,
+                        )
+
+    @staticmethod
+    def get_row_units_cargo_table():
+        return np.array([
+            r"№",
+            r"км",
+            r"кг",
+            ],dtype=object)
 
 class InvalidNameError(TypeError):
     pass
