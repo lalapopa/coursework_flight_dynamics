@@ -480,6 +480,13 @@ class TextHandler:
         )
 
     @staticmethod
+    def get_row_name_otn_S_go_latex():
+        return np.array(
+            [r"$\bar{S}_{го}$", r"$\bar{x}_{ТПП}$", r"$\bar{x}_{ТПЗ}$"],
+            dtype=object,
+        )
+
+    @staticmethod
     def get_row_name_phis_table():
         return np.array(
                 [
@@ -491,6 +498,31 @@ class TextHandler:
                 ],
         )
 
+    @staticmethod
+    def get_row_name_phis_table_latex():
+        return np.array(
+                [
+                    r"$M$",
+                    r"$V$",
+                    r"$\varphi_{бал}$",
+                    r"$\varphi^{n}$",
+                    r"$n_{y_{p}}$",
+                ],
+        )
+
+    @staticmethod
+    def get_row_name_phis_table_units():
+        return np.array(
+                [
+                    r"-",
+                    r"$\frac{м}{с}$",
+                    r"град",
+                    r"$\frac{град}{ед.перег.}$",
+                    r"-",
+                ],
+        )
+
+    @staticmethod
     def get_row_name_sigmas():
         return np.array(
                 [
@@ -499,6 +531,18 @@ class TextHandler:
                     "otn_x_H",
                     "otn_x_TPZ",
                     "sigma_n",
+                ],
+        )
+
+    @staticmethod
+    def get_row_name_sigmas_latex():
+        return np.array(
+                [
+                    r"$M$",
+                    r"$\bar{x}_{F}$",
+                    r"$\bar{x}_{H}$",
+                    r"$\bar{x}_{ТПЗ}$",
+                    r"$\sigma_{n}$",
                 ],
         )
 

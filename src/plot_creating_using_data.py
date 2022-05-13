@@ -215,6 +215,49 @@ class PlotBuilderUsingData:
 
         return V_4, q_km_min
 
+    def plot_q_km_q_ch_together(self, q_km, q_ch, V, min_q_km, min_q_ch,
+            V_min_km ,V_min_ch, file_name, save=True):
+        if self.altitude >= 11:
+            (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km, remove_first_element=True)
+            (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch, remove_first_element=True)
+        else:
+            (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km)
+            (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch)
+
+        for type_name in self.TYPE_NAMES:
+            plotter_q = plot(V_int, save_type=type_name, fun1=q_km_int)
+            plotter_q.get_figure(self.pth.get_label_in_box("q_km")[0])
+            plotter_q.add_labels(
+                self.pth.get_label("V"),
+                self.pth.get_label("q_km"),
+            )
+            plt.ylim([min_q_km-min_q_km*0.25, q_km_int[-1]+q_km_int[-1]*0.2])
+            plotter_q.add_text(
+                [0, V_min_km],
+                [0, min_q_km],
+                1,
+                self.pth.get_plot_text("q_km")[0],
+            )
+
+            ax1 = plt.gca()
+            ax2 = ax1.twinx()
+
+            ax2.plot(V_int, q_ch_int, linestyle='--', color="green", 
+                    label=self.pth.get_label_in_box("q_ch")[0])
+            ax2.plot(V_min_ch, min_q_ch, 'o', color='orange') 
+            ax2.annotate(self.pth.get_plot_text("q_ch")[0] + f"{round(V_min_ch,3)}",  
+                    xy=(V_min_ch, min_q_ch+(min_q_ch*0)))
+            ax2.set_ylabel(self.pth.get_label("q_ch")[0])
+
+            h1, l1 = ax1.get_legend_handles_labels()
+            h2, l2 = ax2.get_legend_handles_labels()
+            ax1.legend(h1 + h2, l1 + l2, loc=2)
+#            plotter_q_km.set_notation(2)
+            if save:
+                plotter_q.save_figure(file_name, self.save_path)
+            plotter_q.close_plot()
+
+
     def plot_V_y_H(self, Vy_max, alts, H_pr, H_st, save=True):
         for type_name in self.TYPE_NAMES:
             plotter_V_y_H = plot(Vy_max, save_type=type_name, fun1=alts)
@@ -228,14 +271,9 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V_y"),
                 self.pth.get_label("H"),
             )
-            plotter_V_y_H.add_text(
-                np.array([0.5]),
-                np.array([H_pr]),
-                0,
-                self.pth.get_plot_text("H")[1],
-                add_value="y",
-                text_location="down",
-            )
+                
+            plt.annotate(self.pth.get_plot_text("H")[1] + f"{round(H_pr,3)}", xy=(0.5, H_pr-(H_pr*0.05)))
+
             plotter_V_y_H.add_text(
                 np.array([0]),
                 np.array([H_st]),
@@ -364,16 +402,16 @@ class PlotBuilderUsingData:
 
             plot_climb = plot(x_t, save_type=type_name, fun1=alts, fun2=teta, fun3=Vy)
             plot_climb.get_figure(
-                "$H(t)[км]$", "$\\theta(t)[град]$", "$V_y^*(t) [м/с]$"
+                "$H(t)[км]$", "$\\theta(t)\\,[град]$", "$V_y^*(t)\\,[м/с]$"
             )
             plot_climb.add_labels(
-                "t [мин]", "$\\theta(t) [град]$ $V_y^*(t) [м/с]$ $H [км]$"
+                "t [мин]", "$\\theta(t) [град]$, $V_y^*(t) [м/с]$, $H [км]$"
             )
             plot_climb.set_legend()
             ax1 = plt.gca()
             ax2 = ax1.twinx()
-            ax2.set_ylabel("V [м/с]")
-            ax2.plot(x_t, V, color="black", label="$V(t) [м/с]$")
+            ax2.set_ylabel("V\\,[м/с]")
+            ax2.plot(x_t, V, color="black", label="$V(t)\\,[м/с]$")
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
@@ -388,14 +426,13 @@ class PlotBuilderUsingData:
         s_L = dh.sum_array(L)
         s_m = dh.sum_array(m)
         for type_name in self.TYPE_NAMES:
-
             plot_L_m = plot(x_t, save_type=type_name, fun1=s_L)
             plot_L_m.get_figure("$L(t) [км]$")
             plot_L_m.add_labels("$t [мин]$", "$L [км]$")
             ax1 = plt.gca()
             ax2 = ax1.twinx()
-            ax2.plot(x_t, s_m, color="blue", label="$m_t(t) [кг]$")
-            ax2.set_ylabel("$m_t [кг]$")
+            ax2.plot(x_t, s_m, linestyle='--',color="green", label="$m_T(t) [кг]$")
+            ax2.set_ylabel("$m_T [кг]$")
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
@@ -457,11 +494,11 @@ class PlotBuilderUsingData:
             )
             plot_turn.get_figure(
                 "$n_{y_{вир}}$",
-                "$\\omega_{вир}*10^2 [1/c]$",
-                "$r_{вир} * 10^-3 [м]$",
-                "$t_{вир} * 10^-1 [сек]$",
+                "$\\omega_{вир}*10^{2}$",
+                "$r_{вир} * 10^{-3}$",
+                "$t_{вир} * 10^{-1}$",
             )
-            plot_turn.add_labels("$M$", "$n_{y}, \\omega [1/c], r [м], t[с]$")
+            plot_turn.add_labels("$M$", r"$n_{y},\, \omega [1/c],\, r [м],\, t[с]$")
             plot_turn.set_legend()
             if save:
                 plot_turn.save_figure("turn_graph", self.save_path)
@@ -563,4 +600,37 @@ class PlotBuilderUsingData:
             if save:
                 plot_phi_n.save_figure("ny_p_graph", self.save_path)
             plot_phi_n.close_plot()
+
+    def plot_xs_sigmas(self, x_f, x_H, x_tpz, sigma_n, M, save=True):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                M, 
+                save_type=type_name,
+                fun1=x_f,
+                fun2=x_H,
+                fun3=x_tpz,
+                fun4=sigma_n,
+            )
+            plotter.get_figure(
+                    r"$\bar{x}_F(M)$",
+                    r"$\bar{x}_H(M)$",
+                    r"$\bar{x}_{ТПЗ}(M)$",
+                    r"$\sigma_n(M)$",
+
+            )
+
+            plotter.set_legend()
+            plotter.add_labels("$M$", "")
+            if save:
+                plotter.save_figure("xis_sigma", self.save_path)
+            plotter.close_plot()
+
+
+
+
+
+
+
+
+
 

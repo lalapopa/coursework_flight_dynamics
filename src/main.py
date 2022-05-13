@@ -23,6 +23,7 @@ def main(
     calc = Calculation()
     H_static, H_practical = find_celling(calc)
     const.H = dh.proper_array(0, H_practical, step_size)
+    print('H_pr=',H_practical)
 
     for alt in const.H:
         if alt <= 11:
@@ -89,6 +90,7 @@ class Calculation:
         self.altitude = alts
         self.H_pr = H_pr
         self.H_st = H_st
+        print(f'H_pr = {H_pr}, H_st = {H_st} in second part')
         self.M_max_dop = self.find_M_max_dop(self.altitude)
         self.M_min = self.find_M_min()
         self.M_max = self.find_M_max()
@@ -128,7 +130,7 @@ class Calculation:
                 self.M_4,
                 self.q_ch_min,
                 self.q_km_min,
-            ]
+            ], dtype=object
         )
 
     def prepare_data_for_H_tab_latex(self):
@@ -335,12 +337,16 @@ class Calculation:
         except ValueError:
             V_3, q_ch_min = plot_builder.plot_q_ch(self.V, self.q_ch, save=run_save)
             V_4, q_km_min = plot_builder.plot_q_km(self.V, self.q_km, save=run_save)
+
         M_4 = V_4 / self.a_H
         self.M_4 = np.append(self.M_4, M_4)
         self.V_3 = np.append(self.V_3, V_3)
         self.V_4 = np.append(self.V_4, V_4)
         self.q_ch_min = np.append(self.q_ch_min, q_ch_min)
         self.q_km_min = np.append(self.q_km_min, q_km_min)
+        plot_builder.plot_q_km_q_ch_together(self.q_km_flying, self.q_ch_flying, 
+            self.V_flying, q_km_min, q_ch_min, V_4, V_3,
+            f"q_km_ch_together_H={round(self.altitude, 1)}", save=run_save)
 
     def find_Cedr_depends_R(self, otn_R):
         Rdr_interp, Cedr_interp = self.df.interp_two_column("Rdr", "Cedr")
@@ -373,6 +379,7 @@ class Calculation:
         build_plot.plot_V_y_H(
             self.Vy_max, self.altitude, self.H_pr, self.H_st, save=run_save
         )
+        print(f'H_pr in PLOTTER = {self.H_pr}')
         build_plot.plot_H_M(
             self.altitude,
             self.M_min_P,
@@ -512,7 +519,7 @@ class Calculation:
             str(round(self.L_kr, 0)),
             str(round(Ro_H_kr, 4)),
             str(round(const.Hk, 1)), 
-            np.around(self.H_k_kr, 1)
+            str(round(self.H_k_kr[0], 1)),
             ],
             text_handler.get_kr_table_latex(),
             "level_flight_data.tex",
@@ -959,7 +966,11 @@ class Calculation:
 
     def static_stability_control_part(self, H_pr, H_st, save_plot=False):
         SSC_M = 0.2
+        self.__define_variables()
         self.first_part(0)
+        self.second_part(0, H_pr, H_st)
+
+        mach_values = dh.proper_array(self.M_min[0], self.M_max[0], 0.01)
         otn_x_T = self.find_otn_x_T(SSC_M, save_plot=save_plot)
 
         otn_S_go = self.otn_S_go_star
@@ -970,7 +981,7 @@ class Calculation:
         otn_x_TPZ = np.array([])
         sigma_n = np.array([])
 
-        for M in const.MACH:
+        for M in mach_values:
             self.find_otn_x_T(M, otn_S_go)
             otn_x_F = np.append(otn_x_F, self.otn_x_f)
             otn_x_H = np.append(otn_x_H, self.otn_x_H)
@@ -980,10 +991,19 @@ class Calculation:
                 frmls.sigma_n_equation(otn_x_T, self.otn_x_f, self.m_z_w_z, self.mu),
             )
 
+        out_index = [dh.get_index_nearest_element_in_array(mach_values, value) for value in const.MACH_output]
+        out_index = np.unique([0] + out_index + [len(mach_values)])
+
+        if save_plot:
+            run_plot = pbud(
+                0, mach_values, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
+            )
+            run_plot.plot_xs_sigmas(otn_x_F, otn_x_H, otn_x_TPZ, sigma_n, mach_values)
+
         dh.save_data(
             np.array(
                 [
-                    const.MACH,
+                    mach_values,
                     otn_x_F,
                     otn_x_H,
                     otn_x_TPZ,
@@ -992,6 +1012,20 @@ class Calculation:
             ),
             text_handler.get_row_name_sigmas(),
             "sigmas_table.csv",
+            const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            np.array(
+                [
+                    [f"{np.format_float_positional(i, precision=2)}" for index, i in enumerate(mach_values) if index in out_index],
+                    [f"{round(i,4)}" for index, i in enumerate(otn_x_F) if index in out_index],
+                    [f"{round(i,4)}" for index, i in enumerate(otn_x_H) if index in out_index],
+                    [f"{round(i,4)}" for index, i in enumerate(otn_x_TPZ) if index in out_index],
+                    [f"{round(i,4)}" for index, i in enumerate(sigma_n) if index in out_index],
+                ]
+            ),
+            text_handler.get_row_name_sigmas_latex(),
+            "sigmas_table.tex",
             const.PATH_TO_RESULTS,
         )
 
@@ -1044,7 +1078,16 @@ class Calculation:
         fi_n = frmls.phi_n_equation(Cy_gp, sigma_n, m_z_delta)
         nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal, fi_n)
 
-        DATA = np.array([mach_values, V_value, fi_bal, fi_n, nyp])
+        out_index = [dh.get_index_nearest_element_in_array(mach_values, value) for value in const.MACH_output]
+        out_index = np.unique([0] + out_index + [len(mach_values)])
+        
+        DATA = np.array([
+            [f"{round(i,2)}" for index, i in enumerate(mach_values) if index in out_index],
+            [f"{round(i,0)}" for index, i in enumerate(V_value) if index in out_index], 
+            [f"{round(i,2)}" for index, i in enumerate(fi_bal) if index in out_index], 
+            [f"{round(i,2)}" for index, i in enumerate(fi_n) if index in out_index], 
+            [f"{round(i,3)}" for index, i in enumerate(nyp) if index in out_index],
+            ])
         self.save_data_phi(DATA, alt)
         return fi_bal, fi_n, nyp
 
@@ -1054,6 +1097,14 @@ class Calculation:
             text_handler.get_row_name_phis_table(),
             f"phi_table_H={H}.csv",
             const.PATH_TO_RESULTS,
+        )
+        dh.save_data_tex(
+            data,
+            text_handler.get_row_name_phis_table_latex(),
+            f"phi_table_H={H}.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_name_phis_table_units()
+
         )
 
     def find_otn_x_T(self, ssc_M, otn_S_go=None, save_plot=False):
@@ -1128,6 +1179,16 @@ class Calculation:
                 np.array([otn_S_go, otn_x_TPP, self.otn_x_TPZ]),
                 text_handler.get_row_name_otn_S_go(),
                 f"otn_S_go.csv",
+                const.PATH_TO_RESULTS,
+            )
+            dh.save_data_tex(
+                np.array([
+                    [f"{round(i,2)}" for i in otn_S_go], 
+                    [f"{round(i,4)}" for i in otn_x_TPP], 
+                    [f"{round(i,4)}" for i in self.otn_x_TPZ]
+                    ]), 
+                text_handler.get_row_name_otn_S_go_latex(),
+                f"otn_S_go.tex",
                 const.PATH_TO_RESULTS,
             )
 
