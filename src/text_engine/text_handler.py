@@ -264,7 +264,7 @@ class TextHandler:
                             t_text,
                             r"$Ce$",
                             ],
-                        ]
+                        ], dtype=object
         )
     @staticmethod
     def get_row_units_table_3_latex():
@@ -282,8 +282,7 @@ class TextHandler:
             r'м', 
             r'-', 
             r'км',
-            ], 
-            [
+            ], [ 
             r'$H$',
             r'-',
             r'-',
@@ -291,8 +290,8 @@ class TextHandler:
             r'км',
             r'$\frac{м}{с}$',
             r'мин',
-            r'$\frac{кг}{H ч}$',
-            ]])
+            r'$\frac{кг}{H ч}$',]
+            ], dtype=object)
 
     @staticmethod
     def get_mini_table_3(descent_or_climb="climb"):

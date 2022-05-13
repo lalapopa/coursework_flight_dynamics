@@ -29,14 +29,14 @@ def main(
         if alt <= 11:
             alt = alt.astype(float)
         calc.first_part(alt, save_plot=True, save_data=True)
-    calc.second_part(const.H, H_practical, H_static, save_plot=True)
+    calc.second_part(const.H, H_practical, H_static, save_plot=True, save_data=True)
     calc.climb_part(save_plot=True)
     calc.level_flight_part(debug=False)
     calc.descent_part(save_plot=True)
     calc.cargo_possibility(save_plot=True)
     calc.take_off_landing_part()
     calc.turn_part(save_plot=True)
-    calc.static_stability_control_part(save_plot=True)
+    calc.static_stability_control_part(H_practical, H_static, save_plot=True)
     print("DONE :)")
 
 
@@ -105,31 +105,32 @@ class Calculation:
         DATA = self.calculate_using_formulas()
         return DATA[9]
 
-    def second_part(self, alts, H_pr, H_st, save_plot=False):
+    def second_part(self, alts, H_pr, H_st, save_plot=False, save_data=False):
         self.altitude = alts
-        print('second_part alts = ', alts)
-
         self.H_pr = H_pr
         self.H_st = H_st
         self.M_max_dop = self.find_M_max_dop(self.altitude)
+        print(f'MAX DOP= {self.M_max_dop}')
         self.M_min = self.find_M_min()
         self.M_max = self.find_M_max()
+        print(f'M_min ={self.M_min}, M_max ={self.M_max}')
         DATA = self.prepare_data_for_H_tab()
-        dh.save_data(
-            DATA,
-            text_handler.get_row_name_table_2(),
-            "table_2.csv",
-            const.PATH_TO_RESULTS,
-        )
-        DATA_tex = self. prepare_data_for_H_tab_latex()
-        print('speed of sound is = ', self.a_H)
-        dh.save_data_tex(
-            DATA_tex,
-            text_handler.get_row_name_table_2_latex(),
-            "table_2.tex",
-            const.PATH_TO_RESULTS,
-            units_value=text_handler.get_row_units_table_2_latex(),
-        )
+
+        if save_data:
+            dh.save_data(
+                DATA,
+                text_handler.get_row_name_table_2(),
+                "table_2.csv",
+                const.PATH_TO_RESULTS,
+            )
+            DATA_tex = self. prepare_data_for_H_tab_latex()
+            dh.save_data_tex(
+                DATA_tex,
+                text_handler.get_row_name_table_2_latex(),
+                "table_2.tex",
+                const.PATH_TO_RESULTS,
+                units_value=text_handler.get_row_units_table_2_latex(),
+            )
         if save_plot:
             self.run_plot_second_part()
 
@@ -307,6 +308,7 @@ class Calculation:
             self.otn_R, self.V, self.q_km
         )
         self.M_flying = self.V_flying / self.a_H
+        
         return np.array(
             [
                 const.MACH,
@@ -670,6 +672,11 @@ class Calculation:
             file_name+".csv",
             const.PATH_TO_RESULTS,
         )
+        units_part1 = np.array(text_handler.get_row_units_table_3_latex()[0])
+        units_part2 = np.array(text_handler.get_row_units_table_3_latex()[1])
+        print(units_part1)
+        print(units_part2)
+
         dh.save_data_tex(
             [
                 [f"{round(val,1)}" for val in H_move],
@@ -689,7 +696,7 @@ class Calculation:
             text_handler.get_row_name_table_3_tex(descent_or_climb=move)[0],
             file_name+".tex",
             const.PATH_TO_RESULTS,
-            units_value=text_handler.get_row_units_table_3_latex()[0]
+            units_value=units_part1,
         )
         dh.save_data_tex(
             [
@@ -705,7 +712,7 @@ class Calculation:
             text_handler.get_row_name_table_3_tex(descent_or_climb=move)[1],
             file_name+"_part2.tex",
             const.PATH_TO_RESULTS,
-            units_value=text_handler.get_row_units_table_3_latex()[1]
+            units_value=units_part2,
         )
 
     def prepare_data_for_H_L_tab(self):
@@ -1002,7 +1009,7 @@ class Calculation:
         run_plot = pbud(self.altitude, M, const.TYPE_NAMES, const.PATH_TO_DIRECTORY)
         run_plot.plot_turn(ny, omega, r, t)
 
-    def static_stability_control_part(self, save_plot=False):
+    def static_stability_control_part(self, H_pr, H_st, save_plot=False):
         SSC_M = 0.2
         self.first_part(0)
         otn_x_T = self.find_otn_x_T(SSC_M, save_plot=save_plot)
@@ -1016,7 +1023,6 @@ class Calculation:
 
         for M in const.MACH:
             self.find_otn_x_T(M, otn_S_go)
-
             otn_x_F = np.append(otn_x_F, self.otn_x_f)
             otn_x_H = np.append(otn_x_H, self.otn_x_H)
             otn_x_TPZ = np.append(otn_x_TPZ, self.otn_x_TPZ)
@@ -1048,6 +1054,7 @@ class Calculation:
 
         for alt in alts:
             self.first_part(alt)
+            self.second_part(alt, H_pr, H_st)
             mach_speeds.append(self.M_flying)
             fi_bal, fi_n, ny_p = self.find_phis(alt, otn_S_go, otn_x_T)
             fi_bal_array.append(fi_bal)
@@ -1254,3 +1261,4 @@ def find_celling(calc):
     H_st = value_find(0)
     H_pr = value_find(0.5)
     return H_st, H_pr
+

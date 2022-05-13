@@ -545,3 +545,4 @@ class PlotBuilderUsingData:
             if save:
                 plot_phi_n.save_figure("ny_p_graph", self.save_path)
             plot_phi_n.close_plot()
+
