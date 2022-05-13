@@ -965,6 +965,7 @@ class Calculation:
         otn_x_T = self.find_otn_x_T(SSC_M, save_plot=save_plot)
 
         otn_S_go = self.otn_S_go_star
+        print(f'otn x T = {otn_x_T}, otn S go = {otn_S_go}')
 
         otn_x_F = np.array([])
         otn_x_H = np.array([])
@@ -1006,12 +1007,12 @@ class Calculation:
             self.__define_variables()
             self.first_part(alt)
             self.second_part(alt, H_pr, H_st)
-            mach_speeds.append(dh.proper_array(self.M_min[0], self.M_max[0], 0.1))
-            fi_bal, fi_n, ny_p = self.find_phis(alt, otn_S_go, otn_x_T)
+            mach_values = dh.proper_array(self.M_min[0], self.M_max[0], 0.01)
+            mach_speeds.append(mach_values)
+            fi_bal, fi_n, ny_p = self.find_phis(alt, otn_S_go, otn_x_T, mach_values)
             fi_bal_array.append(fi_bal)
             fi_n_array.append(fi_n)
             ny_p_array.append(ny_p)
-        print(mach_speeds)
         self.run_plot_phis_part(alts, mach_speeds, fi_bal_array, fi_n_array, ny_p_array)
 
     def find_phis(self, alt, otn_S_go, otn_x_T, mach_values):
