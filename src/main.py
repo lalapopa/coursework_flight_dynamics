@@ -1,4 +1,3 @@
-# Crate table 2.8 using latex table: part 2 calculation <10-05-22, LALAPOPA> #
 import numpy as np
 import os
 import collections
@@ -41,21 +40,9 @@ def main(
 
 
 class Calculation:
-    M_min_P = np.array([])
-    M_max_P = np.array([])
-    M_min_dop = np.array([])
-    Vy_max = np.array([])
-    q_km_min = np.array([])
-    q_ch_min = np.array([])
-    M_1 = np.array([])
-    M_2 = np.array([])
-    V_3 = np.array([])
-    V_4 = np.array([])
-    M_4 = np.array([])
-    Vy_check = np.array([])
-
     def __init__(self):
         self.df = dh(const.DATA_TABLE_NAME)
+        self.__define_variables()
 
     def first_part(self, altitude, save_plot=False, save_data=False):
         self.altitude = altitude
@@ -69,22 +56,15 @@ class Calculation:
                 f"alt_{str(self.altitude)}.csv",
                 const.PATH_TO_RESULTS,
             )
-            c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13 = DATA 
-            DATA_tex = np.array([
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c1) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c2) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c3) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=0) for i, c in enumerate(c4) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c5) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c6) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c7) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=3) for i, c in enumerate(c8) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c9) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c10) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c11) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=0) for i, c in enumerate(c12) if i in const.MACH_output_index]),
-                np.array([np.format_float_positional(c, precision=2) for i, c in enumerate(c13) if i in const.MACH_output_index]),
-                ])
+            DATA_tex = [] 
+            precision_order = [2, 0, 0, 0, 3, 2, 3, 3, 3, 1, 2, 0, 2]
+            for j, array in enumerate(DATA):
+                formated_array = []
+                for i, value in enumerate(array):
+                    if i in const.MACH_output_index:
+                        formated_array.append(np.format_float_positional(
+                            value, precision=precision_order[j]))
+                DATA_tex.append(formated_array)
 
             dh.save_data_tex(
                 DATA_tex,
@@ -110,10 +90,8 @@ class Calculation:
         self.H_pr = H_pr
         self.H_st = H_st
         self.M_max_dop = self.find_M_max_dop(self.altitude)
-        print(f'MAX DOP= {self.M_max_dop}')
         self.M_min = self.find_M_min()
         self.M_max = self.find_M_max()
-        print(f'M_min ={self.M_min}, M_max ={self.M_max}')
         DATA = self.prepare_data_for_H_tab()
 
         if save_data:
@@ -644,41 +622,7 @@ class Calculation:
             const.PATH_TO_RESULTS,
             units_value=text_handler.get_mini_table_3_units()
         )
-        dh.save_data(
-            [
-                H_move,
-                M_move,
-                V_move,
-                V_move * 3.6,
-                dVdH,
-                n_x_move,
-                V_y_star,
-                theta_move,
-                V_y_move,
-                H_e,
-                delta_H_e,
-                1 / n_x_avg,
-                delta_H_e / (1000 * n_x_move),
-                P_move,
-                (Ce_move * P_move) / V_y_move,
-                CeP_Vy_avg,
-                m_t_move,
-                L_move,
-                v_y_avg,
-                t_move,
-                Ce_move,
-            ],
-            text_handler.get_row_name_table_3(descent_or_climb=move),
-            file_name+".csv",
-            const.PATH_TO_RESULTS,
-        )
-        units_part1 = np.array(text_handler.get_row_units_table_3_latex()[0])
-        units_part2 = np.array(text_handler.get_row_units_table_3_latex()[1])
-        print(units_part1)
-        print(units_part2)
-
-        dh.save_data_tex(
-            [
+        data_table = [
                 [f"{round(val,1)}" for val in H_move],
                 [f"{round(val,2)}" for val in M_move],
                 [f"{round(val,1)}" for val in V_move],
@@ -692,23 +636,35 @@ class Calculation:
                 [f"{round(val,0)}" for val in delta_H_e],
                 [f"{round(val,3)}" for val in 1 / n_x_avg],
                 [f"{round(val,2)}" for val in delta_H_e / (1000 * n_x_move)],
-            ],
+                [f"{round(val,0)}" for val in P_move], # part 2 table begining
+                [f"{round(val,1)}" for val in (Ce_move * P_move) / V_y_move],
+                [f"{round(val,1)}" for val in CeP_Vy_avg],
+                [f"{round(val,1)}" for val in m_t_move],
+                [f"{round(val,1)}" for val in L_move],
+                [f"{round(val,1)}" for val in v_y_avg],
+                [f"{round(val,2)}" for val in t_move],
+                [f"{round(val,3)}" for val in Ce_move],
+            ]
+        dh.save_data(
+            data_table,
+            text_handler.get_row_name_table_3(descent_or_climb=move),
+            file_name+".csv",
+            const.PATH_TO_RESULTS,
+        )
+        units_part1 = np.array(text_handler.get_row_units_table_3_latex()[0])
+        units_part2 = np.array(text_handler.get_row_units_table_3_latex()[1])
+        print(units_part1)
+        print(units_part2)
+
+        dh.save_data_tex(
+            data_table[0:13],
             text_handler.get_row_name_table_3_tex(descent_or_climb=move)[0],
             file_name+".tex",
             const.PATH_TO_RESULTS,
             units_value=units_part1,
         )
         dh.save_data_tex(
-            [
-    [f"{round(val,0)}" for val in P_move],
-    [f"{round(val,1)}" for val in (Ce_move * P_move) / V_y_move],
-    [f"{round(val,1)}" for val in CeP_Vy_avg],
-    [f"{round(val,1)}" for val in m_t_move],
-    [f"{round(val,1)}" for val in L_move],
-    [f"{round(val,1)}" for val in v_y_avg],
-    [f"{round(val,2)}" for val in t_move],
-    [f"{round(val,3)}" for val in Ce_move],
-            ],
+            data_table[13:],
             text_handler.get_row_name_table_3_tex(descent_or_climb=move)[1],
             file_name+"_part2.tex",
             const.PATH_TO_RESULTS,
@@ -750,9 +706,7 @@ class Calculation:
             const.OTN_M_T_ANZ,
             const.OTN_M_T_PR,
         )
-
         L_des_nab = np.sum(np.append(self.L_des, self.L_nab))
-
         L_kr_mode2 = frmls.L_kr_equation(
             self.V_gp,
             self.K_gp,
@@ -762,11 +716,8 @@ class Calculation:
             const.OTN_M_T_PR,
             otn_m_kr_mode2,
         )
-
         m_tsn_mode2 = abs((1 - const.OTN_M_EMPTY - const.OTN_M_T) * const.M0)
-
         otn_m_vz = const.OTN_M_EMPTY + const.OTN_M_T
-
         L_kr_mode3 = frmls.L_kr_equation(
             self.V_gp,
             self.K_gp,
@@ -777,7 +728,6 @@ class Calculation:
             otn_m_kr_mode2,
             otn_m_vz=otn_m_vz,
         )
-
         L_array = np.array(
             [
                 np.max(self.L_plot),
@@ -1053,20 +1003,21 @@ class Calculation:
         ny_p_array = []
 
         for alt in alts:
+            self.__define_variables()
             self.first_part(alt)
             self.second_part(alt, H_pr, H_st)
-            mach_speeds.append(self.M_flying)
+            mach_speeds.append(dh.proper_array(self.M_min[0], self.M_max[0], 0.1))
             fi_bal, fi_n, ny_p = self.find_phis(alt, otn_S_go, otn_x_T)
             fi_bal_array.append(fi_bal)
             fi_n_array.append(fi_n)
             ny_p_array.append(ny_p)
-
+        print(mach_speeds)
         self.run_plot_phis_part(alts, mach_speeds, fi_bal_array, fi_n_array, ny_p_array)
 
-    def find_phis(self, alt, otn_S_go, otn_x_T):
-        self.take_constant_stability(self.M_flying)
-
-        self.find_otn_x_T(self.M_flying, otn_S_go)
+    def find_phis(self, alt, otn_S_go, otn_x_T, mach_values):
+        self.take_constant_stability(mach_values)
+        V_value = self.a_H[0]*mach_values
+        self.find_otn_x_T(mach_values, otn_S_go)
 
         m_z_Cy = frmls.m_z_Cy_equation(otn_x_T, self.otn_x_f)
         m_z_delta = frmls.m_z_delta_equation(
@@ -1074,7 +1025,7 @@ class Calculation:
         )
 
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
-        q_dynamic = frmls.q_dynamic_pressure(self.V_flying, self.Ro_H)
+        q_dynamic = frmls.q_dynamic_pressure(V_value, self.Ro_H)
 
         Cy_gp = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q_dynamic)
         mz0 = frmls.m_z_0_equation(
@@ -1094,7 +1045,7 @@ class Calculation:
         fi_n = frmls.phi_n_equation(Cy_gp, sigma_n, m_z_delta)
         nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal, fi_n)
 
-        DATA = np.array([self.M_flying, self.V_flying, fi_bal, fi_n, nyp])
+        DATA = np.array([mach_values, V_value, fi_bal, fi_n, nyp])
         self.save_data_phi(DATA, alt)
         return fi_bal, fi_n, nyp
 
@@ -1223,6 +1174,20 @@ class Calculation:
         run_plot.plot_phi_bal(alts, mach, fi_bal)
         run_plot.plot_phi_n(alts, mach, fi_n)
         run_plot.plot_ny_p(alts, mach, ny_p)
+
+    def __define_variables(self):
+        self.M_min_P = np.array([])
+        self.M_max_P = np.array([])
+        self.M_min_dop = np.array([])
+        self.Vy_max = np.array([])
+        self.q_km_min = np.array([])
+        self.q_ch_min = np.array([])
+        self.M_1 = np.array([])
+        self.M_2 = np.array([])
+        self.V_3 = np.array([])
+        self.V_4 = np.array([])
+        self.M_4 = np.array([])
+        self.Vy_check = np.array([])
 
 
 def debug_level_flight_part(Ce_gp, T_kr, L_kr, Ro, H):
