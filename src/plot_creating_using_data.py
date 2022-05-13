@@ -467,9 +467,10 @@ class PlotBuilderUsingData:
                 plot_turn.save_figure("turn_graph", self.save_path)
             plot_turn.close_plot()
 
-    def plot_center_value(self, otn_s_go, otn_x_tpp, otn_x_tpz, save=True):
+    def plot_center_value(self, otn_s_go, otn_x_tpp, otn_x_tpz, 
+            xtpz_star, xtpp_star, S_star,
+            save=True):
         for type_name in self.TYPE_NAMES:
-
             plot_center = plot(
                 otn_s_go,
                 save_type=type_name,
@@ -480,8 +481,25 @@ class PlotBuilderUsingData:
                 "$\\bar{X}_{ТПЗ}(\\bar{S}_{го})$",
                 "$\\bar{X}_{ТПП}(\\bar{S}_{го})$",
             )
+            plt.plot([0, S_star], [xtpp_star, xtpp_star], color='k', linewidth=0.5)
+            plt.plot([0, S_star], [xtpz_star, xtpz_star], color='k', linewidth=0.5)
+            plt.plot([S_star, S_star], [xtpp_star, xtpz_star], color='k', linewidth=0.5)
+            plt.plot([S_star], [xtpz_star], 'ko')
+            plt.plot([S_star], [xtpp_star], 'ko')
+
+            plot_center.add_text([0,0], [0, xtpp_star-0.05], 1, 
+                    r'$\bar{x}_{тпп}(\bar{S}_{го}^*)=$', add_value="y", text_location="down", marker_style='-')
+
+            plot_center.add_text([0,0], [0, xtpz_star+xtpp_star*0.1], 1, 
+                    r'$\bar{x}_{тпз}(\bar{S}_{го}^*)=$', add_value="y", text_location="up", marker_style='-')
+
+            plot_center.add_text([S_star, S_star], [0, xtpp_star+((xtpz_star-xtpp_star)/2)], 1, 
+                    r'$\bar{S}_{го}^*=$', add_value="x", text_location="up", marker_style='-')
+
             plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{X}_{Т}$")
             plot_center.set_legend()
+            plt.xlim([0, otn_s_go[-1]])
+
             if save:
                 plot_center.save_figure("xTP_graph", self.save_path)
             plot_center.close_plot()

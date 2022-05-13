@@ -653,8 +653,6 @@ class Calculation:
         )
         units_part1 = np.array(text_handler.get_row_units_table_3_latex()[0])
         units_part2 = np.array(text_handler.get_row_units_table_3_latex()[1])
-        print(units_part1)
-        print(units_part2)
 
         dh.save_data_tex(
             data_table[0:13],
@@ -1114,9 +1112,18 @@ class Calculation:
 
         fun_otn_x_TPP = dh.find_linear_func(otn_S_go, otn_x_TPP)
         fun_otn_x_TPZ = dh.find_linear_func(otn_S_go, self.otn_x_TPZ)
+        xtpz_star = fun_otn_x_TPZ(self.otn_S_go_star)
+        xtpp_star = fun_otn_x_TPP(self.otn_S_go_star)
 
         if save_plot:
-            self.run_plot_stability_control_part(otn_S_go, otn_x_TPP, self.otn_x_TPZ)
+            self.run_plot_stability_control_part(
+                    otn_S_go, 
+                    otn_x_TPP,
+                    self.otn_x_TPZ,
+                    xtpz_star,
+                    xtpp_star, 
+                    self.otn_S_go_star,
+                    )
             dh.save_data(
                 np.array([otn_S_go, otn_x_TPP, self.otn_x_TPZ]),
                 text_handler.get_row_name_otn_S_go(),
@@ -1125,7 +1132,7 @@ class Calculation:
             )
 
         return frmls.otn_x_t_equation(
-            fun_otn_x_TPZ(self.otn_S_go_star), fun_otn_x_TPP(self.otn_S_go_star)
+            xtpz_star, xtpp_star 
         )
 
     def take_constant_stability(self, mach):
@@ -1162,11 +1169,11 @@ class Calculation:
         )
         self.a0 = self.df.get_column("a0", "M", np.array([mach]), inter_value=True)
 
-    def run_plot_stability_control_part(self, otn_S_go, otn_xtpp, otn_xtpz):
+    def run_plot_stability_control_part(self, otn_S_go, otn_xtpp, otn_xtpz, xtpz_star, xtpp_star, S_star):
         run_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
-        run_plot.plot_center_value(otn_S_go, otn_xtpp, otn_xtpz)
+        run_plot.plot_center_value(otn_S_go, otn_xtpp, otn_xtpz, xtpz_star, xtpp_star, S_star)
 
     def run_plot_phis_part(self, alts, mach, fi_bal, fi_n, ny_p):
         run_plot = pbud(
