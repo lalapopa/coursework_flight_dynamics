@@ -325,20 +325,6 @@ class PlotBuilderUsingData:
                     fun4=M_Vi_max,
                     fun5=M_OGR,
                 )
-                print(
-                    "self.altitude",
-                    alts.shape,
-                    "self.M_min_P",
-                    M_min_P.shape,
-                    "self.M_max_P",
-                    M_max_P.shape,
-                    "self.M_min_dop",
-                    M_min_dop.shape,
-                    "self.M_Vi_max",
-                    M_Vi_max.shape,
-                    "self.M_OGR",
-                    M_OGR.shape,
-                    )
                 plotter_H_M.get_figure(
                     "$M_{min_{P}}$",
                     "$M_{max_{P}}$",
@@ -348,10 +334,12 @@ class PlotBuilderUsingData:
                     t_graph=True,
                 )
             
-            plt.plot([0, 1], [alts[-1], alts[-1]], 'k', linewidth=2)
-            plotter_H_M.add_text([0, 0.5, 1], [alts[-1], alts[-1], alts[-1]], 1, 
-                    str('$H_{пр}= %.2f \ км$' % (alts[-1])),add_value=None, 
+            plt.plot([0, 1], [alts[-1], alts[-1]], '--k', linewidth=1)
+
+            plotter_H_M.add_text([0, 0.5], [alts[-1], alts[-1]+(0.02*alts[-1])], 1, 
+                    str('$H_{пр}= %.2f \ км$' % (alts[-1])), add_value=None, 
                     marker_style='-',)
+
             plt.xlim(0, 1)
             plt.ylim(0, alts[-1] + 1)
             plt.xticks(np.arange(0, 1, 0.1))

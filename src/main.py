@@ -63,8 +63,7 @@ class Calculation:
                 formated_array = []
                 for i, value in enumerate(array):
                     if i in const.MACH_output_index:
-                        formated_array.append(np.format_float_positional(
-                            value, precision=precision_order[j]))
+                        formated_array.append(f"%.{precision_order[j]}f" % value)
                 DATA_tex.append(formated_array)
 
             dh.save_data_tex(
@@ -103,7 +102,7 @@ class Calculation:
                 "table_2.csv",
                 const.PATH_TO_RESULTS,
             )
-            DATA_tex = self. prepare_data_for_H_tab_latex()
+            DATA_tex = self.prepare_data_for_H_tab_latex()
             dh.save_data_tex(
                 DATA_tex,
                 text_handler.get_row_name_table_2_latex(),
@@ -137,29 +136,27 @@ class Calculation:
         a_H = self.df.get_column(
                 "a_H", "H", np.array([self.altitude]), inter_value=True
                 )
+        V_km_func = lambda V, a_sos: V*a_sos*3.6
+        
         M_min_dop_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_min_dop)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_min_dop)]
                 )
         
         M_max_dop_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max_dop)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_max_dop)]
                 )
         M_min_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_min)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_min)]
                 )
 
         M_max_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max)]
-                )
-
-        M_max_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_max)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_max)]
                 )
         M_1_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_1)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_1)]
                 )
         M_2_column = np.array(
-                [f"${round(value,3)}\, [{round(value*a_H[i]*3.6,0)}]$" for i, value in enumerate(self.M_2)]
+                [f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i])) for i, value in enumerate(self.M_2)]
                 )
         return np.array(
             [
@@ -171,9 +168,9 @@ class Calculation:
                 M_max_column,
                 M_1_column,
                 M_2_column,
-                [str(round(val,2)) for val in self.V_3],
-                [str(round(val,2)) for val in self.V_4],
-                [str(round(val,3)) for val in self.M_4],
+                [f"%.0f" % val for val in self.V_3],
+                [f"%.0f" % val for val in self.V_4],
+                [f"%.3f" % val for val in self.M_4],
                 [str(round(val,2)) for val in self.q_ch_min],
                 [str(round(val,2)) for val in self.q_km_min],
             ]
