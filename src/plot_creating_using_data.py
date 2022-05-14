@@ -44,7 +44,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
-            plt.ylim([0, P_rasp_int[cross_position][-1]*1.35])
+            plt.ylim([0, P_rasp_int[cross_position][-1] * 1.35])
             if len(cross_position) == 1:
                 ploter_P_p_P_r.add_text(
                     MACH_int,
@@ -97,7 +97,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("C_y"),
             )
-            plt.ylim([0, C_y_n_int[cross_position]+C_y_n_int[cross_position]*0.15])
+            plt.ylim([0, C_y_n_int[cross_position] + C_y_n_int[cross_position] * 0.15])
             plotter_C_y.add_text(
                 MACH_int, C_y_n_int, cross_position, self.pth.get_plot_text("C_y")[0]
             )
@@ -125,7 +125,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V"),
                 self.pth.get_label("V_y"),
             )
-            plt.ylim([0, Vy_max+Vy_max*0.15])
+            plt.ylim([0, Vy_max + Vy_max * 0.15])
             plotter_Vy.add_text(
                 MACH_int,
                 V_y_int,
@@ -157,7 +157,7 @@ class PlotBuilderUsingData:
         for type_name in self.TYPE_NAMES:
             plotter_q_ch = plot(V_int, save_type=type_name, fun1=q_ch_int)
             plotter_q_ch.get_figure(self.pth.get_label_in_box("q_ch")[0])
-            plt.ylim([q_ch_min-q_ch_min*0.05, q_ch_int[-1]+q_ch_int[-1]*0.2])
+            plt.ylim([q_ch_min - q_ch_min * 0.05, q_ch_int[-1] + q_ch_int[-1] * 0.2])
             plotter_q_ch.add_labels(
                 self.pth.get_label("V"),
                 self.pth.get_label("q_ch")[0],
@@ -195,7 +195,7 @@ class PlotBuilderUsingData:
         for type_name in self.TYPE_NAMES:
             plotter_q_km = plot(V_int, save_type=type_name, fun1=q_km_int)
             plotter_q_km.get_figure(self.pth.get_label_in_box("q_km")[0])
-            plt.ylim([q_km_min-q_km_min*0.05, q_km_int[-1]+q_km_int[-1]*0.2])
+            plt.ylim([q_km_min - q_km_min * 0.05, q_km_int[-1] + q_km_int[-1] * 0.2])
             plotter_q_km.add_labels(
                 self.pth.get_label("V"),
                 self.pth.get_label("q_km"),
@@ -215,11 +215,25 @@ class PlotBuilderUsingData:
 
         return V_4, q_km_min
 
-    def plot_q_km_q_ch_together(self, q_km, q_ch, V, min_q_km, min_q_ch,
-            V_min_km ,V_min_ch, file_name, save=True):
+    def plot_q_km_q_ch_together(
+        self,
+        q_km,
+        q_ch,
+        V,
+        min_q_km,
+        min_q_ch,
+        V_min_km,
+        V_min_ch,
+        file_name,
+        save=True,
+    ):
         if self.altitude >= 11:
-            (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km, remove_first_element=True)
-            (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch, remove_first_element=True)
+            (V_int, q_km_int) = dh.prepare_data_for_plot(
+                V, q_km, remove_first_element=True
+            )
+            (V_int, q_ch_int) = dh.prepare_data_for_plot(
+                V, q_ch, remove_first_element=True
+            )
         else:
             (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km)
             (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch)
@@ -231,7 +245,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V"),
                 self.pth.get_label("q_km"),
             )
-            plt.ylim([min_q_km-min_q_km*0.25, q_km_int[-1]+q_km_int[-1]*0.2])
+            plt.ylim([min_q_km - min_q_km * 0.25, q_km_int[-1] + q_km_int[-1] * 0.2])
             plotter_q.add_text(
                 [0, V_min_km],
                 [0, min_q_km],
@@ -242,21 +256,27 @@ class PlotBuilderUsingData:
             ax1 = plt.gca()
             ax2 = ax1.twinx()
 
-            ax2.plot(V_int, q_ch_int, linestyle='--', color="green", 
-                    label=self.pth.get_label_in_box("q_ch")[0])
-            ax2.plot(V_min_ch, min_q_ch, 'o', color='orange') 
-            ax2.annotate(self.pth.get_plot_text("q_ch")[0] + f"{round(V_min_ch,3)}",  
-                    xy=(V_min_ch, min_q_ch+(min_q_ch*0)))
+            ax2.plot(
+                V_int,
+                q_ch_int,
+                linestyle="--",
+                color="green",
+                label=self.pth.get_label_in_box("q_ch")[0],
+            )
+            ax2.plot(V_min_ch, min_q_ch, "o", color="orange")
+            ax2.annotate(
+                self.pth.get_plot_text("q_ch")[0] + f"{round(V_min_ch,3)}",
+                xy=(V_min_ch, min_q_ch + (min_q_ch * 0)),
+            )
             ax2.set_ylabel(self.pth.get_label("q_ch")[0])
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
             ax1.legend(h1 + h2, l1 + l2, loc=2)
-#            plotter_q_km.set_notation(2)
+            #            plotter_q_km.set_notation(2)
             if save:
                 plotter_q.save_figure(file_name, self.save_path)
             plotter_q.close_plot()
-
 
     def plot_V_y_H(self, Vy_max, alts, H_pr, H_st, save=True):
         for type_name in self.TYPE_NAMES:
@@ -271,8 +291,11 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V_y"),
                 self.pth.get_label("H"),
             )
-                
-            plt.annotate(self.pth.get_plot_text("H")[1] + f"{round(H_pr,3)}", xy=(0.5, H_pr-(H_pr*0.05)))
+
+            plt.annotate(
+                self.pth.get_plot_text("H")[1] + f"{round(H_pr,3)}",
+                xy=(0.5, H_pr - (H_pr * 0.05)),
+            )
 
             plotter_V_y_H.add_text(
                 np.array([0]),
@@ -311,10 +334,10 @@ class PlotBuilderUsingData:
                     t_graph=True,
                 )
                 plotter_H_M.add_plot(
-                        M_min_P[no_limit_index+1:], 
-                        alts[no_limit_index+1:], 
-                        "$M_{min_{P}}$",
-                        )
+                    M_min_P[no_limit_index + 1 :],
+                    alts[no_limit_index + 1 :],
+                    "$M_{min_{P}}$",
+                )
             else:
                 plotter_H_M = plot(
                     alts,
@@ -333,12 +356,17 @@ class PlotBuilderUsingData:
                     "$M_{пред}$",
                     t_graph=True,
                 )
-            
-            plt.plot([0, 1], [alts[-1], alts[-1]], '--k', linewidth=1)
 
-            plotter_H_M.add_text([0, 0.5], [alts[-1], alts[-1]+(0.02*alts[-1])], 1, 
-                    str('$H_{пр}= %.2f \ км$' % (alts[-1])), add_value=None, 
-                    marker_style='-',)
+            plt.plot([0, 1], [alts[-1], alts[-1]], "--k", linewidth=1)
+
+            plotter_H_M.add_text(
+                [0, 0.5],
+                [alts[-1], alts[-1] + (0.02 * alts[-1])],
+                1,
+                str("$H_{пр}= %.2f \ км$" % (alts[-1])),
+                add_value=None,
+                marker_style="-",
+            )
 
             plt.xlim(0, 1)
             plt.ylim(0, alts[-1] + 1)
@@ -419,7 +447,7 @@ class PlotBuilderUsingData:
             plot_L_m.add_labels("$t [мин]$", "$L [км]$")
             ax1 = plt.gca()
             ax2 = ax1.twinx()
-            ax2.plot(x_t, s_m, linestyle='--',color="green", label="$m_T(t) [кг]$")
+            ax2.plot(x_t, s_m, linestyle="--", color="green", label="$m_T(t) [кг]$")
             ax2.set_ylabel("$m_T [кг]$")
 
             h1, l1 = ax1.get_legend_handles_labels()
@@ -492,9 +520,9 @@ class PlotBuilderUsingData:
                 plot_turn.save_figure("turn_graph", self.save_path)
             plot_turn.close_plot()
 
-    def plot_center_value(self, otn_s_go, otn_x_tpp, otn_x_tpz, 
-            xtpz_star, xtpp_star, S_star,
-            save=True):
+    def plot_center_value(
+        self, otn_s_go, otn_x_tpp, otn_x_tpz, xtpz_star, xtpp_star, S_star, save=True
+    ):
         for type_name in self.TYPE_NAMES:
             plot_center = plot(
                 otn_s_go,
@@ -506,20 +534,41 @@ class PlotBuilderUsingData:
                 "$\\bar{X}_{ТПЗ}(\\bar{S}_{го})$",
                 "$\\bar{X}_{ТПП}(\\bar{S}_{го})$",
             )
-            plt.plot([0, S_star], [xtpp_star, xtpp_star], color='k', linewidth=0.5)
-            plt.plot([0, S_star], [xtpz_star, xtpz_star], color='k', linewidth=0.5)
-            plt.plot([S_star, S_star], [xtpp_star, xtpz_star], color='k', linewidth=0.5)
-            plt.plot([S_star], [xtpz_star], 'ko')
-            plt.plot([S_star], [xtpp_star], 'ko')
+            plt.plot([0, S_star], [xtpp_star, xtpp_star], color="k", linewidth=0.5)
+            plt.plot([0, S_star], [xtpz_star, xtpz_star], color="k", linewidth=0.5)
+            plt.plot([S_star, S_star], [xtpp_star, xtpz_star], color="k", linewidth=0.5)
+            plt.plot([S_star], [xtpz_star], "ko")
+            plt.plot([S_star], [xtpp_star], "ko")
 
-            plot_center.add_text([0,0], [0, xtpp_star-0.05], 1, 
-                    r'$\bar{x}_{тпп}(\bar{S}_{го}^*)=$', add_value="y", text_location="down", marker_style='-')
+            plot_center.add_text(
+                [0, 0],
+                [0, xtpp_star - 0.05],
+                1,
+                r"$\bar{x}_{тпп}(\bar{S}_{го}^*)=$",
+                add_value="y",
+                text_location="down",
+                marker_style="-",
+            )
 
-            plot_center.add_text([0,0], [0, xtpz_star+xtpp_star*0.1], 1, 
-                    r'$\bar{x}_{тпз}(\bar{S}_{го}^*)=$', add_value="y", text_location="up", marker_style='-')
+            plot_center.add_text(
+                [0, 0],
+                [0, xtpz_star + xtpp_star * 0.1],
+                1,
+                r"$\bar{x}_{тпз}(\bar{S}_{го}^*)=$",
+                add_value="y",
+                text_location="up",
+                marker_style="-",
+            )
 
-            plot_center.add_text([S_star, S_star], [0, xtpp_star+((xtpz_star-xtpp_star)/2)], 1, 
-                    r'$\bar{S}_{го}^*=$', add_value="x", text_location="up", marker_style='-')
+            plot_center.add_text(
+                [S_star, S_star],
+                [0, xtpp_star + ((xtpz_star - xtpp_star) / 2)],
+                1,
+                r"$\bar{S}_{го}^*=$",
+                add_value="x",
+                text_location="up",
+                marker_style="-",
+            )
 
             plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{X}_{Т}$")
             plot_center.set_legend()
@@ -569,7 +618,7 @@ class PlotBuilderUsingData:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()
 
-    def plot_ny_p(self, alts, mach_speeds, ny_p, ny_dops,save=True):
+    def plot_ny_p(self, alts, mach_speeds, ny_p, ny_dops, save=True):
         for type_name in self.TYPE_NAMES:
             plot_phi_n = plot(
                 mach_speeds[0],
@@ -580,16 +629,24 @@ class PlotBuilderUsingData:
                 "$n_{yp}(M,H=%s)$" % (alts[0]),
             )
 
-            plt.plot(mach_speeds[0], ny_dops[0], '--', label="$n_{y_{доп}}(M,H=%s)$" % (alts[0]),
-                        color=plt.gca().lines[-1].get_color()
-                        )
+            plt.plot(
+                mach_speeds[0],
+                ny_dops[0],
+                "--",
+                label="$n_{y_{доп}}(M,H=%s)$" % (alts[0]),
+                color=plt.gca().lines[-1].get_color(),
+            )
             for i in range(1, len(alts)):
                 plot_phi_n.add_plot(
                     mach_speeds[i], ny_p[i], "$n_{yp}(M,H=%s)$" % (alts[i])
                 )
-                plt.plot(mach_speeds[i], ny_dops[i], '--', label="$n_{y_{доп}}(M,H=%s)$" % (alts[i]),
-                        color=plt.gca().lines[-1].get_color()
-                        )
+                plt.plot(
+                    mach_speeds[i],
+                    ny_dops[i],
+                    "--",
+                    label="$n_{y_{доп}}(M,H=%s)$" % (alts[i]),
+                    color=plt.gca().lines[-1].get_color(),
+                )
 
             plot_phi_n.set_legend()
             plot_phi_n.add_labels("$M$", "$n_{yp}$")
@@ -600,7 +657,7 @@ class PlotBuilderUsingData:
     def plot_xs_sigmas(self, x_f, x_H, x_tpz, sigma_n, M, save=True):
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                M, 
+                M,
                 save_type=type_name,
                 fun1=x_f,
                 fun2=x_H,
@@ -608,11 +665,10 @@ class PlotBuilderUsingData:
                 fun4=sigma_n,
             )
             plotter.get_figure(
-                    r"$\bar{x}_F(M)$",
-                    r"$\bar{x}_H(M)$",
-                    r"$\bar{x}_{ТПЗ}(M)$",
-                    r"$\sigma_n(M)$",
-
+                r"$\bar{x}_F(M)$",
+                r"$\bar{x}_H(M)$",
+                r"$\bar{x}_{ТПЗ}(M)$",
+                r"$\sigma_n(M)$",
             )
 
             plotter.set_legend()
@@ -620,4 +676,3 @@ class PlotBuilderUsingData:
             if save:
                 plotter.save_figure("xis_sigma", self.save_path)
             plotter.close_plot()
-

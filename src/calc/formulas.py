@@ -69,7 +69,7 @@ class Formulas:
         H = np.array(
             [val for i, val in enumerate(alts) if val <= H_k and i in valid_pos]
         )
-#        H = np.array([val for i, val in enumerate(H) if not np.mod(val, 1)])
+        #        H = np.array([val for i, val in enumerate(H) if not np.mod(val, 1)])
         return H
 
     def find_Vk(H_nab, V_4):

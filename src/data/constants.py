@@ -31,15 +31,23 @@ class Constant:
         self.OTN_L_GO = variable.OTN_L_GO
 
         self.G = 9.81
-        self.MACH = np.array(np.arange(0, 0.95+0.01, 0.01), dtype=np.float32)
+        self.MACH = np.array(np.arange(0, 0.95 + 0.01, 0.01), dtype=np.float32)
         self.MACH_output = np.array(
-                [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.8, 0.9, 0.95]
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.8, 0.9, 0.95]
+        )
+        self.MACH_output_index = np.array(
+            [
+                i
+                for i, val in enumerate(
+                    np.isin(self.MACH, self.MACH_output, assume_unique=True)
                 )
-        self.MACH_output_index = np.array([i for i,val in enumerate(np.isin(self.MACH, self.MACH_output, assume_unique=True)) if val == True])
+                if val == True
+            ]
+        )
 
         self.Hk = 11
         self.H_step = 1
-        self.H = np.arange(stop=self.Hk+self.H_step, step=self.H_step, dtype="f")
+        self.H = np.arange(stop=self.Hk + self.H_step, step=self.H_step, dtype="f")
         self.OTN_M = 0.95
 
         self.OTN_M_T_SNP = 0.015

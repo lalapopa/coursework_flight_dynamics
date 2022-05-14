@@ -14,6 +14,7 @@ import os
 
 run_directory = os.getcwd()
 
+
 def menu():
     global root
     global variant
@@ -24,7 +25,7 @@ def menu():
     global checkbutton_pgf
     global step_size_input
 
-    if len(sys.argv) > 1: 
+    if len(sys.argv) > 1:
         variant_value = int(sys.argv[1])
         save_names = [sys.argv[2]]
         path = sys.argv[3]
@@ -58,8 +59,8 @@ def window_setup():
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
-    window_width = int(screen_width/3.2)
-    window_height = int(screen_height/1.8) 
+    window_width = int(screen_width / 3.2)
+    window_height = int(screen_height / 1.8)
 
     # find the center point
     center_x = int(screen_width / 2 - window_width / 2)
@@ -125,9 +126,12 @@ class BoxWidget:
     def take_number(self, float_number=False):
         value = tk.StringVar()
         if float_number:
-            vcmd = (self.space.register(partial(self._only_num_valid, float_valid=True)), "%S")
+            vcmd = (
+                self.space.register(partial(self._only_num_valid, float_valid=True)),
+                "%S",
+            )
         else:
-            vcmd = (self.space.register(self._only_num_valid),"%S")
+            vcmd = (self.space.register(self._only_num_valid), "%S")
         box_entry = ttk.Entry(
             self.space, validate="key", validatecommand=vcmd, textvariable=value
         )
@@ -138,8 +142,7 @@ class BoxWidget:
 
     def _only_num_valid(self, S, float_valid=False):
         if float_valid:
-            valid_symbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",".",","
-        ]
+            valid_symbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", ","]
         else:
             valid_symbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
@@ -183,9 +186,9 @@ def press_button():
         Notification.variant_error()
         return
     else:
-        int_variant = Converter.variant_box(variant) 
+        int_variant = Converter.variant_box(variant)
 
-    if not Validator.step_size_validate(step_size_input): 
+    if not Validator.step_size_validate(step_size_input):
         Notification.step_size_value_error()
         return
     else:
@@ -211,36 +214,42 @@ def press_button():
             return
         main(int_variant, save_names, path, step_size=step_size)
 
+
 class Converter:
     def variant_box(box):
         try:
             return int(box.get())
         except:
-            Notification.variant_error() 
+            Notification.variant_error()
             return False
 
     def step_size_box(box):
         try:
-            ss = float(step_size_input.get().replace(',','.'))
+            ss = float(step_size_input.get().replace(",", "."))
         except:
             Notification.step_size_value_error()
 
-        if 0<ss<=2:
+        if 0 < ss <= 2:
             return ss
         else:
             Notification.step_size_not_in_range_error()
             return False
 
-            
+
 class Notification:
     def variant_error():
-        messagebox.showerror("Error", "Неверный вариант!\n(Доступные варианты с 1 - 24)")
+        messagebox.showerror(
+            "Error", "Неверный вариант!\n(Доступные варианты с 1 - 24)"
+        )
 
     def path_error():
         messagebox.showerror("Error", "Неверный путь сохранения!")
 
     def step_size_value_error():
-        messagebox.showerror("Error", "Неверное значение шага расчета!\nЧисло должно быть десятичным.\nПример: 0.1, 1.5.")
+        messagebox.showerror(
+            "Error",
+            "Неверное значение шага расчета!\nЧисло должно быть десятичным.\nПример: 0.1, 1.5.",
+        )
 
     def step_size_not_in_range_error():
         messagebox.showerror("Error", "Диапазон значений шага (0,2]")
@@ -252,7 +261,6 @@ class Notification:
             icon="warning",
         )
         return state
-
 
     def pgf_warning():
         pgf_status = checkbutton_pgf.checkmark_state.get()

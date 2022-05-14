@@ -36,15 +36,10 @@ class Validator:
             return True
         return False
 
-    @staticmethod    
+    @staticmethod
     def step_size_validate(step_size_box):
         try:
-            step_size = float(step_size_box.get().replace(',','.'))
+            step_size = float(step_size_box.get().replace(",", "."))
         except ValueError:
             return False
         return True
-            
-            
-            
-
-       
