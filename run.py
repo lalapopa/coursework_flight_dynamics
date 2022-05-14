@@ -24,7 +24,7 @@ def menu():
     global checkbutton_pgf
     global step_size_input
 
-    if sys.argv: 
+    if len(sys.argv) > 1: 
         variant_value = int(sys.argv[1])
         save_names = [sys.argv[2]]
         path = sys.argv[3]
@@ -151,7 +151,7 @@ class BoxWidget:
 
 def browser_box():
     space = ttk.Frame(root)
-    above_text = ttk.Label(space, text="Сохранить как:")
+    above_text = ttk.Label(space, text="Путь для сохранения:")
     above_text.grid(sticky="w")
 
     info = above_text.grid_info()

@@ -23,7 +23,6 @@ def main(
     calc = Calculation()
     H_static, H_practical = find_celling(calc)
     const.H = dh.proper_array(0, H_practical, step_size)
-    print('H_pr=',H_practical)
 
     for alt in const.H:
         if alt <= 11:
@@ -89,7 +88,6 @@ class Calculation:
         self.altitude = alts
         self.H_pr = H_pr
         self.H_st = H_st
-        print(f'H_pr = {H_pr}, H_st = {H_st} in second part')
         self.M_max_dop = self.find_M_max_dop(self.altitude)
         self.M_min = self.find_M_min()
         self.M_max = self.find_M_max()
@@ -376,7 +374,6 @@ class Calculation:
         build_plot.plot_V_y_H(
             self.Vy_max, self.altitude, self.H_pr, self.H_st, save=run_save
         )
-        print(f'H_pr in PLOTTER = {self.H_pr}')
         build_plot.plot_H_M(
             self.altitude,
             self.M_min_P,
@@ -971,7 +968,6 @@ class Calculation:
         otn_x_T = self.find_otn_x_T(SSC_M, save_plot=save_plot)
 
         otn_S_go = self.otn_S_go_star
-        print(f'otn x T = {otn_x_T}, otn S go = {otn_S_go}')
 
         otn_x_F = np.array([])
         otn_x_H = np.array([])
