@@ -569,7 +569,7 @@ class PlotBuilderUsingData:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()
 
-    def plot_ny_p(self, alts, mach_speeds, ny_p, save=True):
+    def plot_ny_p(self, alts, mach_speeds, ny_p, ny_dops,save=True):
         for type_name in self.TYPE_NAMES:
             plot_phi_n = plot(
                 mach_speeds[0],
@@ -579,10 +579,18 @@ class PlotBuilderUsingData:
             plot_phi_n.get_figure(
                 "$n_{yp}(M,H=%s)$" % (alts[0]),
             )
+
+            plt.plot(mach_speeds[0], ny_dops[0], '--', label="$n_{y_{доп}}(M,H=%s)$" % (alts[0]),
+                        color=plt.gca().lines[-1].get_color()
+                        )
             for i in range(1, len(alts)):
                 plot_phi_n.add_plot(
                     mach_speeds[i], ny_p[i], "$n_{yp}(M,H=%s)$" % (alts[i])
                 )
+                plt.plot(mach_speeds[i], ny_dops[i], '--', label="$n_{y_{доп}}(M,H=%s)$" % (alts[i]),
+                        color=plt.gca().lines[-1].get_color()
+                        )
+
             plot_phi_n.set_legend()
             plot_phi_n.add_labels("$M$", "$n_{yp}$")
             if save:
@@ -612,13 +620,4 @@ class PlotBuilderUsingData:
             if save:
                 plotter.save_figure("xis_sigma", self.save_path)
             plotter.close_plot()
-
-
-
-
-
-
-
-
-
 

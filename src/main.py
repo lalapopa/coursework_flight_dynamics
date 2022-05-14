@@ -865,7 +865,6 @@ class Calculation:
         TURN_A = self.df.get_column("A", "M", MACH, inter_value=True)
         TURN_Cym = self.df.get_column("Cym", "M", MACH, inter_value=True)
         TURN_Cxm = self.df.get_column("Cxm", "M", MACH, inter_value=True)
-        
 
         V = frmls.v_speed(MACH, TURN_a_sos)
 
@@ -1038,7 +1037,33 @@ class Calculation:
             fi_bal_array.append(fi_bal)
             fi_n_array.append(fi_n)
             ny_p_array.append(ny_p)
-        self.run_plot_phis_part(alts, mach_speeds, fi_bal_array, fi_n_array, ny_p_array)
+
+        ny_dops = self.find_ny_dops(alts, mach_speeds)
+        print(ny_dops)
+        self.run_plot_phis_part(alts, mach_speeds, 
+                fi_bal_array, fi_n_array, ny_p_array, ny_dops
+                )
+
+    def find_ny_dops(self, alts, mach):
+        ny_dops = []
+        for i, alt in enumerate(alts):
+            a_sos = self.df.get_column(
+                "a_H", "H", np.array([alt]), inter_value=True
+                )
+            Ro = self.df.get_column(
+                "Ro_H", "H", np.array([alt]), inter_value=True
+                )
+            V = frmls.v_speed(mach[i], a_sos)
+            q = frmls.q_dynamic_pressure(V, Ro)
+            otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
+            Cy_GP = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q)
+            Cy_dop = self.df.get_column("Cydop", "M", mach[i], inter_value=True)
+            n_y = frmls.n_y_equation(Cy_dop, Cy_GP)
+            n_y_dop = dh.find_min_max_from_arrays(n_y, const.TURN_n_ye)
+            ny_dops.append(n_y_dop)
+        return ny_dops
+            
+
 
     def find_phis(self, alt, otn_S_go, otn_x_T, mach_values):
         self.take_constant_stability(mach_values)
@@ -1229,13 +1254,13 @@ class Calculation:
         )
         run_plot.plot_center_value(otn_S_go, otn_xtpp, otn_xtpz, xtpz_star, xtpp_star, S_star)
 
-    def run_plot_phis_part(self, alts, mach, fi_bal, fi_n, ny_p):
+    def run_plot_phis_part(self, alts, mach, fi_bal, fi_n, ny_p, ny_dops):
         run_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
         run_plot.plot_phi_bal(alts, mach, fi_bal)
         run_plot.plot_phi_n(alts, mach, fi_n)
-        run_plot.plot_ny_p(alts, mach, ny_p)
+        run_plot.plot_ny_p(alts, mach, ny_p, ny_dops)
 
     def __define_variables(self):
         self.M_min_P = np.array([])
