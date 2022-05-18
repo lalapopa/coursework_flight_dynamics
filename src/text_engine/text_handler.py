@@ -8,8 +8,8 @@ class TextHandler:
             "P": {
                 "label": "$P [H]$",
                 "label_in_box": [
-                    "$P_р(H={}[Км])$".format(self.alt),
-                    "$P_п(H={}[Км])$".format(self.alt),
+                    "$P_р(H={:.3f}[Км])$".format(self.alt),
+                    "$P_п(H={:.3f}[Км])$".format(self.alt),
                 ],
                 "plot_text": ["$M_{min P}=$", "$M_{max P}=$", "$M(P_{пmin})=$"],
             },
@@ -32,14 +32,14 @@ class TextHandler:
                 "label": "$C_y$",
                 "label_in_box": [
                     "$C_{y_{доп}}$",
-                    "$C_y(H={}[Км])$".format(self.alt),
+                    "$C_y(H={:.3f}[Км])$".format(self.alt),
                 ],
                 "plot_text": ["$M_{min_{доп}}=$"],
             },
             "V_y": {
                 "label": "$V_y^* [м/с^2]$",
                 "label_in_box": [
-                    "$V_y^*(H={}[Км])$".format(self.alt),
+                    "$V_y^*(H={:.3f}[Км])$".format(self.alt),
                     "$V_{y_{max}}^*(H)$",
                 ],
                 "plot_text": ["$V_{y_{max}}^*=$"],
@@ -50,7 +50,7 @@ class TextHandler:
                     "$q_ч [т/ч]$",
                 ],
                 "label_in_box": [
-                    "$q_ч(H={}[Км])$".format(self.alt),
+                    "$q_ч(H={:.3f}[Км])$".format(self.alt),
                     "$q_{ч_{min}}(H)$",
                 ],
                 "plot_text": ["$V(q_{ч_{min}})=$"],
@@ -58,7 +58,7 @@ class TextHandler:
             "q_km": {
                 "label": "$q_{км} [кг/км]$",
                 "label_in_box": [
-                    "$q_{{км}}(H={}[Км])$".format(self.alt),
+                    "$q_{{км}}(H={:.3f}[Км])$".format(self.alt),
                     "$q_{км_{min}}(H)$",
                 ],
                 "plot_text": ["$V(q_{км_{min}})=$"],
@@ -597,3 +597,4 @@ class TextHandler:
 
 class InvalidNameError(TypeError):
     pass
+

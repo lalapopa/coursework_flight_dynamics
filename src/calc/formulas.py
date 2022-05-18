@@ -25,6 +25,10 @@ class Formulas:
         K_n = np.nan_to_num(C_y_n / C_x_n)
         return K_n
 
+    def thrust_to_weight_equation(one_engine_thrust, engine_amount, mass, g):
+        return (one_engine_thrust*engine_amount)/(mass*g)
+
+
     def P_potr_equation(otn_M, M0, g, K_n):
         return otn_M * M0 * g / K_n
 
@@ -34,8 +38,8 @@ class Formulas:
         else:
             return otn_P_0 * M0 * g * tilda_P
 
-    def n_x_equation(otn_M, M0, g, P_rasp, P_potr):
-        return (P_rasp - P_potr) / (otn_M * M0 * g)
+    def n_x_equation(M0, g, P_rasp, P_potr):
+        return (P_rasp - P_potr) / (M0 * g)
 
     def V_y_equation(V, n_x):
         return V * n_x
@@ -337,12 +341,13 @@ class Formulas:
         return otn_x_T - otn_x_F + (mz_otn_w_z / mu)
 
     def phi_bal_equation(m_z_0, m_z_Cy, Cy_gp, m_z_delta, otn_L_go, phi_ust, n_v):
-        return -(m_z_0 + m_z_Cy * Cy_gp) / (m_z_delta * (1 + (m_z_Cy / otn_L_go))) + (
+        return (-(m_z_0 + m_z_Cy * Cy_gp) / (m_z_delta * (1 + (m_z_Cy / otn_L_go))) + (
             phi_ust / n_v
-        )
+        ))/57.3
+
 
     def phi_n_equation(Cy_gp, sigma_n, m_z_delta):
-        return -57.3 * ((Cy_gp * sigma_n) / m_z_delta)
+        return -((Cy_gp * sigma_n) / m_z_delta)
 
     def nyp_equation(phi_max, phi_ust, phi_bal, phi_n):
         return 1 + ((phi_max + phi_ust - phi_bal) / phi_n)

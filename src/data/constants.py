@@ -78,7 +78,8 @@ class Constant:
         # Data for control and stability part
         self.OTN_S_GO = np.array([0.01, 0.2])
         self.SIGMA_N_MIN = -0.1
-        self.FI_MAX = -25
-        self.FI_UST = -4
+        self.FI_MAX = -25/57.29578
+        self.FI_UST = -4/57.29578
         self.MZ0_BGO_LA = -0.03
         self.DELTA_OTN_X_E = 0.15
+
