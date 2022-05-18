@@ -3,9 +3,11 @@ import os
 import collections
 import matplotlib.pyplot as plt
 from scipy import interpolate
+from ambiance import Atmosphere
 
 from DataHandler import DataHandler as dh
 from .data import Constant as cnst
+from .data import get_Ce_dr_R_dr 
 from .calc import Formulas as frmls
 from .text_engine import TextHandler as text_handler
 from .plot_creating_using_data import PlotBuilderUsingData as pbud
@@ -22,8 +24,11 @@ def main(
     const = cnst(var, save_type, save_folder)
     calc = Calculation()
     H_static, H_practical = find_celling(calc)
-    const.H = dh.proper_array(0, H_practical, step_size)
+    print(step_size)
 
+    const.H = dh.proper_array(0, H_practical, step_size)
+    print(f'H_pr = {H_practical}')
+    print(f'{const.H} size is {const.H.size}')
     for alt in const.H:
         if alt <= 11:
             alt = alt.astype(float)
@@ -42,6 +47,8 @@ def main(
 class Calculation:
     def __init__(self):
         self.df = dh(const.DATA_TABLE_NAME)
+        self.df_P = dh(const.DATA_AD_P)
+        self.df_Ce = dh(const.DATA_AD_CE)
         self.__define_variables()
 
     def first_part(self, altitude, save_plot=False, save_data=False):
@@ -74,7 +81,7 @@ class Calculation:
             )
 
     def run_calculation_part_one(self, altitude):
-        self.altitude = round(altitude, 4)
+        self.altitude = altitude
         self.take_constant()
         return self.calculate_using_formulas()
 
@@ -196,12 +203,20 @@ class Calculation:
     def take_constant(self):
         self.tilda_P = self.find_tilda_P(const.MACH, self.altitude)
         self.tilda_Ce = self.find_Ce_tilda(const.MACH, self.altitude)
-        self.a_H = self.df.get_column(
-            "a_H", "H", np.array([self.altitude]), inter_value=True
-        )
-        self.Ro_H = self.df.get_column(
-            "Ro_H", "H", np.array([self.altitude]), inter_value=True
-        )
+
+        air_H = Atmosphere(np.array(self.altitude))
+        air_11 = Atmosphere(np.array([11000]))
+
+        self.a_H = air_H.speed_of_sound
+        self.Ro_H = air_H.density
+
+
+#        self.a_H = self.df.get_column(
+#            "a_H", "H", np.array([self.altitude]), inter_value=True
+#        )
+#        self.Ro_H = self.df.get_column(
+#            "Ro_H", "H", np.array([self.altitude]), inter_value=True
+#        )
 
         self.Cy_dop = self.df.get_column(
             "Cydop", "M", const.MACH, extend_row=True, inter_value=True
@@ -215,23 +230,25 @@ class Calculation:
         self.C_y_m = self.df.get_column(
             "Cym", "M", const.MACH, extend_row=True, inter_value=True
         )
+        self.p_h = air_H.pressure
+        self.p_h_11 = air_11.pressure
 
-        self.p_h = self.df.get_column(
-            "P_H", "H", np.array([self.altitude]), inter_value=True
-        )
-        self.p_h_11 = self.df.get_column("P_H", "H", np.array([11]))
+#        self.p_h = self.df.get_column(
+#            "P_H", "H", np.array([self.altitude]), inter_value=True
+#        )
+#        self.p_h_11 = self.df.get_column("P_H", "H", np.array([11]))
 
     def find_tilda_P(self, f_M, f_H):
         H = np.append(np.arange(start=0, stop=11, step=2), 11)
-        M = self.df.get_column("M_H_ptilda")
-        P = np.array([self.df.get_column(f"Ptilda{alt}") for alt in H])
+        M = self.df_P.get_column("M_H_ptilda")
+        P = np.array([self.df_P.get_column(f"Ptilda{alt}") for alt in H])
         tilda_P = interpolate.interp2d(M, H, P, kind="linear")
         return tilda_P(f_M, f_H)
 
     def find_Ce_tilda(self, f_M, f_H):
         H = np.append(np.arange(start=0, stop=11, step=2), 11)
-        M = self.df.get_column("M_H_ce")
-        Ce = np.array([self.df.get_column(f"Cetilda{alt}") for alt in H])
+        M = self.df_Ce.get_column("M_H_ce")
+        Ce = np.array([self.df_Ce.get_column(f"Cetilda{alt}") for alt in H])
         tilda_Ce = interpolate.interp2d(M, H, Ce, kind="linear")
         return tilda_Ce(f_M, f_H)
 
@@ -245,7 +262,7 @@ class Calculation:
         self.V = frmls.v_speed(const.MACH, self.a_H)
         self.V_km_h = self.V * 3.6
         self.q = frmls.q_dynamic_pressure(self.V, self.Ro_H)
-        self.C_y_n = frmls.C_y_n_lift_coefficient(const.OTN_M, const.PS, self.q)
+        self.C_y_n = frmls.C_y_n_lift_coefficient(const.M0, const.G, const.S, self.q)
         self.C_x_n = frmls.C_x_n_drag_coefficient(
             self.C_x_m,
             self.A,
@@ -253,6 +270,7 @@ class Calculation:
             self.C_y_m,
         )
         self.K_n = frmls.K_n_lift_to_drag_ratio(self.C_y_n, self.C_x_n)
+#        print(f'H = {self.altitude}, K = {self.K_n}')
         self.P_potr = frmls.P_potr_equation(const.OTN_M, const.M0, const.G, self.K_n)
         self.P_rasp = frmls.P_rasp_equation(
             const.OTN_P_0,
@@ -281,7 +299,7 @@ class Calculation:
 
         self.V_y = frmls.V_y_equation(self.V, self.n_x)
         self.otn_R = frmls.otn_R_equation(self.P_rasp, self.P_potr)
-        self.Cedr = self.find_Cedr_depends_R(self.otn_R)
+        self.Cedr = self.find_Cedr_depends_R(self.altitude, self.otn_R)
 
         self.Ce = frmls.q_ch_hour_consumption(
             const.CE_0,
@@ -375,13 +393,22 @@ class Calculation:
             q_ch_min,
             V_4,
             V_3,
-            f"q_km_ch_together_H={round(self.altitude, 1)}",
+            f"q_km_ch_together_H={round(self.altitude, 4)}",
             save=run_save,
         )
 
-    def find_Cedr_depends_R(self, otn_R):
-        Rdr_interp, Cedr_interp = self.df.interp_two_column("Rdr", "Cedr")
-        Rdr_position = dh.get_index_nearest_element_in_array(Rdr_interp, otn_R)
+    def find_Cedr_depends_R(self, height, otn_R):
+#        Rdr_interp, Cedr_interp = self.df.interp_two_column("Rdr", "Cedr")
+#        Rdr_position = dh.get_index_nearest_element_in_array(Rdr_interp, otn_R)
+
+        Ce_dr_column, Rdr_column = get_Ce_dr_R_dr(0.8, height)
+        f = interpolate.interp1d(
+        Rdr_column,
+        Ce_dr_column,
+        fill_value="extrapolate",
+        )
+        return f(otn_R)
+
         return Cedr_interp[Rdr_position - 1]
 
     def find_flying_area(self, R_values, V_speed, value):
@@ -955,7 +982,7 @@ class Calculation:
 
         q = frmls.q_dynamic_pressure(V, TURN_Ro)
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
-        TURN_Cy_GP = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q)
+        TURN_Cy_GP = frmls.C_y_n_lift_coefficient(const.M0, const.G, const.S, q)
         TURN_Cx_GP = frmls.C_x_n_drag_coefficient(
             TURN_Cxm, TURN_A, TURN_Cy_GP, TURN_Cym
         )
@@ -1224,7 +1251,8 @@ class Calculation:
             V = frmls.v_speed(mach[i], a_sos)
             q = frmls.q_dynamic_pressure(V, Ro)
             otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
-            Cy_GP = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q)
+            Cy_GP = frmls.C_y_n_lift_coefficient(const.M0, const.G, const.S, q)
+
             Cy_dop = self.df.get_column("Cydop", "M", mach[i], inter_value=True)
             n_y = frmls.n_y_equation(Cy_dop, Cy_GP)
             n_y_dop = dh.find_min_max_from_arrays(n_y, const.TURN_n_ye)
@@ -1244,7 +1272,7 @@ class Calculation:
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
         q_dynamic = frmls.q_dynamic_pressure(V_value, self.Ro_H)
 
-        Cy_gp = frmls.C_y_n_lift_coefficient(otn_m_plane, const.PS, q_dynamic)
+        Cy_gp = frmls.C_y_n_lift_coefficient(otn_m_plane, const.G, const.S, q_dynamic)
         mz0 = frmls.m_z_0_equation(
             self.mz0_bgo,
             otn_S_go,
@@ -1473,7 +1501,7 @@ def debug_level_flight_part(Ce_gp, T_kr, L_kr, Ro, H):
 
 def find_celling(calc):
     def value_find(value):
-        step = 1
+        step = 10
         altitude = const.H[0]
         iterations = np.array([])
         find = False
@@ -1482,6 +1510,7 @@ def find_celling(calc):
             Vy_check = calc.get_V_y(alt)
             Vy_check = dh.remove_first_element_in_array(Vy_check)
             iter1 = Vy_check[dh.get_min_or_max(Vy_check, min_or_max="max")]
+            print(f'H={alt}',iter1)
             if iter1 > value:
                 altitude = alt
                 iterations = np.append(iterations, iter1)
@@ -1493,9 +1522,9 @@ def find_celling(calc):
                     find = True
             except Exception as e:
                 find = False
-
         return altitude
 
     H_st = value_find(0)
     H_pr = value_find(0.5)
+    print(H_st, H_pr)
     return H_st, H_pr

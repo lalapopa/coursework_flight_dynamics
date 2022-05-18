@@ -71,7 +71,7 @@ class PlotBuilderUsingData:
             ploter_P_p_P_r.set_notation(4)
             if save:
                 ploter_P_p_P_r.save_figure(
-                    f"P_H={round(self.altitude, 1)}", self.save_path
+                    f"P_H={round(self.altitude, 4)}", self.save_path
                 )
             ploter_P_p_P_r.close_plot()
 
@@ -104,7 +104,7 @@ class PlotBuilderUsingData:
             plotter_C_y.set_legend(loc_code=3)
             if save:
                 plotter_C_y.save_figure(
-                    f"Cy_H={round(self.altitude, 1)}", self.save_path
+                    f"Cy_H={round(self.altitude, 4)}", self.save_path
                 )
             plotter_C_y.close_plot()
         return M_min_dop
@@ -136,7 +136,7 @@ class PlotBuilderUsingData:
             plotter_Vy.set_legend(loc_code=3)
             if save:
                 plotter_Vy.save_figure(
-                    f"V_y_H={round(self.altitude, 1)}", self.save_path
+                    f"V_y_H={round(self.altitude, 4)}", self.save_path
                 )
             plotter_Vy.close_plot()
         return M_2, Vy_max
@@ -172,7 +172,7 @@ class PlotBuilderUsingData:
             plotter_q_ch.set_notation(4)
             if save:
                 plotter_q_ch.save_figure(
-                    f"q_ch_H={round(self.altitude, 1)}", self.save_path
+                    f"q_ch_H={round(self.altitude, 4)}", self.save_path
                 )
             plotter_q_ch.close_plot()
 
@@ -209,7 +209,7 @@ class PlotBuilderUsingData:
             plotter_q_km.set_legend()
             if save:
                 plotter_q_km.save_figure(
-                    f"q_km_H={round(self.altitude, 1)}", self.save_path
+                    f"q_km_H={round(self.altitude, 4)}", self.save_path
                 )
             plotter_q_km.close_plot()
 

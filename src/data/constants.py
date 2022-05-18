@@ -2,9 +2,7 @@ import numpy as np
 import os
 from .variants_handler import VariantsHandler as vh
 
-
 DATA_VARIANTS = "./data/data_variants.csv"
-
 
 class Constant:
     def __init__(self, variant, save_type, save_path):
@@ -13,7 +11,9 @@ class Constant:
         self.PATH_TO_RESULTS = save_path + "/RESULTS"
         # self.PATH_TO_PLOTS_PGF = save_path + "/PLOTS_PGF"
         self.TYPE_NAMES = save_type  # default is ['png', 'pgf'] for saving. In GUI use custom combination pgf or png
-        self.DATA_TABLE_NAME = "./data/dataCSV.csv"
+        self.DATA_TABLE_NAME = "./data/ad_data.csv"
+        self.DATA_AD_CE = "./data/ad_data_Ce_H_M.csv"
+        self.DATA_AD_P = "./data/ad_data_P_H_M.csv"
 
         variable = vh(DATA_VARIANTS, variant)
         self.M_OGR = variable.M_OGR
@@ -29,6 +29,7 @@ class Constant:
         self.PS = variable.PS
         self.B_A = variable.B_A
         self.OTN_L_GO = variable.OTN_L_GO
+        self.S = variable.S
 
         self.G = 9.81
         self.MACH = np.array(np.arange(0, 0.95 + 0.01, 0.01), dtype=np.float32)

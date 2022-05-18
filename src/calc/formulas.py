@@ -12,8 +12,11 @@ class Formulas:
     def q_dynamic_pressure(v, air_density):
         return (air_density * (v) ** 2) / 2
 
-    def C_y_n_lift_coefficient(otn_M, ps, q):
-        return (otn_M * ps * 10) / q
+#    def C_y_n_lift_coefficient(otn_M, ps, q):
+#        return (otn_M * ps * 10) / q
+
+    def C_y_n_lift_coefficient(m, g, S, q):
+        return (m * g) / (S * q)
 
     def C_x_n_drag_coefficient(C_x_m, A, C_y_n, C_y_m):
         return C_x_m + A * (C_y_n - C_y_m) ** 2

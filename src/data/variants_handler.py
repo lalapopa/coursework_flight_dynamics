@@ -20,3 +20,5 @@ class VariantsHandler:
         self.PS = float(df.get_column("ps", "variant", np.array([variant])))
         self.B_A = float(df.get_column("ba", "variant", np.array([variant])))
         self.OTN_L_GO = float(df.get_column("otn_L_go", "variant", np.array([variant])))
+        self.S = float(df.get_column("S", "variant", np.array([variant])))
+
