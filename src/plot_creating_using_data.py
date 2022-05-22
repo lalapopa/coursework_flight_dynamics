@@ -14,7 +14,7 @@ class PlotBuilderUsingData:
         self.TYPE_NAMES = type_names
         self.save_path = save_path
 
-    def plot_P(self, P_potr, P_rasp, save=True):
+    def plot_P(self, P_potr, P_rasp, text_side, save=True):
         MACH_int, P_potr_int, P_rasp_int = dh.prepare_data_for_plot(
             self.MACH, P_potr, P_rasp, remove_first_element=True
         )
@@ -32,6 +32,10 @@ class PlotBuilderUsingData:
             elif result < M_1:
                 MminP = result
                 MmaxP = 0
+            else:
+                MminP = 0
+                MmaxP= 0
+
         for type_name in self.TYPE_NAMES:
             ploter_P_p_P_r = plot(
                 MACH_int, save_type=type_name, fun1=P_rasp_int, fun2=P_potr_int
@@ -44,7 +48,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
-            plt.ylim([0, P_rasp_int[cross_position][-1] * 1.35])
+            plt.ylim([0, P_rasp_int[cross_position][0] * 1.35])
             if len(cross_position) == 1:
                 ploter_P_p_P_r.add_text(
                     MACH_int,
@@ -56,8 +60,15 @@ class PlotBuilderUsingData:
                 ploter_P_p_P_r.add_text(
                     MACH_int,
                     P_rasp_int,
-                    cross_position,
+                    cross_position[0],
                     self.pth.get_plot_text("P")[0],
+                    side=text_side,
+                )
+                print(f'??? {text_side}')
+                ploter_P_p_P_r.add_text(
+                    MACH_int,
+                    P_rasp_int,
+                    cross_position[1],
                     self.pth.get_plot_text("P")[1],
                 )
 
@@ -531,8 +542,8 @@ class PlotBuilderUsingData:
                 f2=otn_x_tpp,
             )
             plot_center.get_figure(
-                "$\\bar{X}_{ТПЗ}(\\bar{S}_{го})$",
-                "$\\bar{X}_{ТПП}(\\bar{S}_{го})$",
+                "$\\bar{x}_{ТПЗ}(\\bar{S}_{го})$",
+                "$\\bar{x}_{ТПП}(\\bar{S}_{го})$",
             )
             plt.plot([0, S_star], [xtpp_star, xtpp_star], color="k", linewidth=0.5)
             plt.plot([0, S_star], [xtpz_star, xtpz_star], color="k", linewidth=0.5)
@@ -570,7 +581,7 @@ class PlotBuilderUsingData:
                 marker_style="-",
             )
 
-            plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{X}_{Т}$")
+            plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{x}_{Т}$")
             plot_center.set_legend()
             plt.xlim([0, otn_s_go[-1]])
 
@@ -586,14 +597,14 @@ class PlotBuilderUsingData:
                 fun1=phi_bal[0],
             )
             plot_phi.get_figure(
-                "$\\phi_{бал}(M,H=%s)$" % (alts[0]),
+                "$\\varphi_{бал}(M,H=%s)$" % (alts[0]),
             )
             for i in range(1, len(alts)):
                 plot_phi.add_plot(
-                    mach_speeds[i], phi_bal[i], "$\\phi_{бал}(M,H=%s)$" % (alts[i])
+                    mach_speeds[i], phi_bal[i], "$\\varphi_{бал}(M,H=%s)$" % (alts[i])
                 )
             plot_phi.set_legend()
-            plot_phi.add_labels("$M$", "$\\phi_{бал}[град]$")
+            plot_phi.add_labels("$M$", "$\\varphi_{бал}[град]$")
             if save:
                 plot_phi.save_figure("phi_bal_graph", self.save_path)
             plot_phi.close_plot()
@@ -606,14 +617,14 @@ class PlotBuilderUsingData:
                 fun1=phi_n[0],
             )
             plot_phi_n.get_figure(
-                "$\\phi^{n}(M,H=%s)$" % (alts[0]),
+                "$\\varphi^{n}(M,H=%s)$" % (alts[0]),
             )
             for i in range(1, len(alts)):
                 plot_phi_n.add_plot(
-                    mach_speeds[i], phi_n[i], "$\\phi^{n}(M,H=%s)$" % (alts[i])
+                    mach_speeds[i], phi_n[i], "$\\varphi^{n}(M,H=%s)$" % (alts[i])
                 )
             plot_phi_n.set_legend()
-            plot_phi_n.add_labels("$M$", "$\\phi^{n}[град/ед.перег.]$")
+            plot_phi_n.add_labels("$M$", "$\\varphi^{n}[град/ед.перег.]$")
             if save:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()

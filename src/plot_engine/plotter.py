@@ -43,6 +43,7 @@ class Plotter:
         add_value="x",
         text_location="up",
         marker_style="o",
+        side="left"
     ):
         plt.plot(x[positions], y[positions], marker_style)
         if add_value == "x":
@@ -65,6 +66,7 @@ class Plotter:
                     text,
                     x[pos],
                     y[pos] + position_sign * self.two_percent_of_axis(),
+                    side,
                     prefix_value(pos),
                 )
         except TypeError:
@@ -72,12 +74,13 @@ class Plotter:
                 texts[0],
                 x[positions],
                 y[positions],
+                side,
                 prefix_value(positions),
             )
         return
 
-    def _render_text(self, text, x_pos, y_pos, adding_value=""):
-        plt.annotate(text + adding_value, xy=(x_pos, y_pos))
+    def _render_text(self, text, x_pos, y_pos, side, adding_value=""):
+        plt.annotate(text + adding_value, xy=(x_pos, y_pos), ha=side)
 
     def two_percent_of_axis(self):
         axes = plt.gca()

@@ -52,8 +52,8 @@ class Calculation:
     def first_part(self, altitude, save_plot=False, save_data=False):
         self.altitude = altitude
         DATA = self.run_calculation_part_one(altitude)
-
         self.run_plot_first_part(run_save=save_plot)
+
         if save_data:
             dh.save_data(
                 DATA,
@@ -201,11 +201,6 @@ class Calculation:
     def take_constant(self):
         self.tilda_P = self.find_tilda_P(const.MACH, self.altitude)
         self.tilda_Ce = self.find_Ce_tilda(const.MACH, self.altitude)
-        print(f'test_10000 = {self.find_Ce_tilda(0.5, 10)}')
-        print(f'test_11000 = {self.find_Ce_tilda(0.5, 11)}')
-        print(f'test_11500 = {self.find_Ce_tilda(0.5, 11)}')
-
-
         if type(self.altitude) == int or type(self.altitude) == np.int64:
             self.altitude = np.float64(self.altitude)
         air_H = Atmosphere(np.array(self.altitude)*1000)
@@ -318,7 +313,6 @@ class Calculation:
             self.otn_R, self.V, self.q_km
         )
         self.M_flying = self.V_flying / self.a_H
-
         return np.array(
             [
                 const.MACH,
@@ -341,8 +335,16 @@ class Calculation:
         build_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
-        MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, save=run_save)
-        M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop, save=run_save)
+        if self.altitude >= 11:
+            MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, text_side='right',
+                    save=run_save)
+            print(':| '*15)
+        else:
+            MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, text_side='left',
+                    save=run_save)
+
+        M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop,
+                save=run_save)
         M_2, Vy_max = build_plot.plot_V_y(self.V_y, save=run_save)
 
         self.M_min_P = np.append(self.M_min_P, MminP)
@@ -351,7 +353,6 @@ class Calculation:
         self.M_min_dop = np.append(self.M_min_dop, M_min_dop)
         self.M_2 = np.append(self.M_2, M_2)
         self.Vy_max = np.append(self.Vy_max, Vy_max)
-
         self.find_fuel_consumption(build_plot, run_save=run_save)
 
     def find_fuel_consumption(self, plot_builder, run_save=False):
@@ -387,9 +388,6 @@ class Calculation:
         )
 
     def find_Cedr_depends_R(self, height, otn_R):
-#        Rdr_interp, Cedr_interp = self.df.interp_two_column("Rdr", "Cedr")
-#        Rdr_position = dh.get_index_nearest_element_in_array(Rdr_interp, otn_R)
-
         Ce_dr_column, Rdr_column = get_Ce_dr_R_dr(0.8, height)
         f = interpolate.interp1d(
         Rdr_column,
@@ -398,7 +396,6 @@ class Calculation:
         )
         return f(otn_R)
 
-        return Cedr_interp[Rdr_position - 1]
 
     def find_flying_area(self, R_values, V_speed, value):
         accept_position = np.nonzero(R_values < 1)
@@ -591,7 +588,6 @@ class Calculation:
         M_0 = 0.6
         const.Hk = 11
         self.H_des = np.flip(frmls.find_H_nab(const.H, const.Hk, self.Vy_max))
-
         self.M_des = frmls.find_M_des(M_0, self.M_1, self.H_des)
 
         a_H = self.df.get_column("a_H", "H", np.array([self.H_des]), inter_value=True)
