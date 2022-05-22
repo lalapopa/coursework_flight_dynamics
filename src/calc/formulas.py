@@ -321,7 +321,7 @@ class Formulas:
         return (2 * Ps * 10) / (Ro * g * b_a)
 
     def m_otn_omega_z_z_go_equation(Cya_go_go, otn_S_go, otn_L_go, K_go):
-        return -Cya_go_go * otn_S_go * (otn_L_go**2) * (K_go) ** (1 / 2)
+        return -Cya_go_go * otn_S_go * (otn_L_go) * (K_go) ** (1 / 2) # I duuno but otn_L_go was in square :\
 
     def otn_x_f_equation(otn_x_f_bgo, delta_otn_x_f):
         return otn_x_f_bgo + delta_otn_x_f
@@ -329,7 +329,7 @@ class Formulas:
     def delta_otn_x_f_equation(
         Cya_go_go, Cy_a, epsilon_alpha, otn_S_go, otn_L_go, K_go
     ):
-        return ((Cya_go_go) / (Cy_a)) * (1 - epsilon_alpha) * otn_S_go * otn_L_go * K_go
+        return (Cya_go_go / Cy_a) * (1 - epsilon_alpha) * otn_S_go * otn_L_go * K_go
 
     def m_z_otn_omega_z_equation(m_otn_omega_z_z_bgo, m_otn_omega_z_z_go):
         return m_otn_omega_z_z_bgo + m_otn_omega_z_z_go
@@ -343,11 +343,10 @@ class Formulas:
     def phi_bal_equation(m_z_0, m_z_Cy, Cy_gp, m_z_delta, otn_L_go, phi_ust, n_v):
         return (-(m_z_0 + m_z_Cy * Cy_gp) / (m_z_delta * (1 + (m_z_Cy / otn_L_go))) + (
             phi_ust / n_v
-        ))/57.3
-
+        ))
 
     def phi_n_equation(Cy_gp, sigma_n, m_z_delta):
-        return -((Cy_gp * sigma_n) / m_z_delta)
+        return -(57.3*(Cy_gp * sigma_n) / m_z_delta)
 
     def nyp_equation(phi_max, phi_ust, phi_bal, phi_n):
         return 1 + ((phi_max + phi_ust - phi_bal) / phi_n)

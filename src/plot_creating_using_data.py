@@ -542,10 +542,10 @@ class PlotBuilderUsingData:
 
             plot_center.add_text(
                 [0, 0],
-                [0, xtpp_star - 0.05],
+                [0, xtpp_star - (xtpp_star*0.1)],
                 1,
-                r"$\bar{x}_{тпп}(\bar{S}_{го}^*)=$",
-                add_value="y",
+                r"$\bar{x}_{тпп}(\bar{S}_{го}^*)=%.3f$" % (xtpp_star),
+                add_value="",
                 text_location="down",
                 marker_style="-",
             )
@@ -554,8 +554,8 @@ class PlotBuilderUsingData:
                 [0, 0],
                 [0, xtpz_star + xtpp_star * 0.1],
                 1,
-                r"$\bar{x}_{тпз}(\bar{S}_{го}^*)=$",
-                add_value="y",
+                r"$\bar{x}_{тпз}(\bar{S}_{го}^*)=%.3f$" % (xtpz_star),
+                add_value="",
                 text_location="up",
                 marker_style="-",
             )

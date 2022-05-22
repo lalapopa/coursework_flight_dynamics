@@ -57,8 +57,8 @@ class Constant:
         self.OTN_M_EMPTY = 1 - self.OTN_M_T - self.OTN_M_TSN
 
         # Data for take-off and landing part
-        self.ALPHA_TO = 2
-        self.ALPHA_LA = 2
+        self.ALPHA_TO = 2/57.29
+        self.ALPHA_LA = 2/57.29
 
         self.ALPHA_RT = 6
         self.ALPHA_TD = 6

@@ -201,6 +201,10 @@ class Calculation:
     def take_constant(self):
         self.tilda_P = self.find_tilda_P(const.MACH, self.altitude)
         self.tilda_Ce = self.find_Ce_tilda(const.MACH, self.altitude)
+        print(f'test_10000 = {self.find_Ce_tilda(0.5, 10)}')
+        print(f'test_11000 = {self.find_Ce_tilda(0.5, 11)}')
+        print(f'test_11500 = {self.find_Ce_tilda(0.5, 11)}')
+
 
         if type(self.altitude) == int or type(self.altitude) == np.int64:
             self.altitude = np.float64(self.altitude)
@@ -257,7 +261,6 @@ class Calculation:
             self.C_y_m,
         )
         self.K_n = frmls.K_n_lift_to_drag_ratio(self.C_y_n, self.C_x_n)
-#        print(f'H = {self.altitude}, K = {self.K_n}')
         self.P_potr = frmls.P_potr_equation(const.OTN_M, const.M0, const.G, self.K_n)
         self.P_rasp = frmls.P_rasp_equation(
             const.OTN_P_0,
@@ -298,6 +301,7 @@ class Calculation:
             1,
             1,
         )
+
         self.q_ch = frmls.q_ch_hour_consumption(
             const.CE_0,
             self.tilda_Ce,
@@ -1252,6 +1256,7 @@ class Calculation:
         m_z_delta = frmls.m_z_delta_equation(
             self.Cy_go_a_go, otn_S_go, const.OTN_L_GO, self.SSC_K_go, self.n_v
         )
+        print(f'otn_S = {otn_S_go} and mzdelta = {m_z_delta} ')
 
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
         q_dynamic = frmls.q_dynamic_pressure(V_value, self.Ro_H)
@@ -1273,10 +1278,7 @@ class Calculation:
 
         sigma_n = frmls.sigma_n_equation(otn_x_T, self.otn_x_f, self.m_z_w_z, self.mu)
         fi_n = frmls.phi_n_equation(Cy_gp, sigma_n, m_z_delta)
-        nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal, fi_n)
-        print(f'{fi_bal}{sigma_n}{fi_n}{nyp}')
-
-
+        nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal/57.3, fi_n/57.3)
         out_index = [
             dh.get_index_nearest_element_in_array(mach_values, value)
             for value in const.MACH_output
@@ -1343,7 +1345,7 @@ class Calculation:
             delta_otn_x_f,
         )
         m_z_go_w_z = frmls.m_otn_omega_z_z_go_equation(
-            self.cy_a_go_go,
+            self.Cy_go_a_go,
             otn_S_go,
             const.OTN_L_GO,
             self.SSC_K_go,
@@ -1359,7 +1361,7 @@ class Calculation:
 
         phi_ef = frmls.phi_ef_equation(const.FI_UST, self.n_v, const.FI_MAX)
         Cy_go = frmls.Cy_go_equation(
-            self.cy_a_go_go, const.ALPHA_LA, self.epsilon_a, phi_ef
+            self.Cy_go_a_go, const.ALPHA_LA, self.epsilon_a, phi_ef
         )
         Cy_bgo = frmls.Cy_bgo_equation(self.Cy0_bgo, self.Cya_bgo, const.ALPHA_LA)
         otn_x_TPP = frmls.otn_x_tpp_equation(
@@ -1380,6 +1382,9 @@ class Calculation:
         fun_otn_x_TPZ = dh.find_linear_func(otn_S_go, self.otn_x_TPZ)
         xtpz_star = fun_otn_x_TPZ(self.otn_S_go_star)
         xtpp_star = fun_otn_x_TPP(self.otn_S_go_star)
+        print(f"For X ТПЗ = {self.otn_x_TPZ}, X_H = {self.otn_x_H}, D_X_F = {delta_otn_x_f},")
+        print(f"X_F_БГО = {self.otn_x_f_bgo}")
+
 
         if save_plot:
             self.run_plot_stability_control_part(
@@ -1424,9 +1429,6 @@ class Calculation:
         self.Cy_a = self.df.get_column("Cya", "M", np.array([mach]), inter_value=True)
         self.otn_x_f_bgo = self.df.get_column(
             "otn_x_f_bgo", "M_stab", np.array([mach]), inter_value=True
-        )
-        self.cy_a_go_go = self.df.get_column(
-            "C_alphago_y_go", "M_stab", np.array([mach]), inter_value=True
         )
         self.m_z_bgo_w_z = self.df.get_column(
             "mz_otn_omega_z_bgo", "M_stab", np.array([mach]), inter_value=True
