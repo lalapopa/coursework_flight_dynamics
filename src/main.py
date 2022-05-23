@@ -23,9 +23,12 @@ def main(
 
     const = cnst(var, save_type, save_folder)
     calc = Calculation()
+
     H_static, H_practical = find_celling(calc)
 
     const.H = dh.proper_array(0, H_practical, step_size)
+    calc.plot_plane_data()
+
     print(f'H_pr = {H_practical}')
     for alt in const.H:
         if alt <= 11:
@@ -40,6 +43,7 @@ def main(
     calc.turn_part(save_plot=True)
     calc.static_stability_control_part(H_practical, H_static, save_plot=True)
     print("DONE :)")
+
 
 
 class Calculation:
@@ -1426,7 +1430,7 @@ class Calculation:
         self.otn_x_f_bgo = self.df.get_column(
             "otn_x_f_bgo", "M_stab", np.array([mach]), inter_value=True
         )
-        self.m_z_bgo_w_z = self.df.get_column(
+        self.m_z_bgo_w_z = -self.df.get_column(
             "mz_otn_omega_z_bgo", "M_stab", np.array([mach]), inter_value=True
         )
         self.n_v = self.df.get_column(
@@ -1460,6 +1464,67 @@ class Calculation:
         run_plot.plot_phi_bal(alts, mach, fi_bal)
         run_plot.plot_phi_n(alts, mach, fi_n)
         run_plot.plot_ny_p(alts, mach, ny_p, ny_dops)
+
+    def plot_plane_data(self):
+        self.altitude = 0 
+        self.take_constant_stability(const.MACH)
+        self.take_constant()
+        run_plot = pbud(
+            self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
+        )
+        run_plot.plot_aerodynamcis_data(const.MACH, self.C_y_m, self.a0, self.Cy_dop, self.Cy_a, self.C_x_m,
+                self.A)
+
+        Cx_type_3 = self.df.get_column( "Cx_type3",)
+        Cy_type_3 = self.df.get_column( "Cy_type3",)
+        Cx_type_2 = self.df.get_column( "Cx_type2",)
+        Cy_type_2 = self.df.get_column( "Cy_type2",)
+        Cx_type_1 = self.df.get_column( "Cx_type1",)
+        Cy_type_1 = self.df.get_column( "Cy_type1",)
+
+        Cy_alpha_type_3 = self.df.get_column("Cy_a_type3")
+        alpha_type_3 = self.df.get_column("alpha_type3")
+        Cy_alpha_type_2 = self.df.get_column("Cy_a_type2")
+        alpha_type_2 = self.df.get_column("alpha_type2")
+        Cy_alpha_type_1 = self.df.get_column("Cy_a_type1")
+        alpha_type_1 = self.df.get_column("alpha_type1")
+
+        run_plot.plot_cy_cx(
+                [Cy_type_1, Cx_type_1],
+                [Cy_type_2, Cx_type_2],
+                [Cy_type_3, Cx_type_3],
+                [Cy_alpha_type_1, alpha_type_1],
+                [Cy_alpha_type_2, alpha_type_2],
+                [Cy_alpha_type_3, alpha_type_3],
+                )
+        alts = [0, 2, 4, 6, 8, 10, 11]
+        tilda_P_Hs = []
+        tilda_Ce_Hs = []
+        for H in alts:
+            tilda_P_Hs.append(self.find_tilda_P(const.MACH, H))
+            tilda_Ce_Hs.append(self.find_Ce_tilda(const.MACH, H))
+        run_plot.plot_tilda_Ces(tilda_Ce_Hs, const.MACH, alts)
+        run_plot.plot_tilda_P(tilda_P_Hs, const.MACH, alts)
+
+        R = np.linspace(0, 1, 20)
+        Cedr = self.find_Cedr_depends_R(0, R)
+        run_plot.plot_Ce_dr(Cedr, R)
+
+        run_plot.plot_aero_data_elements(
+            const.MACH,
+            self.SSC_K_go,
+            self.Cy0_bgo,
+            self.Cya_bgo,
+            self.Cy_go_a_go,
+            self.epsilon_a,
+            self.m_z_bgo_w_z,
+            self.n_v,
+            self.otn_x_f_bgo,
+            self.mz0_bgo,
+        )
+
+
+
 
     def __define_variables(self):
         self.M_min_P = np.array([])

@@ -687,3 +687,142 @@ class PlotBuilderUsingData:
             if save:
                 plotter.save_figure("xis_sigma", self.save_path)
             plotter.close_plot()
+
+    def plot_aerodynamcis_data(self, mach, Cym, alpha_0, Cy_dop, Cy_alpha, Cx_m, A):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    mach,
+                    save_type=type_name,
+                    f1=Cym*10, f2=alpha_0*10*10, f3=Cy_dop, f4=Cy_alpha/10, f5=Cx_m*10, f6=A,
+                    )
+            plotter.get_figure(
+                    r'$C_{y_m} \times 10$',
+                    r'$-\alpha_0\times 10^2$',
+                    r'$C_{y_{доп}}$',
+                    r'$C_{y}^{\alpha} \times 10^{-1}$',
+                    r'$C_{x_{m}} \times 10$',
+                    r'$A$',
+                    )
+            plotter.set_legend()
+            plotter.add_labels("$M$", "") 
+            plotter.save_figure("aero_data", self.save_path)
+            plotter.close_plot()
+
+    def plot_cy_cx(self, type1_cy_cx, type2_cy_cx, type3_cy_cx, type1_cy_alpha,
+            type2_cy_alpha, type3_cy_alpha):
+
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    type1_cy_cx[1]*100,
+                    save_type=type_name,
+                    f1=type1_cy_cx[0],
+                    )
+            plotter.get_figure('1. $C_y(C_x)$') 
+            plt.title("Режимы: 1. Взлетный, 2. Посадочный, \n3. Пробег с выпущенными интерцепторами.")
+            plotter.add_plot(type2_cy_cx[1]*100, type2_cy_cx[0], '2. $C_y(C_x)$')
+            plotter.add_plot(type3_cy_cx[1]*100, type3_cy_cx[0], '3. $C_y(C_x)$')
+
+            plotter.add_plot(type1_cy_alpha[1], type1_cy_alpha[0], r'1. $C_y(\alpha)$')
+            plotter.add_plot(type2_cy_alpha[1], type2_cy_alpha[0], r'2. $C_y(\alpha)$')
+            plotter.add_plot(type3_cy_alpha[1], type3_cy_alpha[0], r'3. $C_y(\alpha)$')
+            plotter.set_legend()
+            plotter.add_labels(r"$C_{x} \times 10^{2}, \, \alpha \,[град]$", r'$C_y$')
+            plotter.save_figure("aero_data_cx_cy_alpha", self.save_path)
+            plotter.close_plot()
+
+    def plot_tilda_Ces(self, tilda_Ce, mach, H):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    mach,
+                    save_type=type_name,
+                    f1=tilda_Ce[0],
+                    )
+            plotter.get_figure(f'H={H[0]} км')
+            for i, alt in enumerate(H[1:]):
+                plotter.add_plot(mach, tilda_Ce[i], f'H={alt} км')
+            plt.xlim([0.2, 1])
+            plotter.set_legend()
+            plotter.add_labels(r"$M$", r'$\tilde{Ce}$')
+            plotter.save_figure("tilda_Ce", self.save_path)
+            plotter.close_plot()
+
+    def plot_tilda_P(self, tilda_P , mach, H):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    mach,
+                    save_type=type_name,
+                    f1=tilda_P[0],
+                    )
+            plotter.get_figure(f'H={H[0]} км')
+            for i, alt in enumerate(H[1:]):
+                plotter.add_plot(mach, tilda_P[i], f'H={alt} км')
+            plt.xlim([mach[0], mach[-1]])
+            plotter.set_legend()
+            plotter.add_labels(r"$M$", r'$\tilde{P}$')
+            plotter.save_figure("tilda_P", self.save_path)
+            plotter.close_plot()
+
+    def plot_Ce_dr(self, Cedr, R):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    R,
+                    save_type=type_name,
+                    f1=Cedr,
+                    )
+            plotter.get_figure(r'$\hat{Ce}_{др}(R)$')
+            plotter.set_legend()
+            plt.xlim([R[0], R[-1]])
+            plt.ylim([min(Cedr)-(0.25*max(Cedr)), max(Cedr)])
+            plotter.add_labels(r"$\bar{R}$", r'$\hat{Ce}_{др}$')
+            plotter.save_figure("Ce_dr_R", self.save_path)
+            plotter.close_plot()
+
+    def plot_aero_data_elements(self, mach,
+            SSC_K_go,
+            Cy0_bgo,
+            Cya_bgo,
+            Cy_go_a_go,
+            epsilon_a,
+            m_z_bgo_w_z,
+            n_v,
+            otn_x_f_bgo,
+            mz0_bgo,
+            ):
+
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    mach,
+                    save_type=type_name,
+                    f0=SSC_K_go,
+                    f1=Cy0_bgo,
+                    f2=Cya_bgo/10,
+                    f3=Cy_go_a_go/10,
+                    f4=epsilon_a,
+                    f5=-m_z_bgo_w_z/10,
+                    f6=n_v,
+                    f7=otn_x_f_bgo,
+                    f8=-mz0_bgo,
+                    )
+            plotter.get_figure(
+                    r'$K_{го}$',
+                    r'$C_{{cy0}_{БГО}}$',
+                    r'$C_{{y}_{БГО}}^\alpha \times 10^{-1}$',
+                    r'$C_{{y}_{БГО}}^{\alpha_{ГО}}\times 10^{-1}$',
+                    r'$\varepsilon_\alpha$',
+                    r'$-m_{z_{БГО}}^{\bar{\omega}_z} \times 10^{-1}$',
+                    r'$n_{в}$',
+                    r'$\bar{x}_{F_{БГО}}$',
+                    r'$-m_{{z0}_{БГО}}$',
+                    )
+            plotter.set_legend()
+            plt.xlim([0.3, mach[-1]])
+            plotter.add_labels(r'$M$', '')
+            plotter.save_figure("aero_data_elements", self.save_path)
+            plotter.close_plot()
+
+
+
+
+
+
+
