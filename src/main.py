@@ -379,17 +379,32 @@ class Calculation:
         self.V_4 = np.append(self.V_4, V_4)
         self.q_ch_min = np.append(self.q_ch_min, q_ch_min)
         self.q_km_min = np.append(self.q_km_min, q_km_min)
-        plot_builder.plot_q_km_q_ch_together(
-            self.q_km_flying,
-            self.q_ch_flying,
-            self.V_flying,
-            q_km_min,
-            q_ch_min,
-            V_4,
-            V_3,
-            f"q_km_ch_together_H={round(self.altitude, 4)}",
-            save=run_save,
-        )
+        if self.altitude >= 11:
+            plot_builder.plot_q_km_q_ch_together(
+                    self.q_km_flying,
+                    self.q_ch_flying,
+                    self.V_flying,
+                    q_km_min,
+                    q_ch_min,
+                    V_4,
+                    V_3,
+                    f"q_km_ch_together_H={round(self.altitude, 4)}",
+                    text_side='right',
+                    save=run_save,
+                    )
+        else:
+            plot_builder.plot_q_km_q_ch_together(
+                    self.q_km_flying,
+                    self.q_ch_flying,
+                    self.V_flying,
+                    q_km_min,
+                    q_ch_min,
+                    V_4,
+                    V_3,
+                    f"q_km_ch_together_H={round(self.altitude, 4)}",
+                    text_side='left',
+                    save=run_save,
+                    )
 
     def find_Cedr_depends_R(self, height, otn_R):
         Ce_dr_column, Rdr_column = get_Ce_dr_R_dr(0.8, height)
@@ -727,17 +742,17 @@ class Calculation:
             [f"{round(val,1)}" for val in theta_move],
             [f"{round(val,1)}" for val in V_y_move],
             [f"{round(val,0)}" for val in H_e],
-            [f"{round(val,0)}" for val in delta_H_e],
-            [f"{round(val,3)}" for val in 1 / n_x_avg],
-            [f"{round(val,2)}" for val in delta_H_e / (1000 * n_x_move)],
+            [f"{round(val,0)}" if val != 0 else f'-' for val in delta_H_e],
+            [f"{round(val,3)}" if not np.isinf(val) else f'-' for val in 1 / n_x_avg],
+            [f"{round(val,2)}" if val != 0 else f'-' for val in delta_H_e / (1000 * n_x_move)],
             [f"{round(val,0)}" for val in P_move],  # part 2 table begining
             [f"{round(val,1)}" for val in (Ce_move * P_move) / V_y_move],
-            [f"{round(val,1)}" for val in CeP_Vy_avg],
-            [f"{round(val,1)}" for val in m_t_move],
-            [f"{round(val,1)}" for val in L_move],
-            [f"{round(val,1)}" for val in v_y_avg],
-            [f"{round(val,2)}" for val in t_move],
-            [f"{round(val,3)}" for val in Ce_move],
+            [f"{round(val,1)}" if val != 0 else f'-' for val in CeP_Vy_avg],
+            [f"{round(val,1)}" if val != 0 else f'-' for val in m_t_move],
+            [f"{round(val,1)}" if val != 0 else f'-' for val in L_move],
+            [f"{round(val,1)}" if val != 0 else f'-' for val in v_y_avg],
+            [f"{round(val,2)}" if val != 0 else f'-' for val in t_move],
+            [f"{round(val,3)}" if val != 0 else f'-' for val in Ce_move],
         ]
         dh.save_data(
             data_table,
@@ -1522,9 +1537,28 @@ class Calculation:
             self.otn_x_f_bgo,
             self.mz0_bgo,
         )
-
-
-
+        plane_data_output = [
+                f"{const.M_OGR:.2f}",
+                f"$\le$ {const.V_I_MAX:.0f}",
+                f"{const.M0:.0f}",
+                f"{const.OTN_M_TSN:.2f}",
+                f"{const.OTN_M_T:.2f}",
+                f"{const.OTN_M_CH:.2f}",
+                f"{const.OTN_P_0:.3f}",
+                f"{const.CE_0:.3f}",
+                f'{const.N_DV:.0f}/{const.N_REV:.0f}',
+                f"{const.PS:.0f}",
+                f"{const.B_A:.3f}",
+                f"{const.OTN_L_GO:.2f}",
+                f"{const.S:.0f}",
+                ]
+        dh.save_data_tex(
+            plane_data_output,
+            text_handler.get_row_plane_data_table(),
+            f"plane_data.tex",
+            const.PATH_TO_RESULTS,
+            units_value=text_handler.get_row_units_plane_data_table(),
+        )
 
     def __define_variables(self):
         self.M_min_P = np.array([])

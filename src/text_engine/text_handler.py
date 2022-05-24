@@ -594,7 +594,47 @@ class TextHandler:
             dtype=object,
         )
 
+    @staticmethod
+    def get_row_plane_data_table():
+        return np.array(
+            [
+                r"$M_{доп}$",
+                r"$V_{i}$",
+                r"$m_0$",
+                r"$\bar{m}_{цн}$",
+                r"$\bar{m}_т$",
+                r"$\bar{m}_{сн}$",
+                r"$\bar{P}_0$",
+                r"$Ce_0$",
+                r"$\frac{n_{дв}}{n_{рев}}$",
+                r"$P_s$",
+                r"$b_a$",
+                r"$\bar{L}_{го}$",
+                r"$S$",
+            ],
+            dtype=object,
+        )
 
+    @staticmethod
+    def get_row_units_plane_data_table():
+        return np.array(
+            [
+                r"-",
+                r"$\frac{км}{ч}$",
+                r"кг",
+                r"-",
+                r"-",
+                r"-",
+                r"-",
+                r"$\frac{кг}{дан \ast ч}$",
+                r"-",
+                r"$\frac{дан}{м^2}$",
+                r"м",
+                r"-",
+                r"$м^2$",
+            ],
+            dtype=object,
+        )
 class InvalidNameError(TypeError):
     pass
 

@@ -64,7 +64,6 @@ class PlotBuilderUsingData:
                     self.pth.get_plot_text("P")[0],
                     side=text_side,
                 )
-                print(f'??? {text_side}')
                 ploter_P_p_P_r.add_text(
                     MACH_int,
                     P_rasp_int,
@@ -236,6 +235,7 @@ class PlotBuilderUsingData:
         V_min_km,
         V_min_ch,
         file_name,
+        text_side,
         save=True,
     ):
         if self.altitude >= 11:
@@ -262,6 +262,7 @@ class PlotBuilderUsingData:
                 [0, min_q_km],
                 1,
                 self.pth.get_plot_text("q_km")[0],
+                side=text_side,
             )
 
             ax1 = plt.gca()
