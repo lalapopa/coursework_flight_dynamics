@@ -599,14 +599,14 @@ class PlotBuilderUsingData:
                 fun1=phi_bal[0],
             )
             plot_phi.get_figure(
-                "$\\varphi_{бал}(M,H=%s)$" % (alts[0]),
+                "$\\delta_{бал}(M,H=%s)$" % (alts[0]),
             )
             for i in range(1, len(alts)):
                 plot_phi.add_plot(
-                    mach_speeds[i], phi_bal[i], "$\\varphi_{бал}(M,H=%s)$" % (alts[i])
+                    mach_speeds[i], phi_bal[i], "$\\delta_{бал}(M,H=%s)$" % (alts[i])
                 )
             plot_phi.set_legend()
-            plot_phi.add_labels("$M$", "$\\varphi_{бал}[град]$")
+            plot_phi.add_labels("$M$", "$\\delta_{бал}[град]$")
             if save:
                 plot_phi.save_figure("phi_bal_graph", self.save_path)
             plot_phi.close_plot()
@@ -619,14 +619,14 @@ class PlotBuilderUsingData:
                 fun1=phi_n[0],
             )
             plot_phi_n.get_figure(
-                "$\\varphi^{n}(M,H=%s)$" % (alts[0]),
+                "$\\delta^{n}(M,H=%s)$" % (alts[0]),
             )
             for i in range(1, len(alts)):
                 plot_phi_n.add_plot(
-                    mach_speeds[i], phi_n[i], "$\\varphi^{n}(M,H=%s)$" % (alts[i])
+                    mach_speeds[i], phi_n[i], "$\\delta^{n}(M,H=%s)$" % (alts[i])
                 )
             plot_phi_n.set_legend()
-            plot_phi_n.add_labels("$M$", "$\\varphi^{n}[град/ед.перег.]$")
+            plot_phi_n.add_labels("$M$", "$\\delta^{n}[град/ед.перег.]$")
             if save:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()

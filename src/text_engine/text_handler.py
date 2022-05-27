@@ -520,8 +520,8 @@ class TextHandler:
             [
                 r"$M$",
                 r"$V$",
-                r"$\varphi_{бал}$",
-                r"$\varphi^{n}$",
+                r"$\delta_{бал}$",
+                r"$\delta^{n}$",
                 r"$n_{y_{p}}$",
             ],
         )
