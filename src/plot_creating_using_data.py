@@ -443,7 +443,7 @@ class PlotBuilderUsingData:
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
-            ax1.legend(h1 + h2, l1 + l2, loc=2)
+            ax1.legend(h1 + h2, l1 + l2)
 
             if save:
                 plot_climb.save_figure(file_name, self.save_path)
@@ -528,6 +528,7 @@ class PlotBuilderUsingData:
             )
             plot_turn.add_labels("$M$", r"$n_{y},\, \omega [1/c],\, r [м],\, t[с]$")
             plot_turn.set_legend()
+            plt.xlim([self.MACH[0], 0.7])
             if save:
                 plot_turn.save_figure("turn_graph", self.save_path)
             plot_turn.close_plot()
