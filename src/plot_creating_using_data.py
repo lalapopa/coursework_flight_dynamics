@@ -619,14 +619,14 @@ class PlotBuilderUsingData:
                 fun1=phi_n[0],
             )
             plot_phi_n.get_figure(
-                "$\\delta^{n}(M,H=%s)$" % (alts[0]),
+                "$\\delta^{n_y}(M,H=%s)$" % (alts[0]),
             )
             for i in range(1, len(alts)):
                 plot_phi_n.add_plot(
-                    mach_speeds[i], phi_n[i], "$\\delta^{n}(M,H=%s)$" % (alts[i])
+                    mach_speeds[i], phi_n[i], "$\\delta^{n_y}(M,H=%s)$" % (alts[i])
                 )
             plot_phi_n.set_legend()
-            plot_phi_n.add_labels("$M$", "$\\delta^{n}[град/ед.перег.]$")
+            plot_phi_n.add_labels("$M$", "$\\delta^{n_y}[град/ед.перег.]$")
             if save:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()

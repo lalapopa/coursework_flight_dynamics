@@ -521,7 +521,7 @@ class TextHandler:
                 r"$M$",
                 r"$V$",
                 r"$\delta_{бал}$",
-                r"$\delta^{n}$",
+                r"$\delta^{n_y}$",
                 r"$n_{y_{p}}$",
             ],
         )
