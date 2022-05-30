@@ -865,6 +865,10 @@ class Calculation:
             self.run_plot_cargo_part(L_array, m_cargo_array)
 
     def run_plot_cargo_part(self, L, m):
+        L_adding = 0 
+        m_adding = m[0]
+        L = np.insert(L, 0, L_adding, axis=0) 
+        m = np.insert(m, 0, m_adding, axis=0)
         plot_cargo = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )

@@ -292,32 +292,34 @@ class PlotBuilderUsingData:
 
     def plot_V_y_H(self, Vy_max, alts, H_pr, H_st, save=True):
         for type_name in self.TYPE_NAMES:
+            Vy_max = np.append(Vy_max, 0)
+            alts = np.append(alts, H_st)
             plotter_V_y_H = plot(Vy_max, save_type=type_name, fun1=alts)
             plotter_V_y_H.get_figure(
                 self.pth.get_label_in_box("V_y")[1],
             )
-            plt.xlim(0, Vy_max[0] + 5)
-            plt.ylim(0, alts[-1] + 2)
+            x_axis_length = Vy_max[0] + Vy_max[0]*0.1
+            plt.xlim(0, x_axis_length)
+            plt.ylim(0, alts[-1] + alts[-1]*0.1)
+            plt.plot([0.5, x_axis_length], [H_pr, H_pr], 'k--', linewidth=0.2)
+            plt.plot([0, x_axis_length], [H_st, H_st], 'k--', linewidth=0.2)
             plt.plot(0.5, H_pr, "o")
+            plt.plot(0, H_st, "o")
+
             plotter_V_y_H.add_labels(
                 self.pth.get_label("V_y"),
                 self.pth.get_label("H"),
             )
 
             plt.annotate(
-                self.pth.get_plot_text("H")[1] + f"{round(H_pr,3)}",
-                xy=(0.5, H_pr - (H_pr * 0.05)),
+                self.pth.get_plot_text("H")[0] + f"{round(H_st,2)} км",
+                xy=(x_axis_length*0.7, H_st + (H_pr * 0.02)), va='bottom'
+            )
+            plt.annotate(
+                self.pth.get_plot_text("H")[1] + f"{round(H_pr,2)} км",
+                xy=(x_axis_length*0.7, H_pr - (H_pr * 0.02)), va='top'
             )
 
-            plotter_V_y_H.add_text(
-                np.array([0]),
-                np.array([H_st]),
-                0,
-                self.pth.get_plot_text("H")[0],
-                add_value="y",
-                text_location="up",
-            )
-            plotter_V_y_H.set_legend()
             if save:
                 plotter_V_y_H.save_figure("V_y_H", self.save_path)
             plotter_V_y_H.close_plot()
@@ -370,9 +372,10 @@ class PlotBuilderUsingData:
                 )
 
             plt.plot([0, 1], [alts[-1], alts[-1]], "--k", linewidth=1)
+            plt.plot([M_min_P[-1], M_max_P[-1]], [alts[-1], alts[-1]], "k", linewidth=2)
 
             plotter_H_M.add_text(
-                [0, 0.5],
+                [0, M_OGR[0]-((M_OGR[0]-M_max_P[-1])/2)],
                 [alts[-1], alts[-1] + (0.02 * alts[-1])],
                 1,
                 str("$H_{пр}= %.2f \ км$" % (alts[-1])),
@@ -491,9 +494,8 @@ class PlotBuilderUsingData:
 
         for type_name in self.TYPE_NAMES:
             plot_L_H = plot(L, save_type=type_name, fun1=H)
-            plot_L_H.get_figure("$H(L) [Км]$")
+            plot_L_H.get_figure("$H(L) [км]$")
             plot_L_H.add_labels("$L [км]$", "$H [км]$")
-            plot_L_H.set_legend()
             plt.xlim(0, L[-1] + 100)
             plt.ylim(0, np.max(H) + 2)
             if save:
@@ -505,7 +507,9 @@ class PlotBuilderUsingData:
             plot_cargo = plot(L, save_type=type_name, fun1=m)
             plot_cargo.get_figure("$m_{цн}(L)$")
             plot_cargo.add_labels("$L [км]$", "$m_{цн} [кг]$")
-            plot_cargo.set_legend()
+            plt.xlim([0, max(L)+(0.1*max(L))])
+            plt.ylim([0, max(m)+(0.1*max(m))])
+
             if save:
                 plot_cargo.save_figure("m_L_graph", self.save_path)
             plot_cargo.close_plot()
@@ -529,6 +533,9 @@ class PlotBuilderUsingData:
             plot_turn.add_labels("$M$", r"$n_{y},\, \omega [1/c],\, r [м],\, t[с]$")
             plot_turn.set_legend()
             plt.xlim([self.MACH[0], 0.7])
+            y_index_transition = dh.get_index_nearest_element_in_array(self.MACH, 0.70)
+            plt.ylim([0, (r[y_index_transition] * (10**-3))+(0.10*r[y_index_transition] * (10**-3))])
+
             if save:
                 plot_turn.save_figure("turn_graph", self.save_path)
             plot_turn.close_plot()
