@@ -18,8 +18,8 @@ class Plotter:
         self.save_type = save_type
         Plotter.setup_matplotlib(self.save_type)
 
-    def get_figure(self, *legend_labels, t_graph=False, add_random_marker=False):
-        plt.figure(figsize=(6, 4.5))
+    def get_figure(self, *legend_labels, t_graph=False, add_random_marker=False, size=(6, 4.5)):
+        plt.figure(figsize=size)
 
         for y_value, legend_label in zip(self.y_values, legend_labels):
             if add_random_marker:

@@ -856,7 +856,29 @@ class PlotBuilderUsingData:
             plotter.save_figure("aero_data_elements", self.save_path)
             plotter.close_plot()
 
-
+    def plot_P_rasp_P_potr_combine(self, 
+            mach, 
+            H,
+            P_rasp_combine, 
+            P_potr_combine):
+        for type_name in self.TYPE_NAMES:
+            plotter = plot(
+                    mach,
+                    save_type=type_name,
+                    f0=np.reshape(P_rasp_combine[0], len(mach)),
+                    f1=np.reshape(P_potr_combine[0], len(mach)),
+                    )
+            plotter.get_figure("$P_{р_{H=0}}$", "$P_{п_{H=0}}$")
+            print(P_rasp_combine[0])
+            for i, alt in enumerate(H[1:]):
+                plt.plot(mach, np.reshape(P_rasp_combine[i+1], len(mach)), label="$P_{р_{H=%.1f}}$"% (alt))
+                plt.plot(mach, np.reshape(P_potr_combine[i+1], len(mach)), label="$P_{п_{H=%.1f}}$"% (alt))
+            plt.legend(ncol=2,  loc='upper right')
+            plt.ylim([50000, 400000])
+            plt.xlim([0, mach[-1]])
+            plotter.add_labels('$M$', '$P\, [H]$')
+            plotter.save_figure("P_rasp_P_potr_combine", self.save_path)
+            plotter.close_plot()
 
 
 

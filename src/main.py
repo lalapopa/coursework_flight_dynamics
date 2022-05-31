@@ -300,7 +300,6 @@ class Calculation:
             1,
             1,
         )
-
         self.q_ch = frmls.q_ch_hour_consumption(
             const.CE_0,
             self.tilda_Ce,
@@ -346,7 +345,7 @@ class Calculation:
         else:
             MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, text_side='left',
                     save=run_save)
-
+        
         M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop,
                 save=run_save)
         M_2, Vy_max = build_plot.plot_V_y(self.V_y, save=run_save)
@@ -358,6 +357,8 @@ class Calculation:
         self.M_2 = np.append(self.M_2, M_2)
         self.Vy_max = np.append(self.Vy_max, Vy_max)
         self.find_fuel_consumption(build_plot, run_save=run_save)
+        self.P_rasp_combine.append(np.array([self.P_rasp]))
+        self.P_potr_combine.append(np.array([self.P_potr]))
 
     def find_fuel_consumption(self, plot_builder, run_save=False):
         self.M_max_dop = self.find_M_max_dop(self.altitude)
@@ -451,9 +452,16 @@ class Calculation:
             self.M_OGR,
             save=run_save,
         )
+        build_plot.plot_P_rasp_P_potr_combine(
+                const.MACH, 
+                self.altitude,
+                self.P_rasp_combine,
+                self.P_potr_combine, 
+                )
         build_plot.plot_q_ch_q_km(
             self.altitude, self.q_km_min, self.q_ch_min, save=run_save
         )
+
 
     def climb_part(self, save_plot=False):
         M_0 = 1.2 * self.M_min_dop[0]
@@ -1579,6 +1587,8 @@ class Calculation:
         self.V_4 = np.array([])
         self.M_4 = np.array([])
         self.Vy_check = np.array([])
+        self.P_rasp_combine = []
+        self.P_potr_combine = []
 
 
 def debug_level_flight_part(Ce_gp, T_kr, L_kr, Ro, H):
