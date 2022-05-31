@@ -25,10 +25,10 @@ def main(
     calc = Calculation()
 
     H_static, H_practical = find_celling(calc)
+    
+    const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
 
-    const.H = dh.proper_array(0, H_practical, step_size)
     calc.plot_plane_data()
-
     print(f'H_pr = {H_practical}')
     for alt in const.H:
         if alt <= 11:
@@ -36,7 +36,7 @@ def main(
         calc.first_part(alt, save_plot=True, save_data=True)
     calc.second_part(const.H, H_practical, H_static, save_plot=True, save_data=True)
     calc.climb_part(save_plot=True)
-    calc.level_flight_part(debug=False)
+    calc.level_flight_part(debug=True)
     calc.descent_part(save_plot=True)
     calc.cargo_possibility(save_plot=True)
     calc.take_off_landing_part()
@@ -369,7 +369,7 @@ class Calculation:
             V_4, q_km_min = plot_builder.plot_q_km(
                 self.V_flying, self.q_km_flying, save=run_save
             )
-        except ValueError:
+        except: 
             V_3, q_ch_min = plot_builder.plot_q_ch(self.V, self.q_ch, save=run_save)
             V_4, q_km_min = plot_builder.plot_q_km(self.V, self.q_km, save=run_save)
 
@@ -547,7 +547,7 @@ class Calculation:
         plot_part3.plot_H_M_profile(self.M_nab, self.H_nab, file_name="H_climb")
 
     def level_flight_part(self, debug=False):
-        self.otn_m_t_nab = frmls.otn_m_t_nab_equation(sum(self.m_t_nab), const.M0)
+        self.otn_m_t_nab = frmls.otn_m_t_nab_equation(sum(self.m_t_nab), const.M_MTOW*1000)
         self.otn_m_t_kr = frmls.otn_m_t_kr_equation(
             const.OTN_M_CH,
             const.OTN_M_TSN,
@@ -805,11 +805,11 @@ class Calculation:
         )
 
     def cargo_possibility(self, save_plot=False):
-        m_tsn_mode1 = const.OTN_M_CH * const.M0
+        m_tsn_mode1 = const.OTN_M_TSN * const.M_MTOW*1000
         otn_m_kr_mode2 = frmls.otn_m_t_kr_mode_equation(
             const.OTN_M_T,
             self.otn_m_t_nab,
-            sum(self.m_t_des) / const.M0,
+            sum(self.m_t_des) / (const.M_MTOW*1000),
             const.OTN_M_T_ANZ,
             const.OTN_M_T_PR,
         )
@@ -823,8 +823,8 @@ class Calculation:
             const.OTN_M_T_PR,
             otn_m_kr_mode2,
         )
-        m_tsn_mode2 = abs((1 - const.OTN_M_EMPTY - const.OTN_M_T) * const.M0)
-        otn_m_vz = const.OTN_M_EMPTY + const.OTN_M_T
+        m_tsn_mode2 = (1 - const.OTN_M_CH - const.OTN_M_T) * const.M_MTOW*1000
+        otn_m_vz = const.OTN_M_CH + const.OTN_M_T
         L_kr_mode3 = frmls.L_kr_equation(
             self.V_gp,
             self.K_gp,
@@ -862,6 +862,8 @@ class Calculation:
             units_value=text_handler.get_row_units_cargo_table(),
         )
         if save_plot:
+            print(L_array)
+            print(m_cargo_array)
             self.run_plot_cargo_part(L_array, m_cargo_array)
 
     def run_plot_cargo_part(self, L, m):

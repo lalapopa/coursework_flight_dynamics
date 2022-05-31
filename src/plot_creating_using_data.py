@@ -48,28 +48,35 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
-            plt.ylim([0, P_rasp_int[cross_position][0] * 1.35])
-            if len(cross_position) == 1:
-                ploter_P_p_P_r.add_text(
-                    MACH_int,
-                    P_rasp_int,
-                    cross_position,
-                    self.pth.get_plot_text("P")[1],
-                )
-            else:
-                ploter_P_p_P_r.add_text(
-                    MACH_int,
-                    P_rasp_int,
-                    cross_position[0],
-                    self.pth.get_plot_text("P")[0],
-                    side=text_side,
-                )
-                ploter_P_p_P_r.add_text(
-                    MACH_int,
-                    P_rasp_int,
-                    cross_position[1],
-                    self.pth.get_plot_text("P")[1],
-                )
+            try: 
+                plt.ylim([0, P_rasp_int[cross_position][0] * 1.35])
+            except IndexError:
+                pass
+
+            try:
+                if len(cross_position) == 1:
+                    ploter_P_p_P_r.add_text(
+                        MACH_int,
+                        P_rasp_int,
+                        cross_position,
+                        self.pth.get_plot_text("P")[1],
+                    )
+                else:
+                    ploter_P_p_P_r.add_text(
+                        MACH_int,
+                        P_rasp_int,
+                        cross_position[0],
+                        self.pth.get_plot_text("P")[0],
+                        side=text_side,
+                    )
+                    ploter_P_p_P_r.add_text(
+                        MACH_int,
+                        P_rasp_int,
+                        cross_position[1],
+                        self.pth.get_plot_text("P")[1],
+                    )
+            except:
+                    pass
 
             ploter_P_p_P_r.add_text(
                 MACH_int,
@@ -79,11 +86,13 @@ class PlotBuilderUsingData:
             )
             ploter_P_p_P_r.set_legend(loc_code=3)
             ploter_P_p_P_r.set_notation(4)
+            plt.xlim([0, MACH_int[-1]])
             if save:
                 ploter_P_p_P_r.save_figure(
                     f"P_H={round(self.altitude, 4)}", self.save_path
                 )
             ploter_P_p_P_r.close_plot()
+
 
         return MminP, MmaxP, M_1
 
@@ -108,6 +117,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("C_y"),
             )
             plt.ylim([0, C_y_n_int[cross_position] + C_y_n_int[cross_position] * 0.15])
+            plt.xlim([0, MACH_int[-1]])
             plotter_C_y.add_text(
                 MACH_int, C_y_n_int, cross_position, self.pth.get_plot_text("C_y")[0]
             )
@@ -136,6 +146,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("V_y"),
             )
             plt.ylim([0, Vy_max + Vy_max * 0.15])
+            plt.xlim([0, MACH_int[-1]])
             plotter_Vy.add_text(
                 MACH_int,
                 V_y_int,
@@ -238,16 +249,19 @@ class PlotBuilderUsingData:
         text_side,
         save=True,
     ):
-        if self.altitude >= 11:
-            (V_int, q_km_int) = dh.prepare_data_for_plot(
-                V, q_km, remove_first_element=True
-            )
-            (V_int, q_ch_int) = dh.prepare_data_for_plot(
-                V, q_ch, remove_first_element=True
-            )
-        else:
-            (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km)
-            (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch)
+        try:
+            if self.altitude >= 11:
+                (V_int, q_km_int) = dh.prepare_data_for_plot(
+                    V, q_km, remove_first_element=True
+                )
+                (V_int, q_ch_int) = dh.prepare_data_for_plot(
+                    V, q_ch, remove_first_element=True
+                )
+            else:
+                (V_int, q_km_int) = dh.prepare_data_for_plot(V, q_km)
+                (V_int, q_ch_int) = dh.prepare_data_for_plot(V, q_ch)
+        except:
+            return
 
         for type_name in self.TYPE_NAMES:
             plotter_q = plot(V_int, save_type=type_name, fun1=q_km_int)
@@ -369,16 +383,16 @@ class PlotBuilderUsingData:
                     "$M_{q_{max}}$",
                     "$M_{пред}$",
                     t_graph=True,
+                    add_random_marker=True,
                 )
 
             plt.plot([0, 1], [alts[-1], alts[-1]], "--k", linewidth=1)
-            plt.plot([M_min_P[-1], M_max_P[-1]], [alts[-1], alts[-1]], "k", linewidth=2)
 
             plotter_H_M.add_text(
                 [0, M_OGR[0]-((M_OGR[0]-M_max_P[-1])/2)],
                 [alts[-1], alts[-1] + (0.02 * alts[-1])],
                 1,
-                str("$H_{пр}= %.2f \ км$" % (alts[-1])),
+                str("$H_{ст}= %.2f \ км$" % (alts[-1])),
                 add_value=None,
                 marker_style="-",
             )
@@ -401,10 +415,17 @@ class PlotBuilderUsingData:
             q_km_min = np.delete(q_km_min, del_pos)
             q_ch_min = np.delete(q_ch_min, del_pos)
             alts = np.delete(alts, del_pos)
-
-        H_int, q_km_min_int, q_ch_min_int = dh.prepare_data_for_plot(
-            alts, q_km_min, q_ch_min / 1000
-        )
+        where_negative_value = np.where(q_km_min < 0)
+        if where_negative_value:
+            q_km_min = np.delete(q_km_min, where_negative_value)
+            q_ch_min = np.delete(q_ch_min, where_negative_value)
+            alts = np.delete(alts, where_negative_value)
+#        H_int, q_km_min_int, q_ch_min_int = dh.prepare_data_for_plot(
+#            alts, q_km_min, q_ch_min / 1000
+#        )
+        H_int, q_km_min_int, q_ch_min_int = alts, q_km_min, q_ch_min/1000
+        print('whdakwdkaj',q_km_min_int)
+        print('whdakwdkaj',q_ch_min_int)
 
         for type_name in self.TYPE_NAMES:
             plotter_q_ch_q_km = plot(
@@ -414,9 +435,10 @@ class PlotBuilderUsingData:
                 self.pth.get_label_in_box("q_km")[1],
                 self.pth.get_label_in_box("q_ch")[1],
                 t_graph=True,
+                add_random_marker=True,
             )
             plotter_q_ch_q_km.add_labels(
-                self.pth.get_label("q_km") + self.pth.get_label("q_ch")[1],
+                self.pth.get_label("q_km") + f", {self.pth.get_label('q_ch')[1]}",
                 self.pth.get_label("H"),
             )
             plt.ylim(0, alts[-1] + 1)
@@ -443,6 +465,8 @@ class PlotBuilderUsingData:
             ax2 = ax1.twinx()
             ax2.set_ylabel("V\\,[м/с]")
             ax2.plot(x_t, V, color="black", label="$V(t)\\,[м/с]$")
+            plt.xlim([0, x_t[-1]])
+
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
@@ -469,6 +493,9 @@ class PlotBuilderUsingData:
             h2, l2 = ax2.get_legend_handles_labels()
             ax1.legend(h1 + h2, l1 + l2, loc=2)
             plot_L_m.set_notation(2)
+            plt.xlim([0, x_t[-1]])
+            ax1.set_ylim(ymin=0)
+            ax2.set_ylim(ymin=0)
 
             if save:
                 plot_L_m.save_figure(file_name, self.save_path)
@@ -478,9 +505,9 @@ class PlotBuilderUsingData:
         for type_name in self.TYPE_NAMES:
             plot_climb = plot(M, save_type=type_name, fun1=H)
             plot_climb.get_figure("$H(M)$")
-            plot_climb.add_labels("$M$", "$H [км]$")
             plot_climb.set_legend()
             plt.xlim(0, 1)
+            plt.ylim(ymin=0)
             if save:
                 plot_climb.save_figure(file_name, self.save_path)
             plot_climb.close_plot()
@@ -496,7 +523,7 @@ class PlotBuilderUsingData:
             plot_L_H = plot(L, save_type=type_name, fun1=H)
             plot_L_H.get_figure("$H(L) [км]$")
             plot_L_H.add_labels("$L [км]$", "$H [км]$")
-            plt.xlim(0, L[-1] + 100)
+            plt.xlim(xmin=0)
             plt.ylim(0, np.max(H) + 2)
             if save:
                 plot_L_H.save_figure("H_L_graph", self.save_path)

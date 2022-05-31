@@ -323,7 +323,7 @@ class TextHandler:
 
     @staticmethod
     def get_mini_table_3_units():
-        return np.array(["Кг", "Км", "Мин"], dtype=object)
+        return np.array(["кг", "км", "мин"], dtype=object)
 
     @staticmethod
     def get_kr_table():

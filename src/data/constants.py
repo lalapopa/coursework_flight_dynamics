@@ -19,6 +19,7 @@ class Constant:
         self.M_OGR = variable.M_OGR
         self.V_I_MAX = variable.V_I_MAX
         self.M0 = variable.M0
+        self.M_MTOW = variable.MAX_TAKE_OFF_WEIGHT
         self.OTN_M_TSN = variable.OTN_M_TSN
         self.OTN_M_T = variable.OTN_M_T
         self.OTN_M_CH = variable.OTN_M_CH
@@ -54,7 +55,6 @@ class Constant:
         self.OTN_M_T_SNP = 0.015
         self.OTN_M_T_ANZ = 0.05
         self.OTN_M_T_PR = 0.01
-        self.OTN_M_EMPTY = 1 - self.OTN_M_T - self.OTN_M_TSN
 
         # Data for take-off and landing part
         self.ALPHA_TO = 2/57.29

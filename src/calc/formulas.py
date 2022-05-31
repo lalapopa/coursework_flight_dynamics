@@ -12,9 +12,6 @@ class Formulas:
     def q_dynamic_pressure(v, air_density):
         return (air_density * (v) ** 2) / 2
 
-#    def C_y_n_lift_coefficient(otn_M, ps, q):
-#        return (otn_M * ps * 10) / q
-
     def C_y_n_lift_coefficient(m, g, S, q):
         return (m * g) / (S * q)
 
@@ -193,12 +190,6 @@ class Formulas:
         return ((3.6 * V * K_gp) / (g * Ce)) * np.log(
             (otn_m_vz - otn_m_t_nab - otn_m_t_pr)
             / (otn_m_vz - otn_m_t_kr - otn_m_t_nab - otn_m_t_pr)
-        )
-
-    def L_kr_equation_mode2(V, K_gp, g, Ce, otn_m_t_nab, otn_m_t_pr, otn_m_t_kr):
-        return ((3.6 * V * K_gp) / (g * Ce)) * np.log(
-            (1.5 - otn_m_t_nab - otn_m_t_pr)
-            / (1.5 - otn_m_t_kr - otn_m_t_nab - otn_m_t_pr)
         )
 
     def otn_m_kkr_equation(otn_m_t_nab, otn_m_t_pr, otn_m_t_kr):

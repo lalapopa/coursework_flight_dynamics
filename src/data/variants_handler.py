@@ -8,6 +8,7 @@ class VariantsHandler:
         self.M_OGR = float(df.get_column("M_OGR", "variant", np.array([variant])))
         self.V_I_MAX = float(df.get_column("V_i", "variant", np.array([variant])))
         self.M0 = float(df.get_column("m0", "variant", np.array([variant])) * 1000)
+        self.MAX_TAKE_OFF_WEIGHT = float(df.get_column("m_max","variant", np.array([variant])))
         self.OTN_M_TSN = float(
             df.get_column("otn_m_tsn", "variant", np.array([variant]))
         )
