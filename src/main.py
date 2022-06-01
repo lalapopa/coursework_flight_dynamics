@@ -7,7 +7,7 @@ from ambiance import Atmosphere
 
 from DataHandler import DataHandler as dh
 from .data import Constant as cnst
-from .data import get_Ce_dr_R_dr 
+from .data import get_Ce_dr_R_dr
 from .calc import Formulas as frmls
 from .text_engine import TextHandler as text_handler
 from .plot_creating_using_data import PlotBuilderUsingData as pbud
@@ -25,11 +25,11 @@ def main(
     calc = Calculation()
 
     H_static, H_practical = find_celling(calc)
-    
+
     const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
 
     calc.plot_plane_data()
-    print(f'H_pr = {H_practical}')
+    print(f"H_pr = {H_practical}")
     for alt in const.H:
         if alt <= 11:
             alt = alt.astype(float)
@@ -43,7 +43,6 @@ def main(
     calc.turn_part(save_plot=True)
     calc.static_stability_control_part(H_practical, H_static, save_plot=True)
     print("DONE :)")
-
 
 
 class Calculation:
@@ -141,6 +140,7 @@ class Calculation:
         )
 
     def prepare_data_for_H_tab_latex(self):
+        last_index_in_alt = len(self.altitude) - 1
         a_H = self.df.get_column(
             "a_H", "H", np.array([self.altitude]), inter_value=True
         )
@@ -175,12 +175,16 @@ class Calculation:
         M_1_column = np.array(
             [
                 f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i]))
+                if i != last_index_in_alt
+                else "-"
                 for i, value in enumerate(self.M_1)
             ]
         )
         M_2_column = np.array(
             [
                 f"$%.3f\, [%.0f]$" % (value, V_km_func(value, a_H[i]))
+                if i != last_index_in_alt
+                else "-"
                 for i, value in enumerate(self.M_2)
             ]
         )
@@ -194,11 +198,26 @@ class Calculation:
                 M_max_column,
                 M_1_column,
                 M_2_column,
-                [f"%.0f" % val for val in self.V_3],
-                [f"%.0f" % val for val in self.V_4],
-                [f"%.3f" % val for val in self.M_4],
-                [str(round(val, 2)) for val in self.q_ch_min],
-                [str(round(val, 2)) for val in self.q_km_min],
+                [
+                    f"%.0f" % val if i != last_index_in_alt else "-"
+                    for i, val in enumerate(self.V_3)
+                ],
+                [
+                    f"%.0f" % val if i != last_index_in_alt else "-"
+                    for i, val in enumerate(self.V_4)
+                ],
+                [
+                    f"%.3f" % val if i != last_index_in_alt else "-"
+                    for i, val in enumerate(self.M_4)
+                ],
+                [
+                    str(round(val, 2)) if i != last_index_in_alt else "-"
+                    for i, val in enumerate(self.q_ch_min)
+                ],
+                [
+                    str(round(val, 2)) if i != last_index_in_alt else "-"
+                    for i, val in enumerate(self.q_km_min)
+                ],
             ]
         )
 
@@ -207,7 +226,7 @@ class Calculation:
         self.tilda_Ce = self.find_Ce_tilda(const.MACH, self.altitude)
         if type(self.altitude) == int or type(self.altitude) == np.int64:
             self.altitude = np.float64(self.altitude)
-        air_H = Atmosphere(np.array(self.altitude)*1000)
+        air_H = Atmosphere(np.array(self.altitude) * 1000)
         air_11 = Atmosphere(np.array([11000]))
 
         self.a_H = air_H.speed_of_sound
@@ -339,15 +358,16 @@ class Calculation:
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
         if self.altitude >= 11:
-            MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, text_side='right',
-                    save=run_save)
-            print(':| '*15)
+            MminP, MmaxP, M_1 = build_plot.plot_P(
+                self.P_potr, self.P_rasp, text_side="right", save=run_save
+            )
+            print(":| " * 15)
         else:
-            MminP, MmaxP, M_1 = build_plot.plot_P(self.P_potr, self.P_rasp, text_side='left',
-                    save=run_save)
-        
-        M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop,
-                save=run_save)
+            MminP, MmaxP, M_1 = build_plot.plot_P(
+                self.P_potr, self.P_rasp, text_side="left", save=run_save
+            )
+
+        M_min_dop = build_plot.plot_C_y_C_dop(self.C_y_n, self.Cy_dop, save=run_save)
         M_2, Vy_max = build_plot.plot_V_y(self.V_y, save=run_save)
 
         self.M_min_P = np.append(self.M_min_P, MminP)
@@ -370,7 +390,7 @@ class Calculation:
             V_4, q_km_min = plot_builder.plot_q_km(
                 self.V_flying, self.q_km_flying, save=run_save
             )
-        except: 
+        except:
             V_3, q_ch_min = plot_builder.plot_q_ch(self.V, self.q_ch, save=run_save)
             V_4, q_km_min = plot_builder.plot_q_km(self.V, self.q_km, save=run_save)
 
@@ -382,40 +402,39 @@ class Calculation:
         self.q_km_min = np.append(self.q_km_min, q_km_min)
         if self.altitude >= 11:
             plot_builder.plot_q_km_q_ch_together(
-                    self.q_km_flying,
-                    self.q_ch_flying,
-                    self.V_flying,
-                    q_km_min,
-                    q_ch_min,
-                    V_4,
-                    V_3,
-                    f"q_km_ch_together_H={round(self.altitude, 4)}",
-                    text_side='right',
-                    save=run_save,
-                    )
+                self.q_km_flying,
+                self.q_ch_flying,
+                self.V_flying,
+                q_km_min,
+                q_ch_min,
+                V_4,
+                V_3,
+                f"q_km_ch_together_H={round(self.altitude, 4)}",
+                text_side="right",
+                save=run_save,
+            )
         else:
             plot_builder.plot_q_km_q_ch_together(
-                    self.q_km_flying,
-                    self.q_ch_flying,
-                    self.V_flying,
-                    q_km_min,
-                    q_ch_min,
-                    V_4,
-                    V_3,
-                    f"q_km_ch_together_H={round(self.altitude, 4)}",
-                    text_side='left',
-                    save=run_save,
-                    )
+                self.q_km_flying,
+                self.q_ch_flying,
+                self.V_flying,
+                q_km_min,
+                q_ch_min,
+                V_4,
+                V_3,
+                f"q_km_ch_together_H={round(self.altitude, 4)}",
+                text_side="left",
+                save=run_save,
+            )
 
     def find_Cedr_depends_R(self, height, otn_R):
         Ce_dr_column, Rdr_column = get_Ce_dr_R_dr(0.8, height)
         f = interpolate.interp1d(
-        Rdr_column,
-        Ce_dr_column,
-        fill_value="extrapolate",
+            Rdr_column,
+            Ce_dr_column,
+            fill_value="extrapolate",
         )
         return f(otn_R)
-
 
     def find_flying_area(self, R_values, V_speed, value):
         accept_position = np.nonzero(R_values < 1)
@@ -453,15 +472,14 @@ class Calculation:
             save=run_save,
         )
         build_plot.plot_P_rasp_P_potr_combine(
-                const.MACH, 
-                self.altitude,
-                self.P_rasp_combine,
-                self.P_potr_combine, 
-                )
+            const.MACH,
+            self.altitude,
+            self.P_rasp_combine,
+            self.P_potr_combine,
+        )
         build_plot.plot_q_ch_q_km(
             self.altitude, self.q_km_min, self.q_ch_min, save=run_save
         )
-
 
     def climb_part(self, save_plot=False):
         M_0 = 1.2 * self.M_min_dop[0]
@@ -555,7 +573,9 @@ class Calculation:
         plot_part3.plot_H_M_profile(self.M_nab, self.H_nab, file_name="H_climb")
 
     def level_flight_part(self, debug=False):
-        self.otn_m_t_nab = frmls.otn_m_t_nab_equation(sum(self.m_t_nab), const.M_MTOW*1000)
+        self.otn_m_t_nab = frmls.otn_m_t_nab_equation(
+            sum(self.m_t_nab), const.M_MTOW * 1000
+        )
         self.otn_m_t_kr = frmls.otn_m_t_kr_equation(
             const.OTN_M_CH,
             const.OTN_M_TSN,
@@ -750,17 +770,20 @@ class Calculation:
             [f"{round(val,1)}" for val in theta_move],
             [f"{round(val,1)}" for val in V_y_move],
             [f"{round(val,0)}" for val in H_e],
-            [f"{round(val,0)}" if val != 0 else f'-' for val in delta_H_e],
-            [f"{round(val,3)}" if not np.isinf(val) else f'-' for val in 1 / n_x_avg],
-            [f"{round(val,2)}" if val != 0 else f'-' for val in delta_H_e / (1000 * n_x_move)],
+            [f"{round(val,0)}" if val != 0 else f"-" for val in delta_H_e],
+            [f"{round(val,3)}" if not np.isinf(val) else f"-" for val in 1 / n_x_avg],
+            [
+                f"{round(val,2)}" if val != 0 else f"-"
+                for val in delta_H_e / (1000 * n_x_move)
+            ],
             [f"{round(val,0)}" for val in P_move],  # part 2 table begining
             [f"{round(val,1)}" for val in (Ce_move * P_move) / V_y_move],
-            [f"{round(val,1)}" if val != 0 else f'-' for val in CeP_Vy_avg],
-            [f"{round(val,1)}" if val != 0 else f'-' for val in m_t_move],
-            [f"{round(val,1)}" if val != 0 else f'-' for val in L_move],
-            [f"{round(val,1)}" if val != 0 else f'-' for val in v_y_avg],
-            [f"{round(val,2)}" if val != 0 else f'-' for val in t_move],
-            [f"{round(val,3)}" if val != 0 else f'-' for val in Ce_move],
+            [f"{round(val,1)}" if val != 0 else f"-" for val in CeP_Vy_avg],
+            [f"{round(val,1)}" if val != 0 else f"-" for val in m_t_move],
+            [f"{round(val,1)}" if val != 0 else f"-" for val in L_move],
+            [f"{round(val,1)}" if val != 0 else f"-" for val in v_y_avg],
+            [f"{round(val,2)}" if val != 0 else f"-" for val in t_move],
+            [f"{round(val,3)}" if val != 0 else f"-" for val in Ce_move],
         ]
         dh.save_data(
             data_table,
@@ -813,11 +836,11 @@ class Calculation:
         )
 
     def cargo_possibility(self, save_plot=False):
-        m_tsn_mode1 = const.OTN_M_TSN * const.M_MTOW*1000
+        m_tsn_mode1 = const.OTN_M_TSN * const.M_MTOW * 1000
         otn_m_kr_mode2 = frmls.otn_m_t_kr_mode_equation(
             const.OTN_M_T,
             self.otn_m_t_nab,
-            sum(self.m_t_des) / (const.M_MTOW*1000),
+            sum(self.m_t_des) / (const.M_MTOW * 1000),
             const.OTN_M_T_ANZ,
             const.OTN_M_T_PR,
         )
@@ -831,7 +854,7 @@ class Calculation:
             const.OTN_M_T_PR,
             otn_m_kr_mode2,
         )
-        m_tsn_mode2 = (1 - const.OTN_M_CH - const.OTN_M_T) * const.M_MTOW*1000
+        m_tsn_mode2 = (1 - const.OTN_M_CH - const.OTN_M_T) * const.M_MTOW * 1000
         otn_m_vz = const.OTN_M_CH + const.OTN_M_T
         L_kr_mode3 = frmls.L_kr_equation(
             self.V_gp,
@@ -875,9 +898,9 @@ class Calculation:
             self.run_plot_cargo_part(L_array, m_cargo_array)
 
     def run_plot_cargo_part(self, L, m):
-        L_adding = 0 
+        L_adding = 0
         m_adding = m[0]
-        L = np.insert(L, 0, L_adding, axis=0) 
+        L = np.insert(L, 0, L_adding, axis=0)
         m = np.insert(m, 0, m_adding, axis=0)
         plot_cargo = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
@@ -1268,7 +1291,9 @@ class Calculation:
             V = frmls.v_speed(mach[i], a_sos)
             q = frmls.q_dynamic_pressure(V, Ro)
             otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
-            Cy_GP = frmls.C_y_n_lift_coefficient(const.M0*otn_m_plane, const.G, const.S, q)
+            Cy_GP = frmls.C_y_n_lift_coefficient(
+                const.M0 * otn_m_plane, const.G, const.S, q
+            )
 
             Cy_dop = self.df.get_column("Cydop", "M", mach[i], inter_value=True)
             n_y = frmls.n_y_equation(Cy_dop, Cy_GP)
@@ -1285,7 +1310,7 @@ class Calculation:
         m_z_delta = frmls.m_z_delta_equation(
             self.Cy_go_a_go, otn_S_go, const.OTN_L_GO, self.SSC_K_go, self.n_v
         )
-        print(f'otn_S = {otn_S_go} and mzdelta = {m_z_delta} ')
+        print(f"otn_S = {otn_S_go} and mzdelta = {m_z_delta} ")
 
         otn_m_plane = frmls.otn_m_plane_equation(const.OTN_M_T)
         q_dynamic = frmls.q_dynamic_pressure(V_value, self.Ro_H)
@@ -1307,7 +1332,7 @@ class Calculation:
 
         sigma_n = frmls.sigma_n_equation(otn_x_T, self.otn_x_f, self.m_z_w_z, self.mu)
         fi_n = frmls.phi_n_equation(Cy_gp, sigma_n, m_z_delta)
-        nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal/57.3, fi_n/57.3)
+        nyp = frmls.nyp_equation(const.FI_MAX, const.FI_UST, fi_bal / 57.3, fi_n / 57.3)
         out_index = [
             dh.get_index_nearest_element_in_array(mach_values, value)
             for value in const.MACH_output
@@ -1411,9 +1436,10 @@ class Calculation:
         fun_otn_x_TPZ = dh.find_linear_func(otn_S_go, self.otn_x_TPZ)
         xtpz_star = fun_otn_x_TPZ(self.otn_S_go_star)
         xtpp_star = fun_otn_x_TPP(self.otn_S_go_star)
-        print(f"For X ТПЗ = {self.otn_x_TPZ}, X_H = {self.otn_x_H}, D_X_F = {delta_otn_x_f},")
+        print(
+            f"For X ТПЗ = {self.otn_x_TPZ}, X_H = {self.otn_x_H}, D_X_F = {delta_otn_x_f},"
+        )
         print(f"X_F_БГО = {self.otn_x_f_bgo}")
-
 
         if save_plot:
             self.run_plot_stability_control_part(
@@ -1495,21 +1521,34 @@ class Calculation:
         run_plot.plot_ny_p(alts, mach, ny_p, ny_dops)
 
     def plot_plane_data(self):
-        self.altitude = 0 
+        self.altitude = 0
         self.take_constant_stability(const.MACH)
         self.take_constant()
         run_plot = pbud(
             self.altitude, const.MACH, const.TYPE_NAMES, const.PATH_TO_DIRECTORY
         )
-        run_plot.plot_aerodynamcis_data(const.MACH, self.C_y_m, self.a0, self.Cy_dop, self.Cy_a, self.C_x_m,
-                self.A)
+        run_plot.plot_aerodynamcis_data(
+            const.MACH, self.C_y_m, self.a0, self.Cy_dop, self.Cy_a, self.C_x_m, self.A
+        )
 
-        Cx_type_3 = self.df.get_column( "Cx_type3",)
-        Cy_type_3 = self.df.get_column( "Cy_type3",)
-        Cx_type_2 = self.df.get_column( "Cx_type2",)
-        Cy_type_2 = self.df.get_column( "Cy_type2",)
-        Cx_type_1 = self.df.get_column( "Cx_type1",)
-        Cy_type_1 = self.df.get_column( "Cy_type1",)
+        Cx_type_3 = self.df.get_column(
+            "Cx_type3",
+        )
+        Cy_type_3 = self.df.get_column(
+            "Cy_type3",
+        )
+        Cx_type_2 = self.df.get_column(
+            "Cx_type2",
+        )
+        Cy_type_2 = self.df.get_column(
+            "Cy_type2",
+        )
+        Cx_type_1 = self.df.get_column(
+            "Cx_type1",
+        )
+        Cy_type_1 = self.df.get_column(
+            "Cy_type1",
+        )
 
         Cy_alpha_type_3 = self.df.get_column("Cy_a_type3")
         alpha_type_3 = self.df.get_column("alpha_type3")
@@ -1519,13 +1558,13 @@ class Calculation:
         alpha_type_1 = self.df.get_column("alpha_type1")
 
         run_plot.plot_cy_cx(
-                [Cy_type_1, Cx_type_1],
-                [Cy_type_2, Cx_type_2],
-                [Cy_type_3, Cx_type_3],
-                [Cy_alpha_type_1, alpha_type_1],
-                [Cy_alpha_type_2, alpha_type_2],
-                [Cy_alpha_type_3, alpha_type_3],
-                )
+            [Cy_type_1, Cx_type_1],
+            [Cy_type_2, Cx_type_2],
+            [Cy_type_3, Cx_type_3],
+            [Cy_alpha_type_1, alpha_type_1],
+            [Cy_alpha_type_2, alpha_type_2],
+            [Cy_alpha_type_3, alpha_type_3],
+        )
         alts = [0, 2, 4, 6, 8, 10, 11]
         tilda_P_Hs = []
         tilda_Ce_Hs = []
@@ -1552,20 +1591,20 @@ class Calculation:
             self.mz0_bgo,
         )
         plane_data_output = [
-                f"{const.M_OGR:.2f}",
-                f"$\le$ {const.V_I_MAX:.0f}",
-                f"{const.M0:.0f}",
-                f"{const.OTN_M_TSN:.2f}",
-                f"{const.OTN_M_T:.2f}",
-                f"{const.OTN_M_CH:.2f}",
-                f"{const.OTN_P_0:.3f}",
-                f"{const.CE_0:.3f}",
-                f'{const.N_DV:.0f}/{const.N_REV:.0f}',
-                f"{const.PS:.0f}",
-                f"{const.B_A:.3f}",
-                f"{const.OTN_L_GO:.2f}",
-                f"{const.S:.0f}",
-                ]
+            f"{const.M_OGR:.2f}",
+            f"$\le$ {const.V_I_MAX:.0f}",
+            f"{const.M0:.0f}",
+            f"{const.OTN_M_TSN:.2f}",
+            f"{const.OTN_M_T:.2f}",
+            f"{const.OTN_M_CH:.2f}",
+            f"{const.OTN_P_0:.3f}",
+            f"{const.CE_0:.3f}",
+            f"{const.N_DV:.0f}/{const.N_REV:.0f}",
+            f"{const.PS:.0f}",
+            f"{const.B_A:.3f}",
+            f"{const.OTN_L_GO:.2f}",
+            f"{const.S:.0f}",
+        ]
         dh.save_data_tex(
             plane_data_output,
             text_handler.get_row_plane_data_table(),
