@@ -37,7 +37,7 @@ class TextHandler:
                 "plot_text": ["$M_{min_{доп}}=$"],
             },
             "V_y": {
-                "label": "$V_y^* [м/с^2]$",
+                "label": "$V_y^* [м/с]$",
                 "label_in_box": [
                     "$V_y^*(H={:.3f}\, [км])$".format(self.alt),
                     "$V_{y_{max}}^*(H)$",
@@ -635,6 +635,7 @@ class TextHandler:
             ],
             dtype=object,
         )
+
+
 class InvalidNameError(TypeError):
     pass
-

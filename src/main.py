@@ -26,11 +26,13 @@ def main(
 
     H_static, H_practical = find_celling(calc)
 
-    const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
+    #    const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
+    const.H = dh.proper_array(0, H_practical, step_size)
 
     calc.plot_plane_data()
     print(f"H_pr = {H_practical}")
     for alt in const.H:
+        print("=" * 10, alt, "=" * 10)
         if alt <= 11:
             alt = alt.astype(float)
         calc.first_part(alt, save_plot=True, save_data=True)
@@ -199,11 +201,11 @@ class Calculation:
                 M_1_column,
                 M_2_column,
                 [
-                    f"%.0f" % val if i != last_index_in_alt else "-"
+                    f"%.0f" % (val * 3.6) if i != last_index_in_alt else "-"
                     for i, val in enumerate(self.V_3)
                 ],
                 [
-                    f"%.0f" % val if i != last_index_in_alt else "-"
+                    f"%.0f" % (val * 3.6) if i != last_index_in_alt else "-"
                     for i, val in enumerate(self.V_4)
                 ],
                 [
@@ -409,7 +411,6 @@ class Calculation:
                 q_ch_min,
                 V_4,
                 V_3,
-                f"q_km_ch_together_H={round(self.altitude, 4)}",
                 text_side="right",
                 save=run_save,
             )
@@ -422,7 +423,6 @@ class Calculation:
                 q_ch_min,
                 V_4,
                 V_3,
-                f"q_km_ch_together_H={round(self.altitude, 4)}",
                 text_side="left",
                 save=run_save,
             )

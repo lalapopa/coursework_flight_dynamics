@@ -8,7 +8,8 @@ from matplotlib.ticker import ScalarFormatter
 sys.path.insert(0, "..")
 from DataHandler import DataHandler as dh
 
-marker = itertools.cycle((',', '+', '.', 'o', '*')) 
+marker = itertools.cycle((",", "+", ".", "o", "*"))
+
 
 class Plotter:
     def __init__(self, x, save_type, **kwargs):
@@ -18,21 +19,26 @@ class Plotter:
         self.save_type = save_type
         Plotter.setup_matplotlib(self.save_type)
 
-    def get_figure(self, *legend_labels, t_graph=False, add_random_marker=False, size=(6, 4.5)):
+    def get_figure(
+        self, *legend_labels, t_graph=False, add_random_marker=False, size=(6, 4.5)
+    ):
         plt.figure(figsize=size)
-
         for y_value, legend_label in zip(self.y_values, legend_labels):
             if add_random_marker:
                 add_marker = next(marker)
             else:
-                add_marker = ''
+                add_marker = ""
             if t_graph:
-                self.add_plot(y_value, self.x_values, legend_label, marker_style=add_marker)
+                self.add_plot(
+                    y_value, self.x_values, legend_label, marker_style=add_marker
+                )
             else:
-                self.add_plot(self.x_values, y_value, legend_label, marker_style=add_marker)
+                self.add_plot(
+                    self.x_values, y_value, legend_label, marker_style=add_marker
+                )
         plt.grid()
 
-    def add_plot(self, x, y, label, marker_style=''):
+    def add_plot(self, x, y, label, marker_style=""):
         plt.plot(x, y, marker=marker_style, label=label)
 
     def add_labels(self, x_label, y_label):
@@ -48,7 +54,7 @@ class Plotter:
         add_value="x",
         text_location="up",
         marker_style="o",
-        side="left"
+        side="left",
     ):
         plt.plot(x[positions], y[positions], marker_style)
         if add_value == "x":

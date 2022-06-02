@@ -34,7 +34,7 @@ class PlotBuilderUsingData:
                 MmaxP = 0
             else:
                 MminP = 0
-                MmaxP= 0
+                MmaxP = 0
 
         for type_name in self.TYPE_NAMES:
             ploter_P_p_P_r = plot(
@@ -48,7 +48,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("P"),
             )
-            try: 
+            try:
                 plt.ylim([0, P_rasp_int[cross_position][0] * 1.35])
             except IndexError:
                 pass
@@ -76,7 +76,7 @@ class PlotBuilderUsingData:
                         self.pth.get_plot_text("P")[1],
                     )
             except:
-                    pass
+                pass
 
             ploter_P_p_P_r.add_text(
                 MACH_int,
@@ -88,11 +88,8 @@ class PlotBuilderUsingData:
             ploter_P_p_P_r.set_notation(4)
             plt.xlim([0, MACH_int[-1]])
             if save:
-                ploter_P_p_P_r.save_figure(
-                    f"P_H={round(self.altitude, 4)}", self.save_path
-                )
+                ploter_P_p_P_r.save_figure("P_H=%.3f" % (self.altitude), self.save_path)
             ploter_P_p_P_r.close_plot()
-
 
         return MminP, MmaxP, M_1
 
@@ -123,9 +120,7 @@ class PlotBuilderUsingData:
             )
             plotter_C_y.set_legend(loc_code=3)
             if save:
-                plotter_C_y.save_figure(
-                    f"Cy_H={round(self.altitude, 4)}", self.save_path
-                )
+                plotter_C_y.save_figure("Cy_H=%.3f" % (self.altitude), self.save_path)
             plotter_C_y.close_plot()
         return M_min_dop
 
@@ -156,9 +151,7 @@ class PlotBuilderUsingData:
             )
             plotter_Vy.set_legend(loc_code=3)
             if save:
-                plotter_Vy.save_figure(
-                    f"V_y_H={round(self.altitude, 4)}", self.save_path
-                )
+                plotter_Vy.save_figure("V_y_H=%.3f" % (self.altitude), self.save_path)
             plotter_Vy.close_plot()
         return M_2, Vy_max
 
@@ -193,7 +186,7 @@ class PlotBuilderUsingData:
             plotter_q_ch.set_notation(4)
             if save:
                 plotter_q_ch.save_figure(
-                    f"q_ch_H={round(self.altitude, 4)}", self.save_path
+                    "q_ch_H=%.3f" % (self.altitude), self.save_path
                 )
             plotter_q_ch.close_plot()
 
@@ -230,7 +223,7 @@ class PlotBuilderUsingData:
             plotter_q_km.set_legend()
             if save:
                 plotter_q_km.save_figure(
-                    f"q_km_H={round(self.altitude, 4)}", self.save_path
+                    "q_km_H=%.3f" % (self.altitude), self.save_path
                 )
             plotter_q_km.close_plot()
 
@@ -245,7 +238,6 @@ class PlotBuilderUsingData:
         min_q_ch,
         V_min_km,
         V_min_ch,
-        file_name,
         text_side,
         save=True,
     ):
@@ -301,7 +293,9 @@ class PlotBuilderUsingData:
             ax1.legend(h1 + h2, l1 + l2, loc=2)
             #            plotter_q_km.set_notation(2)
             if save:
-                plotter_q.save_figure(file_name, self.save_path)
+                plotter_q.save_figure(
+                    "q_km_ch_together_H=%.3f" % (self.altitude), self.save_path
+                )
             plotter_q.close_plot()
 
     def plot_V_y_H(self, Vy_max, alts, H_pr, H_st, save=True):
@@ -312,11 +306,11 @@ class PlotBuilderUsingData:
             plotter_V_y_H.get_figure(
                 self.pth.get_label_in_box("V_y")[1],
             )
-            x_axis_length = Vy_max[0] + Vy_max[0]*0.1
+            x_axis_length = Vy_max[0] + Vy_max[0] * 0.1
             plt.xlim(0, x_axis_length)
-            plt.ylim(0, alts[-1] + alts[-1]*0.1)
-            plt.plot([0.5, x_axis_length], [H_pr, H_pr], 'k--', linewidth=0.2)
-            plt.plot([0, x_axis_length], [H_st, H_st], 'k--', linewidth=0.2)
+            plt.ylim(0, alts[-1] + alts[-1] * 0.1)
+            plt.plot([0.5, x_axis_length], [H_pr, H_pr], "k--", linewidth=0.2)
+            plt.plot([0, x_axis_length], [H_st, H_st], "k--", linewidth=0.2)
             plt.plot(0.5, H_pr, "o")
             plt.plot(0, H_st, "o")
 
@@ -327,11 +321,13 @@ class PlotBuilderUsingData:
 
             plt.annotate(
                 self.pth.get_plot_text("H")[0] + f"{round(H_st,2)} км",
-                xy=(x_axis_length*0.7, H_st + (H_pr * 0.02)), va='bottom'
+                xy=(x_axis_length * 0.7, H_st + (H_pr * 0.02)),
+                va="bottom",
             )
             plt.annotate(
                 self.pth.get_plot_text("H")[1] + f"{round(H_pr,2)} км",
-                xy=(x_axis_length*0.7, H_pr - (H_pr * 0.02)), va='top'
+                xy=(x_axis_length * 0.7, H_pr - (H_pr * 0.02)),
+                va="top",
             )
 
             if save:
@@ -389,7 +385,7 @@ class PlotBuilderUsingData:
             plt.plot([0, 1], [alts[-1], alts[-1]], "--k", linewidth=1)
 
             plotter_H_M.add_text(
-                [0, M_OGR[0]-((M_OGR[0]-M_max_P[-1])/2)],
+                [0, M_OGR[0] - ((M_OGR[0] - M_max_P[-1]) / 2)],
                 [alts[-1], alts[-1] + (0.02 * alts[-1])],
                 1,
                 str("$H_{ст}= %.2f \ км$" % (alts[-1])),
@@ -420,12 +416,12 @@ class PlotBuilderUsingData:
             q_km_min = np.delete(q_km_min, where_negative_value)
             q_ch_min = np.delete(q_ch_min, where_negative_value)
             alts = np.delete(alts, where_negative_value)
-#        H_int, q_km_min_int, q_ch_min_int = dh.prepare_data_for_plot(
-#            alts, q_km_min, q_ch_min / 1000
-#        )
-        H_int, q_km_min_int, q_ch_min_int = alts, q_km_min, q_ch_min/1000
-        print('whdakwdkaj',q_km_min_int)
-        print('whdakwdkaj',q_ch_min_int)
+        #        H_int, q_km_min_int, q_ch_min_int = dh.prepare_data_for_plot(
+        #            alts, q_km_min, q_ch_min / 1000
+        #        )
+        H_int, q_km_min_int, q_ch_min_int = alts, q_km_min, q_ch_min / 1000
+        print("whdakwdkaj", q_km_min_int)
+        print("whdakwdkaj", q_ch_min_int)
 
         for type_name in self.TYPE_NAMES:
             plotter_q_ch_q_km = plot(
@@ -466,7 +462,6 @@ class PlotBuilderUsingData:
             ax2.set_ylabel("V\\,[м/с]")
             ax2.plot(x_t, V, color="black", label="$V(t)\\,[м/с]$")
             plt.xlim([0, x_t[-1]])
-
 
             h1, l1 = ax1.get_legend_handles_labels()
             h2, l2 = ax2.get_legend_handles_labels()
@@ -534,8 +529,8 @@ class PlotBuilderUsingData:
             plot_cargo = plot(L, save_type=type_name, fun1=m)
             plot_cargo.get_figure("$m_{цн}(L)$")
             plot_cargo.add_labels("$L [км]$", "$m_{цн} [кг]$")
-            plt.xlim([0, max(L)+(0.1*max(L))])
-            plt.ylim([0, max(m)+(0.1*max(m))])
+            plt.xlim([0, max(L) + (0.1 * max(L))])
+            plt.ylim([0, max(m) + (0.1 * max(m))])
 
             if save:
                 plot_cargo.save_figure("m_L_graph", self.save_path)
@@ -561,7 +556,13 @@ class PlotBuilderUsingData:
             plot_turn.set_legend()
             plt.xlim([self.MACH[0], 0.7])
             y_index_transition = dh.get_index_nearest_element_in_array(self.MACH, 0.70)
-            plt.ylim([0, (r[y_index_transition] * (10**-3))+(0.10*r[y_index_transition] * (10**-3))])
+            plt.ylim(
+                [
+                    0,
+                    (r[y_index_transition] * (10**-3))
+                    + (0.10 * r[y_index_transition] * (10**-3)),
+                ]
+            )
 
             if save:
                 plot_turn.save_figure("turn_graph", self.save_path)
@@ -589,7 +590,7 @@ class PlotBuilderUsingData:
 
             plot_center.add_text(
                 [0, 0],
-                [0, xtpp_star - (xtpp_star*0.1)],
+                [0, xtpp_star - (xtpp_star * 0.1)],
                 1,
                 r"$\bar{x}_{тпп}(\bar{S}_{го}^*)=%.3f$" % (xtpp_star),
                 add_value="",
@@ -727,160 +728,174 @@ class PlotBuilderUsingData:
     def plot_aerodynamcis_data(self, mach, Cym, alpha_0, Cy_dop, Cy_alpha, Cx_m, A):
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    mach,
-                    save_type=type_name,
-                    f1=Cym*10, f2=alpha_0*10*10, f3=Cy_dop, f4=Cy_alpha/10, f5=Cx_m*10, f6=A,
-                    )
+                mach,
+                save_type=type_name,
+                f1=Cym * 10,
+                f2=alpha_0 * 10 * 10,
+                f3=Cy_dop,
+                f4=Cy_alpha / 10,
+                f5=Cx_m * 10,
+                f6=A,
+            )
             plotter.get_figure(
-                    r'$C_{y_m} \times 10$',
-                    r'$-\alpha_0\times 10^2$',
-                    r'$C_{y_{доп}}$',
-                    r'$C_{y}^{\alpha} \times 10^{-1}$',
-                    r'$C_{x_{m}} \times 10$',
-                    r'$A$',
-                    )
+                r"$C_{y_m} \times 10$",
+                r"$-\alpha_0\times 10^2$",
+                r"$C_{y_{доп}}$",
+                r"$C_{y}^{\alpha} \times 10^{-1}$",
+                r"$C_{x_{m}} \times 10$",
+                r"$A$",
+            )
             plotter.set_legend()
-            plotter.add_labels("$M$", "") 
+            plotter.add_labels("$M$", "")
             plotter.save_figure("aero_data", self.save_path)
             plotter.close_plot()
 
-    def plot_cy_cx(self, type1_cy_cx, type2_cy_cx, type3_cy_cx, type1_cy_alpha,
-            type2_cy_alpha, type3_cy_alpha):
+    def plot_cy_cx(
+        self,
+        type1_cy_cx,
+        type2_cy_cx,
+        type3_cy_cx,
+        type1_cy_alpha,
+        type2_cy_alpha,
+        type3_cy_alpha,
+    ):
 
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    type1_cy_cx[1]*100,
-                    save_type=type_name,
-                    f1=type1_cy_cx[0],
-                    )
-            plotter.get_figure('1. $C_y(C_x)$') 
-            plt.title("Режимы: 1. Взлетный, 2. Посадочный, \n3. Пробег с выпущенными интерцепторами.")
-            plotter.add_plot(type2_cy_cx[1]*100, type2_cy_cx[0], '2. $C_y(C_x)$')
-            plotter.add_plot(type3_cy_cx[1]*100, type3_cy_cx[0], '3. $C_y(C_x)$')
+                type1_cy_cx[1] * 100,
+                save_type=type_name,
+                f1=type1_cy_cx[0],
+            )
+            plotter.get_figure("1. $C_y(C_x)$")
+            plt.title(
+                "Режимы: 1. Взлетный, 2. Посадочный, \n3. Пробег с выпущенными интерцепторами."
+            )
+            plotter.add_plot(type2_cy_cx[1] * 100, type2_cy_cx[0], "2. $C_y(C_x)$")
+            plotter.add_plot(type3_cy_cx[1] * 100, type3_cy_cx[0], "3. $C_y(C_x)$")
 
-            plotter.add_plot(type1_cy_alpha[1], type1_cy_alpha[0], r'1. $C_y(\alpha)$')
-            plotter.add_plot(type2_cy_alpha[1], type2_cy_alpha[0], r'2. $C_y(\alpha)$')
-            plotter.add_plot(type3_cy_alpha[1], type3_cy_alpha[0], r'3. $C_y(\alpha)$')
+            plotter.add_plot(type1_cy_alpha[1], type1_cy_alpha[0], r"1. $C_y(\alpha)$")
+            plotter.add_plot(type2_cy_alpha[1], type2_cy_alpha[0], r"2. $C_y(\alpha)$")
+            plotter.add_plot(type3_cy_alpha[1], type3_cy_alpha[0], r"3. $C_y(\alpha)$")
             plotter.set_legend()
-            plotter.add_labels(r"$C_{x} \times 10^{2}, \, \alpha \,[град]$", r'$C_y$')
+            plotter.add_labels(r"$C_{x} \times 10^{2}, \, \alpha \,[град]$", r"$C_y$")
             plotter.save_figure("aero_data_cx_cy_alpha", self.save_path)
             plotter.close_plot()
 
     def plot_tilda_Ces(self, tilda_Ce, mach, H):
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    mach,
-                    save_type=type_name,
-                    f1=tilda_Ce[0],
-                    )
-            plotter.get_figure(f'H={H[0]} км')
+                mach,
+                save_type=type_name,
+                f1=tilda_Ce[0],
+            )
+            plotter.get_figure(f"H={H[0]} км")
             for i, alt in enumerate(H[1:]):
-                plotter.add_plot(mach, tilda_Ce[i], f'H={alt} км')
+                plotter.add_plot(mach, tilda_Ce[i], f"H={alt} км")
             plt.xlim([0.2, 1])
             plotter.set_legend()
-            plotter.add_labels(r"$M$", r'$\tilde{Ce}$')
+            plotter.add_labels(r"$M$", r"$\tilde{Ce}$")
             plotter.save_figure("tilda_Ce", self.save_path)
             plotter.close_plot()
 
-    def plot_tilda_P(self, tilda_P , mach, H):
+    def plot_tilda_P(self, tilda_P, mach, H):
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    mach,
-                    save_type=type_name,
-                    f1=tilda_P[0],
-                    )
-            plotter.get_figure(f'H={H[0]} км')
+                mach,
+                save_type=type_name,
+                f1=tilda_P[0],
+            )
+            plotter.get_figure(f"H={H[0]} км")
             for i, alt in enumerate(H[1:]):
-                plotter.add_plot(mach, tilda_P[i], f'H={alt} км')
+                plotter.add_plot(mach, tilda_P[i], f"H={alt} км")
             plt.xlim([mach[0], mach[-1]])
             plotter.set_legend()
-            plotter.add_labels(r"$M$", r'$\tilde{P}$')
+            plotter.add_labels(r"$M$", r"$\tilde{P}$")
             plotter.save_figure("tilda_P", self.save_path)
             plotter.close_plot()
 
     def plot_Ce_dr(self, Cedr, R):
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    R,
-                    save_type=type_name,
-                    f1=Cedr,
-                    )
-            plotter.get_figure(r'$\hat{Ce}_{др}(R)$')
+                R,
+                save_type=type_name,
+                f1=Cedr,
+            )
+            plotter.get_figure(r"$\hat{Ce}_{др}(R)$")
             plotter.set_legend()
             plt.xlim([R[0], R[-1]])
-            plt.ylim([min(Cedr)-(0.25*max(Cedr)), max(Cedr)])
-            plotter.add_labels(r"$\bar{R}$", r'$\hat{Ce}_{др}$')
+            plt.ylim([min(Cedr) - (0.25 * max(Cedr)), max(Cedr)])
+            plotter.add_labels(r"$\bar{R}$", r"$\hat{Ce}_{др}$")
             plotter.save_figure("Ce_dr_R", self.save_path)
             plotter.close_plot()
 
-    def plot_aero_data_elements(self, mach,
-            SSC_K_go,
-            Cy0_bgo,
-            Cya_bgo,
-            Cy_go_a_go,
-            epsilon_a,
-            m_z_bgo_w_z,
-            n_v,
-            otn_x_f_bgo,
-            mz0_bgo,
-            ):
+    def plot_aero_data_elements(
+        self,
+        mach,
+        SSC_K_go,
+        Cy0_bgo,
+        Cya_bgo,
+        Cy_go_a_go,
+        epsilon_a,
+        m_z_bgo_w_z,
+        n_v,
+        otn_x_f_bgo,
+        mz0_bgo,
+    ):
 
         for type_name in self.TYPE_NAMES:
             plotter = plot(
-                    mach,
-                    save_type=type_name,
-                    f0=SSC_K_go,
-                    f1=Cy0_bgo,
-                    f2=Cya_bgo/10,
-                    f3=Cy_go_a_go/10,
-                    f4=epsilon_a,
-                    f5=-m_z_bgo_w_z/10,
-                    f6=n_v,
-                    f7=otn_x_f_bgo,
-                    f8=-mz0_bgo,
-                    )
+                mach,
+                save_type=type_name,
+                f0=SSC_K_go,
+                f1=Cy0_bgo,
+                f2=Cya_bgo / 10,
+                f3=Cy_go_a_go / 10,
+                f4=epsilon_a,
+                f5=-m_z_bgo_w_z / 10,
+                f6=n_v,
+                f7=otn_x_f_bgo,
+                f8=-mz0_bgo,
+            )
             plotter.get_figure(
-                    r'$K_{го}$',
-                    r'$C_{{cy0}_{БГО}}$',
-                    r'$C_{{y}_{БГО}}^\alpha \times 10^{-1}$',
-                    r'$C_{{y}_{БГО}}^{\alpha_{ГО}}\times 10^{-1}$',
-                    r'$\varepsilon_\alpha$',
-                    r'$-m_{z_{БГО}}^{\bar{\omega}_z} \times 10^{-1}$',
-                    r'$n_{в}$',
-                    r'$\bar{x}_{F_{БГО}}$',
-                    r'$-m_{{z0}_{БГО}}$',
-                    )
+                r"$K_{го}$",
+                r"$C_{{cy0}_{БГО}}$",
+                r"$C_{{y}_{БГО}}^\alpha \times 10^{-1}$",
+                r"$C_{{y}_{БГО}}^{\alpha_{ГО}}\times 10^{-1}$",
+                r"$\varepsilon_\alpha$",
+                r"$-m_{z_{БГО}}^{\bar{\omega}_z} \times 10^{-1}$",
+                r"$n_{в}$",
+                r"$\bar{x}_{F_{БГО}}$",
+                r"$-m_{{z0}_{БГО}}$",
+            )
             plotter.set_legend()
             plt.xlim([0.3, mach[-1]])
-            plotter.add_labels(r'$M$', '')
+            plotter.add_labels(r"$M$", "")
             plotter.save_figure("aero_data_elements", self.save_path)
             plotter.close_plot()
 
-    def plot_P_rasp_P_potr_combine(self, 
-            mach, 
-            H,
-            P_rasp_combine, 
-            P_potr_combine):
-        for type_name in self.TYPE_NAMES:
-            plotter = plot(
-                    mach,
-                    save_type=type_name,
-                    f0=np.reshape(P_rasp_combine[0], len(mach)),
-                    f1=np.reshape(P_potr_combine[0], len(mach)),
-                    )
-            plotter.get_figure("$P_{р_{H=0}}$", "$P_{п_{H=0}}$")
-            print(P_rasp_combine[0])
-            for i, alt in enumerate(H[1:]):
-                plt.plot(mach, np.reshape(P_rasp_combine[i+1], len(mach)), label="$P_{р_{H=%.1f}}$"% (alt))
-                plt.plot(mach, np.reshape(P_potr_combine[i+1], len(mach)), label="$P_{п_{H=%.1f}}$"% (alt))
-            plt.legend(ncol=2,  loc='upper right')
-            plt.ylim([50000, 400000])
-            plt.xlim([0, mach[-1]])
-            plotter.add_labels('$M$', '$P\, [H]$')
-            plotter.save_figure("P_rasp_P_potr_combine", self.save_path)
-            plotter.close_plot()
-
-
-
-
-
+    def plot_P_rasp_P_potr_combine(self, mach, H, P_rasp_combine, P_potr_combine):
+        plot.setup_matplotlib("pgf")
+        fig = plt.figure(1)
+        ax = fig.add_subplot(111)
+        for i, alt in enumerate(H):
+            ax.plot(
+                mach,
+                np.reshape(P_rasp_combine[i], len(mach)),
+                label="$P_{р_{H=%.1f}}$" % (alt),
+            )
+            ax.plot(
+                mach,
+                np.reshape(P_potr_combine[i], len(mach)),
+                label="$P_{п_{H=%.1f}}$" % (alt),
+            )
+        plt.xlabel("$M$")
+        plt.ylabel("$P\, [H]$")
+        ax.grid("on")
+        lgd = ax.legend(ncol=2, bbox_to_anchor=(1.04, 1), borderaxespad=0)
+        plt.ylim([50000, 400000])
+        plt.xlim([0, mach[-1]])
+        dh.change_dir(self.save_path + "/PLOTS_PGF")
+        fig.savefig(
+            "P_rasp_P_potr_combine.pgf", bbox_extra_artists=(lgd,), bbox_inches="tight"
+        )
+        dh.change_dir(go_back=True)
