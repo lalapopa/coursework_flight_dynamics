@@ -790,7 +790,7 @@ class PlotBuilderUsingData:
             )
             plotter.get_figure(f"H={H[0]} км")
             for i, alt in enumerate(H[1:]):
-                plotter.add_plot(mach, tilda_Ce[i], f"H={alt} км")
+                plotter.add_plot(mach, tilda_Ce[i + 1], f"H={alt} км")
             plt.xlim([0.2, 1])
             plotter.set_legend()
             plotter.add_labels(r"$M$", r"$\tilde{Ce}$")
@@ -806,7 +806,7 @@ class PlotBuilderUsingData:
             )
             plotter.get_figure(f"H={H[0]} км")
             for i, alt in enumerate(H[1:]):
-                plotter.add_plot(mach, tilda_P[i], f"H={alt} км")
+                plotter.add_plot(mach, tilda_P[i + 1], f"H={alt} км")
             plt.xlim([mach[0], mach[-1]])
             plotter.set_legend()
             plotter.add_labels(r"$M$", r"$\tilde{P}$")
