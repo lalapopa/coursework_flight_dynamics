@@ -26,8 +26,10 @@ def main(
 
     H_static, H_practical = find_celling(calc)
 
-    #    const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
-    const.H = dh.proper_array(0, H_practical, step_size)
+    const.H = np.append(dh.proper_array(0, int(H_practical), step_size), H_static)
+    print(const.H)
+
+    #    const.H = dh.proper_array(0, H_practical, step_size)
 
     calc.plot_plane_data()
     print(f"H_pr = {H_practical}")
