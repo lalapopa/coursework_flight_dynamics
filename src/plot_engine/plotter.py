@@ -13,7 +13,6 @@ marker = itertools.cycle((",", "+", ".", "o", "*"))
 
 class Plotter:
     def __init__(self, x, save_type, **kwargs):
-
         self.x_values = x
         self.y_values = [array for array in kwargs.values()]
         self.save_type = save_type
@@ -91,7 +90,12 @@ class Plotter:
         return
 
     def _render_text(self, text, x_pos, y_pos, side, adding_value=""):
-        plt.annotate(text + adding_value, xy=(x_pos, y_pos), ha=side)
+        plt.annotate(
+            text + adding_value,
+            xy=(x_pos, y_pos),
+            xytext=(x_pos, y_pos),
+            ha=side,
+        )
 
     def two_percent_of_axis(self):
         axes = plt.gca()
@@ -110,6 +114,8 @@ class Plotter:
             self._save_as_png(name)
         if self.save_type == "pgf":
             self._save_as_pgf(name)
+        if self.save_type == "pgf_slides":
+            self._save_as_pgf_slides(name)
         print(f"Saved plot: '{name}.{self.save_type}'")
 
     def _save_as_png(self, name):
@@ -119,7 +125,12 @@ class Plotter:
 
     def _save_as_pgf(self, name):
         dh.change_dir(self.path + "/PLOTS_PGF")
-        plt.savefig("{}.pgf".format(name))
+        plt.savefig("{}.pgf".format(name), bbox_inches="tight")
+        dh.change_dir(go_back=True)
+
+    def _save_as_pgf_slides(self, name):
+        dh.change_dir(self.path + "/PLOTS_PGF_SLIDES")
+        plt.savefig("{}.pgf".format(name), bbox_inches="tight")
         dh.change_dir(go_back=True)
 
     def close_plot(self):
@@ -147,6 +158,32 @@ class Plotter:
                     "font.family": "serif",
                     "text.usetex": True,
                     "pgf.rcfonts": False,
+                    "pgf.preamble": "\n".join(
+                        [
+                            r"\usepackage[warn]{mathtext}",
+                            r"\usepackage[T2A]{fontenc}",
+                            r"\usepackage[utf8]{inputenc}",
+                            r"\usepackage[english,russian]{babel}",
+                        ]
+                    ),
+                }
+            )
+            return True
+
+        if type_name == "pgf_slides":
+            matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+            matplotlib.use("pgf")
+            matplotlib.rcParams.update(
+                {
+                    "figure.figsize": (7.4, 6.2),
+                    "pgf.texsystem": "pdflatex",
+                    "font.family": "serif",
+                    "text.usetex": True,
+                    "pgf.rcfonts": False,
+                    "font.size": 18,
+                    "xtick.labelsize": 18,
+                    "ytick.labelsize": 18,
+                    "axes.labelsize": 18,
                     "pgf.preamble": "\n".join(
                         [
                             r"\usepackage[warn]{mathtext}",

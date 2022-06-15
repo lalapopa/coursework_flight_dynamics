@@ -400,7 +400,7 @@ class PlotBuilderUsingData:
                 self.pth.get_label("M"),
                 self.pth.get_label("H"),
             )
-            plt.legend(loc=2)
+            plt.legend(bbox_to_anchor=(1.04, 0), loc="lower left", borderaxespad=0)
             if save:
                 plotter_H_M.save_figure(f"H_M_flight_area", self.save_path)
                 plotter_H_M.close_plot()
@@ -527,7 +527,7 @@ class PlotBuilderUsingData:
     def plot_cargo(self, L, m, save=True):
         for type_name in self.TYPE_NAMES:
             plot_cargo = plot(L, save_type=type_name, fun1=m)
-            plot_cargo.get_figure("$m_{цн}(L)$")
+            plot_cargo.get_figure("$m_{цн}(L)$", add_random_marker=True)
             plot_cargo.add_labels("$L [км]$", "$m_{цн} [кг]$")
             plt.xlim([0, max(L) + (0.1 * max(L))])
             plt.ylim([0, max(m) + (0.1 * max(m))])
@@ -553,7 +553,10 @@ class PlotBuilderUsingData:
                 "$t_{вир} * 10^{-1}$",
             )
             plot_turn.add_labels("$M$", r"$n_{y},\, \omega [1/c],\, r [м],\, t[с]$")
-            plot_turn.set_legend()
+            plt.legend(
+                bbox_to_anchor=(1.04, 1),
+                borderaxespad=0,
+            )
             plt.xlim([self.MACH[0], 0.7])
             y_index_transition = dh.get_index_nearest_element_in_array(self.MACH, 0.70)
             plt.ylim(
@@ -589,23 +592,25 @@ class PlotBuilderUsingData:
             plt.plot([S_star], [xtpp_star], "ko")
 
             plot_center.add_text(
-                [0, 0],
-                [0, xtpp_star - (xtpp_star * 0.1)],
+                [S_star, S_star],
+                [0, xtpp_star - (xtpp_star * 0.2)],
                 1,
                 r"$\bar{x}_{тпп}(\bar{S}_{го}^*)=%.3f$" % (xtpp_star),
                 add_value="",
                 text_location="down",
                 marker_style="-",
+                side="right",
             )
 
             plot_center.add_text(
-                [0, 0],
-                [0, xtpz_star + xtpp_star * 0.1],
+                [S_star, S_star],
+                [0, xtpz_star + (xtpp_star * 0.1)],
                 1,
                 r"$\bar{x}_{тпз}(\bar{S}_{го}^*)=%.3f$" % (xtpz_star),
                 add_value="",
                 text_location="up",
                 marker_style="-",
+                side="right",
             )
 
             plot_center.add_text(
@@ -614,12 +619,15 @@ class PlotBuilderUsingData:
                 1,
                 r"$\bar{S}_{го}^*=$",
                 add_value="x",
-                text_location="up",
+                text_location="down",
                 marker_style="-",
             )
 
             plot_center.add_labels("$\\bar{S}_{го}$", "$\\bar{x}_{Т}$")
-            plot_center.set_legend()
+            plt.legend(
+                bbox_to_anchor=(1.04, 1),
+                borderaxespad=0,
+            )
             plt.xlim([0, otn_s_go[-1]])
 
             if save:
@@ -634,14 +642,12 @@ class PlotBuilderUsingData:
                 fun1=phi_bal[0],
             )
             plot_phi.get_figure(
-                "$\\delta_{бал}(M,H=%s)$" % (alts[0]),
+                r"$H=%s$ км" % (alts[0]),
             )
             for i in range(1, len(alts)):
-                plot_phi.add_plot(
-                    mach_speeds[i], phi_bal[i], "$\\delta_{бал}(M,H=%s)$" % (alts[i])
-                )
+                plot_phi.add_plot(mach_speeds[i], phi_bal[i], r"$H=%s$ км" % (alts[i]))
             plot_phi.set_legend()
-            plot_phi.add_labels("$M$", "$\\delta_{бал}[град]$")
+            plot_phi.add_labels("$M$", r"$\delta_{бал}\, [град]$")
             if save:
                 plot_phi.save_figure("phi_bal_graph", self.save_path)
             plot_phi.close_plot()
@@ -654,14 +660,12 @@ class PlotBuilderUsingData:
                 fun1=phi_n[0],
             )
             plot_phi_n.get_figure(
-                "$\\delta^{n_y}(M,H=%s)$" % (alts[0]),
+                r"$H=%s$ км" % (alts[0]),
             )
             for i in range(1, len(alts)):
-                plot_phi_n.add_plot(
-                    mach_speeds[i], phi_n[i], "$\\delta^{n_y}(M,H=%s)$" % (alts[i])
-                )
+                plot_phi_n.add_plot(mach_speeds[i], phi_n[i], "H=%s$ км" % (alts[i]))
             plot_phi_n.set_legend()
-            plot_phi_n.add_labels("$M$", "$\\delta^{n_y}[град/ед.перег.]$")
+            plot_phi_n.add_labels("$M$", "$\\delta^{n_y}\,[град/ед.перег.]$")
             if save:
                 plot_phi_n.save_figure("phi_n_graph", self.save_path)
             plot_phi_n.close_plot()
